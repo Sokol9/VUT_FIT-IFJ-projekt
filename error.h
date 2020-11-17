@@ -12,5 +12,5 @@
 #define SemError		7
 #define SemZeroError		9
 #define InternalError		99
-// hi boy
+
 #endif
