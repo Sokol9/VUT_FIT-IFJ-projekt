@@ -1,3 +1,6 @@
+#ifndef PROJECT_H
+#define PROJECT_H
+
 #include <stdio.h>
 
 // maximalni delka identifikatoru
@@ -33,4 +36,4 @@ typedef enum {FORB, REQ, OPT} eolFlag;
 int getToken(tToken *token, eolFlag *ef);
 
 
-
+#endif //PROJECT_H
