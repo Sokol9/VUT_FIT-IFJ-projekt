@@ -12,7 +12,8 @@ void StackPush(sStack* S, grammar word){
 	if (S->top == MAXSTACK-1){
 		printf("stack is full\n"); //chyba 99
 	}else{
-		S->s[S->top++] = word;
+		S->top++;
+		S->s[S->top] = word;
 	}
 }
 

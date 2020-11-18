@@ -12,8 +12,14 @@ int main() {
 	sStack* S = malloc(sizeof(sStack));
 	if (S == NULL)
 		return 1; //chyba 99
+	 
+
+	printf("%d\n",S->top);
 
 	StackInit(S);	
+	
+		
+	printf("%d\n",S->top);
 
 	do {
 

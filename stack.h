@@ -9,6 +9,7 @@ typedef enum {
 		prog, func, id
 	}grammar;
 
+
 typedef struct{
 	int top;
 	grammar s[MAXSTACK];
