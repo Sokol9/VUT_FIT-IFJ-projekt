@@ -1,35 +1,19 @@
 #include "project.h"
-#include "stack.h"
-#include "syntax.h"
-#include <stdlib.h>
+
 int main() {
 
+	tKWPtr keyWords = KWInit();
 	tToken token;
 	int error;
 	int number = 1;
 	eolFlag ef = OPT;
-	char *type[7] = {"OP", "KW", "ID", "INT_L", "FLOAT_L", "STRING_L", "TOKEN_EOF"};
-	sStack* S = malloc(sizeof(sStack));
-	if (S == NULL)
-		return 1; //chyba 99
-	 
-
-	printf("%d\n",S->top);
-
-	StackInit(S);	
-	
-		
-	printf("%d\n",S->top);
-
+	char *type[] = {"UNKNOWN", "ADD", "SUB", "MULT", "DIV", "SEM", "OBR", "CBR", "OB", "CB", "LT", "LTEQ", "GT", "GTEQ", "EQ", "NEQ", "ASG", "DEF", "COM", "KW_ELSE", "KW_FLOAT64", "KW_FOR", "KW_FUNC", "KW_IF", "KW_INT", "KW_PACKAGE", "KW_RETURN", "KW_STRING", "ID", "US", "INT_L", "FLOAT_L", "STRING_L", "TOKEN_EOF"};
 	do {
-
-		error = getToken(&token, &ef);
-
+		error = getToken(&token, &ef, keyWords);
 		printf("Token [%03d]: [%d] [%-10s] [%s]\n", number, error, type[token.type], token.attr);
 		number++;
-		
-		check(StackTop(S), token.type, S);
 
 	} while(token.type != TOKEN_EOF);
+	KWDispose(&keyWords);
 	return 0;
 }
