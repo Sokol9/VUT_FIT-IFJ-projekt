@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdbool.h>
 
 // maximalni delka identifikatoru
 #define MAX_LEN 1024
@@ -72,5 +73,53 @@ void KWDispose(tKWPtr *rootPtr);
 //    ukazatel na eolFlag (v pripade, ze je REQ a funkce EOL precte na vstupu, meni ho na OPT)
 //    ukazatel na tabulku klicovych slov
 int getToken(tToken *token, eolFlag *ef, tKWPtr table);
+
+
+//================================================================
+void rule_prog(tToken *token, tKWPtr keyWords, eolFlag *ef, bool* sucess);
+
+void rule_func_def(tToken *token, tKWPtr keyWords, eolFlag *ef, bool* sucess);
+
+void rule_params(tToken *token, tKWPtr keyWords, eolFlag *ef, bool* sucess);
+
+void rule_return_type(tToken *token, tKWPtr keyWords, eolFlag *ef, bool* sucess);
+
+void rule_body(tToken *token, tKWPtr keyWords, eolFlag *ef, bool* sucess);
+
+void rule_stat(tToken *token, tKWPtr keyWords, eolFlag *ef, bool* sucess);
+
+void rule_term(tToken *token, bool* sucess);
+
+void rule_term_n(tToken *token, tKWPtr keyWords, eolFlag *ef, bool* sucess);
+
+void rule_func_call(tToken *token, tKWPtr keyWords, eolFlag *ef, bool* sucess);
+
+void rule_func_def(tToken *token, tKWPtr keyWords, eolFlag *ef, bool* sucess);
+
+void rule_var_def(tToken *token, tKWPtr keyWords, eolFlag *ef, bool* sucess);
+
+void rule_expr(tToken *token, tKWPtr keyWords, eolFlag *ef, bool* sucess);
+
+void rule_op(tToken *token, bool* sucess);
+void rule_expr_n(tToken *token, tKWPtr keyWords, eolFlag *ef, bool* sucess);
+void rule_id_n(tToken *token, tKWPtr keyWords, eolFlag *ef, bool* sucess);
+void rule_var_asg(tToken *token, tKWPtr keyWords, eolFlag *ef, bool* sucess);
+void rule_values(tToken *token, tKWPtr keyWords, eolFlag *ef, bool* sucess);
+void rule_if(tToken *token, tKWPtr keyWords, eolFlag *ef, bool* sucess);
+void rule_expr_bool(tToken *token, tKWPtr keyWords, eolFlag *ef, bool* sucess);
+void rule_bool_op(tToken *token, tKWPtr keyWords, eolFlag *ef, bool* sucess);
+void rule_else(tToken *token, tKWPtr keyWords, eolFlag *ef, bool* sucess);
+void rule_for(tToken *token, tKWPtr keyWords, eolFlag *ef, bool* sucess);
+void rule_params(tToken *token, tKWPtr keyWords, eolFlag *ef, bool* sucess);
+void rule_params_n(tToken *token, tKWPtr keyWords, eolFlag *ef, bool* sucess);
+void rule_type(tToken *token, tKWPtr keyWords, eolFlag *ef, bool* sucess);
+void rule_type_n(tToken *token, tKWPtr keyWords, eolFlag *ef, bool* sucess);
+void rule_return_type(tToken *token, tKWPtr keyWords, eolFlag *ef, bool* sucess);
+void rule_func_n(tToken *token, tKWPtr keyWords, eolFlag *ef, bool* sucess);
+
+
+
+
+
 
 #endif
