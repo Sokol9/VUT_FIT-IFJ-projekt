@@ -14,3 +14,12 @@
 #define InternalError		99
 
 #endif
+
+int ErrorNum = 0; //actual error num
+
+//Sets global error
+void SetError(int Error){
+  if(ErrorNum == 0){ //if no error was set, sets first error
+    ErrorNum = Error;
+  }
+}
