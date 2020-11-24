@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "project.h"
+#include "syntax.h"
 
 #define DEBUG
 #define getToken getToken(token,  keyWords);

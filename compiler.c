@@ -1,4 +1,5 @@
 #include "project.h"
+#include "syntax.h"
 
 int main() {
 
