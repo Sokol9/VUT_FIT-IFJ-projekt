@@ -3,7 +3,7 @@
 // project.h ... obsahuje rozhrani pro komunikaci v ramci prekladu (vcetne #include <stdio.h>)
 #include "project.h"
 
-int getToken(tToken *token, eolFlag *ef, tKWPtr table) {
+int getToken(tToken *token, tKWPtr table) {
 
 	char buffer[MAX_LEN];
 	char hex[3];
@@ -11,6 +11,8 @@ int getToken(tToken *token, eolFlag *ef, tKWPtr table) {
 		buffer[i]      = '\0';
 		token->attr[i] = '\0';
 	}
+	token->type = UNKNOWN;
+	token->eolFlag = false;
 	int buff_index = 0;
 	int XX = getchar();
 	int ok = 1;
@@ -50,16 +52,9 @@ int getToken(tToken *token, eolFlag *ef, tKWPtr table) {
 			}
 		}
 
-		// kontrola eolFlagu
-		// pro *ef = REQ meni po nacteni EOL na *ef = OPT
-		if(XX == '\n') {
-
-			if(*ef == FORB) {
-				fprintf(stderr, "Chyba: Neocekavane odradkovani\n");
-				return -1;
-			}
-			*ef = OPT;
-		}
+		// nastaveni eolFlagu
+		if(XX == '\n')
+			token->eolFlag = true;
 		XX = getchar();
 	}
 
@@ -78,7 +73,8 @@ int getToken(tToken *token, eolFlag *ef, tKWPtr table) {
 		if(isalnum(XX)|| XX == '_') {
 
 			fprintf(stderr, "Chyba: Prilis dlouhy identifikator! [%s]\n Maximalni delka je %d znaku\n", buffer, MAX_LEN-2);
-			return -2;
+			//SetError(1);
+			return 0;
 		}
 
 		ungetc(XX, stdin);
@@ -106,7 +102,8 @@ int getToken(tToken *token, eolFlag *ef, tKWPtr table) {
 			if(isdigit(XX)) {
 
 				ok = 0;
-				fprintf(stderr, "Chyba: Na zacatku cislicoveho literalu nesmi byt prebytecne nuly, cislo bude prijato jako desitkove\n");
+				fprintf(stderr, "Varovani: Na zacatku cislicoveho literalu nesmi byt prebytecne nuly, cislo bude prijato jako desitkove\n");
+				//SetError(1);
 				while(XX == '0')
 					XX = getchar();
 
@@ -126,7 +123,8 @@ int getToken(tToken *token, eolFlag *ef, tKWPtr table) {
 		if(isdigit(XX)) {
 
 			fprintf(stderr, "Chyba: Prilis dlouhy celociselny literal\n Pouzivejte prosim, rozumne velka cisla\n");
-			return -2;
+			//SetError(1);
+			return 0;
 		}
 
 		// desetinna cast
@@ -149,13 +147,15 @@ int getToken(tToken *token, eolFlag *ef, tKWPtr table) {
 
 				if(isdigit(XX)) {
 					fprintf(stderr, "Chyba: Prilis dlouhe desetinne cislo\n Pouzivejte prosim rozumna cisla\n");
-					return -2;
+					//SetError(1);
+					return 0;
 				}
 
 			// neplatna desetinna cast (ani jedna cislice za teckou, zustava default typ INT_L - tecka neni ani v bufferu)
 			} else {
 
 				fprintf(stderr, "Chyba: Neplatna desetinna cast cisla [%s]\n", buffer);
+				//SetError(1);
 				ok = 0;
 			}
 		}
@@ -194,13 +194,15 @@ int getToken(tToken *token, eolFlag *ef, tKWPtr table) {
 				if(isdigit(XX)) {
 
 					fprintf(stderr, "Chyba: Prilis dlouhy exponent\n Pouzivejte prosim rozumna cisla\n");
-					return -2;
+					//SetError(1);
+					return 0;
 				}
 
 			// neplatny exponent (ani jedna cislice za e/E (+/-), zustava bud INT_L nebo FLOAT_L podle desetinne casti, exponentova cast neni v bufferu)
 			} else {
 
 				fprintf(stderr, "Chyba: Neplatna exponentova cast cisla [%s]\n", buffer);
+				//SetError(1);
 				ok = 0;
 			}
 		}
@@ -274,12 +276,14 @@ int getToken(tToken *token, eolFlag *ef, tKWPtr table) {
 								ungetc(XX, stdin);
 								XX = '\0';
 								fprintf(stderr, "Chyba: Neplatna hexadecimalni cislice v escape sekvenci\n");
+								//SetError(1);
 								ok = 0;
 							}
 							break;
 
 						default:
 							fprintf(stderr, "Chyba: Nespravna escape sekvence %c%c \n", '\\', (char)XX);
+							//SetError(1);
 							ok = 0;
 							break;
 					}
@@ -291,6 +295,7 @@ int getToken(tToken *token, eolFlag *ef, tKWPtr table) {
 				} else {
 
 					fprintf(stderr, "Chyba: Literal na vstupu obsahoval neplatny znak\n");
+					//SetError(1);
 					ok = 0;
 				}
 
@@ -302,8 +307,9 @@ int getToken(tToken *token, eolFlag *ef, tKWPtr table) {
 				// pri prekroceni velikosti bufferu vrati na stdin '"' pro cteni dalsi casti literalu
 				token->attr[MAX_LEN-2] = XX;
 				ungetc('"', stdin);
-				// fprintf(stderr, "Chyba: Prilis dlouhy retezcovy literal\n");
-				return -2;
+				fprintf(stderr, "Chyba: Prilis dlouhy retezcovy literal\n");
+				//SetError(1);
+				return 0;
 			}
 
 			return ok;
@@ -343,6 +349,7 @@ int getToken(tToken *token, eolFlag *ef, tKWPtr table) {
 			}
 			ungetc(XX, stdin);
 			fprintf(stderr, "Chyba: Neplatny operator [!]\n");
+			//SetError(1);
 			return 0;
 		case ':':
 			XX = getchar();
@@ -352,6 +359,7 @@ int getToken(tToken *token, eolFlag *ef, tKWPtr table) {
 			}
 			ungetc(XX, stdin);
 			fprintf(stderr, "Chyba: Neplatny operator [:]\n");
+			//SetError(1);
 			return 0;
 		case '=':
 			XX = getchar();
@@ -386,6 +394,7 @@ int getToken(tToken *token, eolFlag *ef, tKWPtr table) {
 		default:
 			token->type = UNKNOWN;
 			fprintf(stderr, "Chyba: Neplatny znak [%c]\n", (char)XX);
+			//SetError(1);
 			return 0;
 	}
 }
