@@ -4,7 +4,8 @@
 
 #define DEBUG
 #define getToken getToken(token,  keyWords);
-
+// needEol kontroluje, ci pred aktualne nacitanim tokenom bol EOL, vracia chybu, ak nebol
+#define needEol if (!token->eolFlag) if (token->type != TOKEN_EOF) *sucess = 0;
 
 #ifdef DEBUG
 	#define print_debug(fsm) \
@@ -35,14 +36,17 @@ void rule_prog(tToken *token, tKWPtr keyWords,  bool* sucess){
 	if (token->type == ID && !strcmp(token->attr, "main" )){
     	print_debug("valid ID-main")
 		getToken
+		needEol
 	}else{
 		*sucess = 0;
 	}
 	/**********END OF PACKEGE MAIN *************/
-
+	
+	rule_func_def(token, keyWords, sucess);
+	needEol
+ 	
 	rule_func_n(token, keyWords,  sucess);
 	getToken
-	
 	/*****************EOF***********************/
 	if (token->type == TOKEN_EOF){
 		print_debug("valid TOKEN_EOF")
@@ -104,6 +108,7 @@ void rule_func_def(tToken *token, tKWPtr keyWords, bool* sucess){
 	if (token->type == OB){
 		print_debug("valid {")
 		getToken
+		needEol
     }else{
         *sucess = 0;
     }
@@ -114,6 +119,7 @@ void rule_func_def(tToken *token, tKWPtr keyWords, bool* sucess){
 	
 	if (token->type == CB){
 		print_debug("valid }")
+		needEol
 		getToken
 	}else{
 		*sucess = 0;
@@ -126,6 +132,7 @@ void rule_func_def(tToken *token, tKWPtr keyWords, bool* sucess){
 void rule_func_n(tToken *token, tKWPtr keyWords, bool* sucess){
 	if (token->type != TOKEN_EOF){
 		rule_func_def(token, keyWords,  sucess);
+		needEol
 		rule_func_n(token, keyWords,  sucess);
 	}
 }
@@ -138,6 +145,7 @@ void rule_func_n(tToken *token, tKWPtr keyWords, bool* sucess){
 void rule_body(tToken *token, tKWPtr keyWords, bool* sucess){
 	if (token->type != CB){
 		rule_stat(token, keyWords,  sucess);
+		needEol
 		rule_body(token, keyWords,  sucess);
 	}
 }
@@ -362,7 +370,9 @@ void rule_if(tToken *token, tKWPtr keyWords, bool* sucess){
 	if (token->type == OB){
 		print_debug("valid {")
 		getToken
+		needEol
 		rule_body(token,keyWords,sucess);
+		needEol
 		if (token->type == CB){
 			print_debug("valid }")
 			getToken
@@ -391,7 +401,9 @@ void rule_expr_bool(tToken *token, tKWPtr keyWords, bool* sucess){
 		if ( token->type == OB){
 			print_debug("valid {")
 			getToken
+			needEol
 			rule_body(token,keyWords,sucess);
+			needEol
 			if (token->type == CB){
 				print_debug("valid }")
 				getToken
@@ -465,8 +477,9 @@ void rule_for(tToken *token, tKWPtr keyWords, bool* sucess){
 	if (token->type == OB){
 		print_debug("valid {")
 		getToken
+		needEol
 		rule_body(token,keyWords,sucess);
-		
+		needEol
 	}else{
 		*sucess = 0;
 	}
