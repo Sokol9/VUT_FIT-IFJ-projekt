@@ -2,12 +2,12 @@
 
 static int ErrorNum = 0; //actual error num
 
-void SetError(int Error){
-  if(ErrorNum == 0){ //if no error was set, sets first error
+void setError(int Error){
+  if(!ErrorNum){ //if no error was set, sets first error
     ErrorNum = Error;
   }
 }
 
-int GetError(){
+int getError(){
     return ErrorNum;
 }

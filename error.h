@@ -16,5 +16,5 @@
 #endif
 
 //Sets global error
-void SetError(int Error);
-int GetError();
+void setError(int Error);
+int getError();
