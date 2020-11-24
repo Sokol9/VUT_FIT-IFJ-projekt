@@ -25,16 +25,12 @@ typedef enum {UNKNOWN=0, ADD, SUB, MULT, DIV, SEM, OBR, CBR, OB, CB, LT, LTEQ, G
 // struktura tToken
 // typ urcen lexikalni analyzou, podle typu je rizena syntakticka analyza
 // atribut je precteny retezec ze vstupu
+// eolFlag urcuje, zda byl pri nacitani znaku zaznamenan konec radku
 typedef struct{
 	tokenType type;
 	char attr[MAX_LEN];
+	bool eolFlag;
 }tToken;
-
-// vycet kriterii pro vyskyt EOLu pri lexikalni analyze
-// FORB ... EOL je zakazan
-// REQ  ... EOL je vyzadovan
-// OPT  ... EOL je volitelny
-typedef enum {FORB, REQ, OPT} eolFlag;
 
 //================================================================
 // binarni vyhledavaci strom pro klicova slova (tabulka klicovych slov)
@@ -65,15 +61,11 @@ void KWDispose(tKWPtr *rootPtr);
 // funkce pro vraceni tokenu na pozadani syntaktickeho analyzatoru
 // funkce vraci chybovou hodnotu nasledovne:
 //    1  ... vse v poradku
-//    0  ... lexikalni chyba, ale token je "validni" v ramci moznosti
-//    -1 ... token nevalidni, neocekavane odradkovani
-//    -2 ... token nevalidni, prilis dlouhy identifikator
+//    0  ... lexikalni chyba
 // parametry:
 //    ukazatel na token, pres ktery funkce token plni hodnotami
-//    ukazatel na eolFlag (v pripade, ze je REQ a funkce EOL precte na vstupu, meni ho na OPT)
 //    ukazatel na tabulku klicovych slov
-int getToken(tToken *token, eolFlag *ef, tKWPtr table);
-
+int getToken(tToken *token, tKWPtr table);
 
 //================================================================
 void rule_prog(tToken *token, tKWPtr keyWords, eolFlag *ef, bool* sucess);
