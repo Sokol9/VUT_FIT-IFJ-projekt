@@ -2,16 +2,16 @@
 #define _ERROR_H
 
 //Error codes
-#define ResultOK		0
-#define LexError		1
-#define SynError		2
-#define SemDefError		3
-#define SemTypeDefError		4
-#define SemTypeError		5
-#define SemFuncError		6
-#define SemError		7
-#define SemZeroError		9
-#define InternalError		99
+#define RESULTOK		0
+#define LEXERROR		1
+#define SYNERROR		2
+#define SEMDEFERROR		3
+#define SEMTYPEDEFERROR		4
+#define SEMTYPEERROR		5
+#define SEMFUNCERROR		6
+#define SEMERROR		7
+#define SEMZEROERROR		9
+#define INTERNALERROR		99
 
 #endif
 
