@@ -17,3 +17,4 @@
 
 //Sets global error
 void SetError(int Error);
+int GetError();
