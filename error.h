@@ -6,7 +6,7 @@
 #define LEX_ERROR		1
 #define SYN_ERROR		2
 #define SEM_DEF_ERROR		3
-#define SEM_TYPEDEF_ERROR		4
+#define SEM_TYPEDEF_ERROR	4
 #define SEM_TYPE_ERROR		5
 #define SEM_FUNC_ERROR		6
 #define SEM_ERROR		7
