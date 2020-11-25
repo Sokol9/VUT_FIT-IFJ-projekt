@@ -13,8 +13,9 @@
 #define SEM_ZERO_ERROR		9
 #define INTERNAL_ERROR		99
 
-#endif
 
 //Sets global error
 void setError(int Error);
 int getError();
+
+#endif //ERROR_H
