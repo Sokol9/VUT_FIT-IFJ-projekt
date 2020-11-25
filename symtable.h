@@ -24,12 +24,13 @@ typedef struct funcRet{
 
 // struktura pro zaznam o funkci
 // prvek globalni tabulky symbolu realizovane binarnim vyhledavacim stromem
-typedef struct GlobalRec{
+typedef struct globalRec{
+	bool randomPCount;
 	tParamPtr params;
 	tRetPtr returns;
 	bool defined;
-	struct GlobalRec *LPtr;
-	struct GlobalRec *RPtr;
+	struct globalRec *LPtr;
+	struct globalRec *RPtr;
 	char id[];
 }*tGRPtr;
 
@@ -52,9 +53,8 @@ void GTDefine(tGRPtr ptr);
 // pridani zaznamu do globalni tabulky
 //    vraci ukazatel na nove vytvorenou polozku nebo NULL pri neuspechu
 //    pomoci parametru define je mozne urcit, zda jde o definici funkce
-//    nachazi-li se jiz v tabulce zaznam s priznakem defined=true dochazi k chybe redefinice funkce
-//    toto vraci do promenne redefined jako hodnotu true
-tGRPtr GTInsert(tGRPtr *rootPtr, char *key, bool define, bool *redefined);
+//    nachazi-li se jiz v tabulce zaznam s priznakem defined=true a volam funkci s define=true dochazi k chybe redefinice funkce
+tGRPtr GTInsert(tGRPtr *rootPtr, char *key, bool define);
 
 // prida novy parametr do seznamu parametru funkce
 //    ptr je ukazatel na dany zaznam o funkci
@@ -72,30 +72,42 @@ void GTDispose(tGRPtr *rootPtr);
 //
 // struktura pro zaznam o promenne
 // prvek lokalni tabulky symbolu realizovane binarnim vyhledavacim stromem
-typedef struct LocalRec{
+typedef struct localRec{
 	varType type;
 	//bool used;
-	struct LocalRec *LPtr;
-	struct LocalRec *RPtr;
+	struct localRec *LPtr;
+	struct localRec *RPtr;
 	char id[];
 }*tLRPtr;
 
 // linearni seznam s jednotlivymi lokalnimi tabulkami
 //    vzajemne provazane lokalni ramce
-typedef struct LocalFrame{
+typedef struct localFrame{
 	tLRPtr rootPtr;
-	struct LocalFrame *upper;
+	struct localFrame *upper;
 }*tLFPtr;
 
 // vytvoreni a inicializace nove urovne lokalni tabulky symbolu
+//    pokud jde o ramec funkce, seznam ramcu zatim neexistuje, volejte tedy funkci s upper=NULL
 //    vraci ukazatel na novy zacatek seznamu retezenych ramcu
 //    parametrem je ukazatel na dosavadni zacatek seznamu
-tLFPtr LTCreateFrame(tLFPtr upper);
+//    je-li func != NULL vklada do noveho ramce i parametry funkce
+tLFPtr LTCreateFrame(tLFPtr upper, tGRPtr func);
 
 // vyhledani zaznamu
-//    parametr searchAll udava, zda se ma prochazet pouze dany ramec nebo vsechny urovne lokalnich tabulek symbolu
+//    pomocna funkce pro LTSearch
+//    rekurzivni implementace prohledani BVS
 //    vraci ukazatel na zaznam o promenne nebo NULL pokud zaznam neexistuje
-tLRPtr LTLookUp(tLFPtr framePtr, char *key, bool searchAll);
+tLRPtr LTLookUp(tLRPtr framePtr, char *key);
+
+// prohledani ramce/ramcu lokalni tabulky symbolu
+//    parametr searchAll udava, zda se ma hledat pouze v nejzanorenejsim ramci nebo ve vsech
+tLRPtr LTSearch(tLFPtr framePtr, char *key, bool searchAll);
+
+// pomocna funkce pro LTInsert, vlozeni zaznamu do stromu
+//   vraci ukazatel na nove vytvoreny zaznam nebo NULL, pokud se ho nepodarilo vytvorit
+//   pokus o vlozeni zaznamu s identifikatorem, ktery se jiz ve stromu nachazi, vyusti v chybu redefinice promenne
+tLRPtr LTInsertToTree(tLRPtr *rootPtr, char *key);
 
 // vlozeni zaznamu do daneho ramce
 //    vraci ukazatel na zaznam o promenne
@@ -104,6 +116,9 @@ tLRPtr LTInsert(tLFPtr framePtr, char *key);
 // zmeni typ promenne, na jejiz zaznam ukazuje ptr
 //    pokud neni dosavadni typ promenne UNKNOWN_T nastava chyba
 int LTAddType(tLRPtr ptr, varType type);
+
+// pomocna funkce provadejici smazani binarniho stromu
+void LTDeleteTree (tLRPtr *rootPtr);
 
 // zrusi nejvice zanoreny ramec
 //    vraci ukazatel na ramec o uroven vyse, NULL pokud byl zrusen nejvrchnejsi ramec
