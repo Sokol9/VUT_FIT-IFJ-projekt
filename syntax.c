@@ -1,20 +1,35 @@
 #include <stdio.h>
 #include "project.h"
 #include "syntax.h"
+#include "error.h"
 
 #define DEBUG
 #define GET_TOKEN getToken(token,  keyWords);
 
 // EOL_REQUIRED kontroluje, ci pred aktualne nacitanim tokenom bol EOL, vracia chybu, ak nebol
-#define EOL_REQUIRED if (!token->eolFlag) if (token->type != TOKEN_EOF) *sucess = 0;
+#define EOL_REQUIRED if (!token->eolFlag) if (token->type != TOKEN_EOF) setError(SYN_ERROR);
 
 //  EOL_FORBID zakazuje odriadkovanie, v pripade porusenia, nastavy error
-#define EOL_FORBID if (token->eolFlag) *sucess = 0;
+#define EOL_FORBID if (token->eolFlag) setError(SYN_ERROR);
+
+// v pripade chyby sa zastav=y kontrola tokenov, az po miesto CHECK_POINT, kde vieme aky token
+// nasleduje, a vsetky ostatne zahadzujeme, pripadne koncime na EOF
+#define CHECK_POINT(tp,fsm) \
+	if (!*sucess){\
+		while (token->tp != fsm && token->type !=TOKEN_EOF){\
+			GET_TOKEN\
+			printf("--token:%d\n",*sucess);\
+		}\
+		if(token->tp == fsm) *sucess = 1; else return;\
+	}
 
 #ifdef DEBUG
 	#define print_debug(fsm) \
 			 printf("%s, sucess: %d - line:%d - %s\n",\
 			 fsm, *sucess,__LINE__,  __func__);
+	#define printd(fsm) \
+			printf("INVALID TOKEN, i needed %s, sucess: %d - line:%d -%s\n",\
+			fsm, *sucess, __LINE__, __func__);
 #else
 	#define print_debug(fsm)
 #endif
@@ -32,23 +47,30 @@
 // <func_n> - epsilon
 void rule_prog(tToken *token, tKWPtr keyWords,  bool* sucess){
 	/*************PACKAGE MAIN*****************/
-	GET_TOKEN
-	if (token->type == KW_PACKAGE){
-		print_debug("valid KW_PACKAGE")
-	}else{
-		*sucess = 0;
-	}
-
-
-	GET_TOKEN
-	EOL_FORBID			
-	if (token->type == ID && !strcmp(token->attr, "main" )){
-    	print_debug("valid ID-main")
+	do{
 		GET_TOKEN
-		EOL_REQUIRED
-	}else{
-		*sucess = 0;
-	}
+		if (token->type == KW_PACKAGE){
+			print_debug("valid KW_PACKAGE")
+		}else{
+			*sucess = 0;
+			printd("KW_PACKAGE")	
+			break;
+		}
+
+		if (*sucess){
+			GET_TOKEN
+			EOL_FORBID			
+			if (token->type == ID && !strcmp(token->attr, "main" )){
+				print_debug("valid ID-main")
+				GET_TOKEN
+				EOL_REQUIRED
+			}else{
+				*sucess = 0;
+				printd("main")
+				break;
+			}
+		}
+	}while(0);
 	/**********END OF PACKEGE MAIN *************/
 	
 	rule_func_def(token, keyWords, sucess);
@@ -73,63 +95,81 @@ void rule_prog(tToken *token, tKWPtr keyWords,  bool* sucess){
 // <params> - epsilon
 // <return_types> - epsilon
 void rule_func_def(tToken *token, tKWPtr keyWords, bool* sucess){
-	if (token->type == KW_FUNC){
-		print_debug("valid KW_FUNC") 
-	}else{ 
-		*sucess = 0;
-	}
+	CHECK_POINT(type,KW_FUNC)	
+	do{
+		if (!*sucess) break;
 	
-	GET_TOKEN
-	EOL_FORBID
-	if (token->type == ID){
-        if (!strcmp(token->attr,"main")){
-			print_debug("valid ID-main") 
-		}else{
-			print_debug("valid ID")
+		if (token->type == KW_FUNC){
+			print_debug("valid KW_FUNC") 
+		}else{ 
+			*sucess = 0;
+			printd("KW_FUNC")
+			break;
 		}
-	}else{
-		*sucess = 0;
-	}
 	
-	GET_TOKEN
-	EOL_FORBID
-	if (token->type == OBR){
-		print_debug("valid (")
-	}else{
-		*sucess = 0;
-	}
-
+		GET_TOKEN
+		EOL_FORBID
+		if (token->type == ID){
+    	    if (!strcmp(token->attr,"main")){
+				print_debug("valid ID-main") 
+			}else{
+				print_debug("valid ID")
+			}
+		}else{
+			*sucess = 0;
+			printd("ID or main")
+			break;
+		}
+			
+		GET_TOKEN
+		EOL_FORBID
+		if (token->type == OBR){
+			print_debug("valid (")
+		}else{
+			*sucess = 0;
+			printd("(")
+			break;
+		}
 	
-	GET_TOKEN
-	//EOL_OPTIONAL -- nie som si isty
-	rule_params(token, keyWords,  sucess);
+		GET_TOKEN
+		//EOL_OPTIONAL -- nie som si isty
+		rule_params(token, keyWords,  sucess);
+		if (!*sucess) break;
 
-	EOL_FORBID
-	if (token->type == CBR){
-		print_debug("valid )")
-	}else{
-		*sucess = 0;
-	}
+		EOL_FORBID
+		if (token->type == CBR){
+			print_debug("valid )")
+		}else{
+			*sucess = 0;
+		}
 
-	GET_TOKEN
-	EOL_FORBID
-	rule_return_type(token, keyWords,  sucess);
-	
+		GET_TOKEN
+		EOL_FORBID
+		rule_return_type(token, keyWords,  sucess);
+	}while(0);
+
+	CHECK_POINT(type,OB)
+
 	if (token->type == OB){
 		print_debug("valid {")
     }else{
         *sucess = 0;
+		printd("{")
+		return;
     }
 
 	GET_TOKEN
 	EOL_REQUIRED
 	rule_body(token, keyWords,  sucess);
+	if (!*sucess) return;
 	
 	if (token->type == CB){
 		print_debug("valid }")
 		EOL_REQUIRED
 	}else{
 		*sucess = 0;
+		printd("}")
+		return;
 	}
 
 	GET_TOKEN
@@ -139,6 +179,7 @@ void rule_func_def(tToken *token, tKWPtr keyWords, bool* sucess){
 //
 //<func_n> - epsilon
 void rule_func_n(tToken *token, tKWPtr keyWords, bool* sucess){
+	CHECK_POINT(type,KW_FUNC)
 	if (token->type != TOKEN_EOF){
 		rule_func_def(token, keyWords,  sucess);
 
@@ -155,6 +196,10 @@ void rule_func_n(tToken *token, tKWPtr keyWords, bool* sucess){
 void rule_body(tToken *token, tKWPtr keyWords, bool* sucess){
 	if (token->type != CB){
 		rule_stat(token, keyWords,  sucess);
+
+		CHECK_POINT(eolFlag, true)
+		//podmienka, ktora odchyti chybajucu zatvorku
+		if (token->type == KW_FUNC || token->type == TOKEN_EOF) return;
 
 		EOL_REQUIRED
 		rule_body(token, keyWords,  sucess);
@@ -209,6 +254,7 @@ void rule_stat(tToken *token, tKWPtr keyWords, bool* sucess){
 
 		}else{
 			*sucess = 0;
+			printd("need valid operand")	
 		}
 
 	}else if(token->type == KW_RETURN){
@@ -221,9 +267,15 @@ void rule_stat(tToken *token, tKWPtr keyWords, bool* sucess){
 		if (!token->eolFlag){
 	
 			rule_expr(token, keyWords,  sucess);
+			if (!*sucess) return;
 		
 			rule_expr_n(token, keyWords,  sucess);
 		}
+	}else if(token->type != OB){
+		//follow(<stat>) == OB (})
+		//valid epsilon
+		*sucess = 0;
+		printd("}")
 	}
 }
 
@@ -235,16 +287,20 @@ void rule_func_call(tToken *token, tKWPtr keyWords, bool* sucess){
 	if (token->type != CBR){
 
 		rule_term(token,sucess);
+		if (!*sucess) return;
 
 		GET_TOKEN
 		EOL_FORBID
 		rule_term_n(token,keyWords,sucess);
+		if (!*sucess) return;
 	}
 	if (token->type == CBR){
 		print_debug("valid )")
 
 	}else{
 		*sucess = 0;
+		printd(")")
+		if (!*sucess) return;
 	}
 	GET_TOKEN
 }
@@ -264,6 +320,7 @@ void rule_term(tToken *token,  bool* sucess){
 		print_debug("valid STRING_L")
 	}else{
 		*sucess = 0;
+		printd("ID or some value")
 	}
 }
 
@@ -276,10 +333,12 @@ void rule_term_n(tToken *token, tKWPtr keyWords, bool* sucess){
 
 		GET_TOKEN
 		rule_term(token,sucess);
+		if (!*sucess) return;
 
 		GET_TOKEN
 		EOL_FORBID
 		rule_term_n(token,keyWords,sucess);
+		if (!*sucess) return;
 	}
 }
 
@@ -289,6 +348,7 @@ void rule_var_def(tToken *token, tKWPtr keyWords, bool* sucess){
 	GET_TOKEN
 	//EOL_OPTIONAL - nie som si tym isty
 	rule_expr(token,keyWords,sucess);	
+	if (!*sucess) return;
 }
 
 //<expr> - <expr> <op> <expr>
@@ -300,6 +360,7 @@ void rule_expr(tToken *token, tKWPtr keyWords, bool* sucess){
 
 		GET_TOKEN
 		rule_expr(token,keyWords,sucess);
+		if (!*sucess) return;
 		
 		if (token->type == CBR){
 			print_debug("valid )")
@@ -307,9 +368,13 @@ void rule_expr(tToken *token, tKWPtr keyWords, bool* sucess){
 
 		}else{
 			*sucess = 0;
+			printd(")")
+			if (!*sucess) return;
+			
 		}
 	}else{ 
 		rule_term(token,sucess);
+		if (!*sucess) return;
 		
 		GET_TOKEN
 	}
@@ -319,9 +384,11 @@ void rule_expr(tToken *token, tKWPtr keyWords, bool* sucess){
 			 token->type == DIV){
 		EOL_FORBID
 		rule_op(token, sucess);
+		if (!*sucess) return;
 
 		GET_TOKEN
 		rule_expr(token,keyWords,sucess);
+		if (!*sucess) return;
 		}
 }
 
@@ -340,6 +407,7 @@ void rule_op(tToken *token, bool* sucess){
 		print_debug("valid /")
 	}else{
 		*sucess = 0;
+		printd("operand")
 	}
 }
 	
@@ -347,16 +415,20 @@ void rule_op(tToken *token, bool* sucess){
 void rule_var_asg(tToken *token, tKWPtr keyWords, bool* sucess){
 
 	rule_id_n(token,keyWords,sucess);
+	if (!*sucess) return;
 
 	if (token->type == ASG){
 	print_debug("valid =")	
 
 	}else{
 		*sucess = 0;
+		printd("=")
+		if (!*sucess) return;
 	}
 
 	GET_TOKEN
 	rule_values(token,keyWords,sucess);
+	if (!*sucess) return;
 }
 
 //<values> - <expr> <expr_n>
@@ -367,8 +439,10 @@ void rule_values(tToken *token, tKWPtr keyWords, bool* sucess){
 			token->type == STRING_L){
 
 		rule_expr(token,keyWords,sucess);
+		if (!*sucess) return;
 
 		rule_expr_n(token,keyWords,sucess);
+		if (!*sucess) return;
 
 	}else if (token->type == ID){
 		print_debug("valid ID")
@@ -380,19 +454,27 @@ void rule_values(tToken *token, tKWPtr keyWords, bool* sucess){
 
 			GET_TOKEN
 			rule_func_call(token,keyWords,sucess);
+			if (!*sucess) return;
 
 		}else if(token->type == ADD || token->type == SUB || token->type == MULT || \
 				token->type == DIV){
 
 			rule_op(token, sucess);
+			if (!*sucess) return;
 
 			GET_TOKEN
 			rule_expr(token,keyWords,sucess);
+			if (!*sucess) return;
 			
 			rule_expr_n(token,keyWords,sucess);
+			if (!*sucess) return;
 		}else{
 			*sucess = 0;
+			printd("func call or expr")
 		}
+	}else{
+		*sucess = 0;
+		printd("some value")
 	}
 }
 
@@ -405,8 +487,10 @@ void rule_expr_n(tToken *token, tKWPtr keyWords, bool* sucess){
 
 		GET_TOKEN
 		rule_expr(token,keyWords,sucess);
+		if (!*sucess) return;
 
         rule_expr_n(token,keyWords,sucess);
+		if (!*sucess) return;
 	}
 }
 
@@ -425,8 +509,11 @@ void rule_id_n(tToken *token, tKWPtr keyWords, bool* sucess){
 			GET_TOKEN
 
 			rule_id_n(token,keyWords,sucess);
+			if (!*sucess) return;
 		}else{
 			*sucess = 0;
+			printd("ID")
+			if (!*sucess) return;
 		}
 	}
 }
@@ -437,13 +524,19 @@ void rule_id_n(tToken *token, tKWPtr keyWords, bool* sucess){
 // <body> - epsilon
 // <else> - epsilon
 void rule_if(tToken *token, tKWPtr keyWords, bool* sucess){
-	GET_TOKEN
-	EOL_FORBID
-	rule_expr(token,keyWords,sucess);
+	do{
+		GET_TOKEN
+		EOL_FORBID
+		rule_expr(token,keyWords,sucess);
+		if (!*sucess) break;
 
-	if (token->type != OB){
-		rule_expr_bool(token,keyWords,sucess);
-	}
+		if (token->type != OB){
+			rule_expr_bool(token,keyWords,sucess);
+			if (!*sucess) break;
+		}
+	}while(0);
+
+	CHECK_POINT(type,OB)
 
 	if (token->type == OB){
 		print_debug("valid {")
@@ -451,6 +544,7 @@ void rule_if(tToken *token, tKWPtr keyWords, bool* sucess){
 		GET_TOKEN
 		EOL_REQUIRED
 		rule_body(token,keyWords,sucess);
+		if (!*sucess) return;
 
 		EOL_REQUIRED
 		if (token->type == CB){
@@ -459,9 +553,13 @@ void rule_if(tToken *token, tKWPtr keyWords, bool* sucess){
 			GET_TOKEN
 		}else{
 			*sucess = 0;
+			printd("}")
+			if (!*sucess) return;
 		}
 	}else{
 		*sucess = 0;
+		printd("{")
+		if (!*sucess) return;
 	}
 
 	rule_else(token,keyWords,sucess);
@@ -472,6 +570,7 @@ void rule_if(tToken *token, tKWPtr keyWords, bool* sucess){
 void rule_expr_bool(tToken *token, tKWPtr keyWords, bool* sucess){
 	EOL_FORBID
 	rule_bool_op(token,keyWords,sucess);
+	if (!*sucess) return;
 
 	rule_expr(token,keyWords,sucess);	
 }
@@ -494,6 +593,7 @@ void rule_expr_bool(tToken *token, tKWPtr keyWords, bool* sucess){
 			GET_TOKEN
 			EOL_REQUIRED
 			rule_body(token,keyWords,sucess);
+			if (!*sucess) return;
 
 			EOL_REQUIRED
 			if (token->type == CB){
@@ -502,9 +602,11 @@ void rule_expr_bool(tToken *token, tKWPtr keyWords, bool* sucess){
 				GET_TOKEN
 			}else{
 				*sucess = 0;
+				printd("}")
 			}
 		}else{
 			*sucess = 0;
+			printd("{")
 		}
 	}
 }
@@ -531,6 +633,8 @@ void rule_bool_op(tToken *token, tKWPtr keyWords, bool* sucess){
 		print_debug("valid !=")
 	}else{
 		*sucess = 0;
+		printd("operator rovnosti")
+		return;
 	}
 	GET_TOKEN
 }
@@ -541,59 +645,78 @@ void rule_bool_op(tToken *token, tKWPtr keyWords, bool* sucess){
 //<asg_opt> - <expr> = <expr>
 //<expr_opt> - epsilon
 void rule_for(tToken *token, tKWPtr keyWords, bool* sucess){
-	GET_TOKEN
-	EOL_FORBID
-	if (token->type == ID){
-		print_debug("valid ID")
-		
+	do{
 		GET_TOKEN
 		EOL_FORBID
-		if (token->type == DEF){
-			print_debug("valid :=")
-
-			rule_var_def(token,keyWords,sucess);
+		if (token->type == ID){
+			print_debug("valid ID")
+				
+			GET_TOKEN
 			EOL_FORBID
-		}else{
-			*sucess = 0;
+			if (token->type == DEF){
+				print_debug("valid :=")
+
+				rule_var_def(token,keyWords,sucess);
+				if (!*sucess) break
+;
+				EOL_FORBID
+			}else{
+				*sucess = 0;
+				printd(" :=")
+				if (!*sucess) break;
+			}
 		}
-	}
-	if (token->type == SEM){
-		print_debug("valid ;")
-	}else{
-		*sucess = 0;
-	}
-
-	GET_TOKEN
-	EOL_FORBID
-	rule_expr(token,keyWords,sucess);
-
-	rule_expr_bool(token,keyWords,sucess);
-	
-	EOL_FORBID
-	if (token->type == SEM){
-		print_debug("valid ;")
-	}else{
-		*sucess = 0;
-	}
-
-
-	GET_TOKEN
-
-	if (token->type != OB){
-		EOL_FORBID
-		rule_expr(token,keyWords,sucess);
-
-		if (token->type == ASG){
-			print_debug("valid =")
+		if (token->type == SEM){
+			print_debug("valid ;")
 		}else{
 			*sucess = 0;
+			printd(";")
+			if (!*sucess) break;
 		}
 
 		GET_TOKEN
 		EOL_FORBID
 		rule_expr(token,keyWords,sucess);
-	}
+		if (!*sucess) break;
+				
+		rule_expr_bool(token,keyWords,sucess);
+		if (!*sucess) break;
+			
+		EOL_FORBID
+		if (token->type == SEM){
+			print_debug("valid ;")
+		}else{
+			*sucess = 0;
+			printd(";")
+			if (!*sucess) break;
+		}
+
+
+		GET_TOKEN
+
+		if (token->type != OB){
+			EOL_FORBID
+			rule_expr(token,keyWords,sucess);
+			if (!*sucess) break;
+
+			if (token->type == ASG){
+				print_debug("valid =")
+			}else{
+				*sucess = 0;
+				printd("=")
+				if (!*sucess) break;
+			}
+
+			GET_TOKEN
+			EOL_FORBID
+			rule_expr(token,keyWords,sucess);
+			if (!*sucess) break;
+		}
+	}while(0);
+
+	CHECK_POINT(type,OB)
 	
+
 	EOL_FORBID
 	if (token->type == OB){
 		print_debug("valid {")
@@ -601,10 +724,13 @@ void rule_for(tToken *token, tKWPtr keyWords, bool* sucess){
 		GET_TOKEN
 		EOL_REQUIRED
 		rule_body(token,keyWords,sucess);
+		if (!*sucess) return;
 
 		EOL_REQUIRED
 	}else{
 		*sucess = 0;
+		printd("{")
+		if (!*sucess) return;
 	}
 
 	if (token->type == CB){
@@ -613,12 +739,14 @@ void rule_for(tToken *token, tKWPtr keyWords, bool* sucess){
 		GET_TOKEN
 	}else{
 		*sucess = 0;
+		printd("}")
+		if (!*sucess) return;
 	}
 }
 
 
 //<params> - id <type> <type_n>
-//<params_n> - epsilon
+//<params> - epsilon
 //
 //<type_n> - epsilon
 void rule_params(tToken *token, tKWPtr keyWords, bool* sucess){
@@ -628,9 +756,11 @@ void rule_params(tToken *token, tKWPtr keyWords, bool* sucess){
 		GET_TOKEN
 		EOL_FORBID
 		rule_type(token,keyWords,sucess);
-		
+		if (!*sucess) return;
+
 		EOL_FORBID
 		rule_params_n(token,keyWords,sucess);
+		if (!sucess) return;
 	}
 }
 
@@ -642,10 +772,23 @@ void rule_params_n(tToken *token, tKWPtr keyWords, bool* sucess){
 	if (token->type == COM){
 		print_debug("valid , ")
 
-		GET_TOKEN
-		rule_params(token,keyWords,sucess);
-	}
+		if (token->type == ID){
+			print_debug("valid ID")
+		}else{
+			*sucess = 0;
+			printd("ID")
+			return;
+		}
 
+		GET_TOKEN
+		EOL_FORBID
+		rule_type(token,keyWords,sucess);
+		if (!*sucess) return;
+
+		EOL_FORBID
+		rule_params_n(token,keyWords,sucess);
+		if (!sucess) return;
+	}
 }
 
 //<type> - int
@@ -660,6 +803,8 @@ void rule_type(tToken *token, tKWPtr keyWords, bool* sucess){
 		print_debug("valid KW_STRING")
 	}else{
 		*sucess = 0;
+		printd("type")
+		return;
 	}
 
 	GET_TOKEN
@@ -675,9 +820,11 @@ void rule_type_n(tToken *token, tKWPtr keyWords, bool* sucess){
 		GET_TOKEN
 		EOL_FORBID
 		rule_type(token,keyWords,sucess);
-
+		if (!*sucess) return;
+		
 		EOL_FORBID
 		rule_type_n(token,keyWords,sucess);
+		if (!*sucess) return;
 	}
 }
 
@@ -694,18 +841,23 @@ void rule_return_type(tToken *token, tKWPtr keyWords, bool* sucess){
 		GET_TOKEN
 		//EOL_OPRIONAL - nie som si isty
 		rule_type(token,keyWords,sucess);
-		
+		if (!*sucess) return;
+	
 		EOL_FORBID
 		rule_type_n(token,keyWords,sucess);
-
+		if (!*sucess) return;
+		
 		if (token->type == CBR){
 			print_debug("valid )")
 		}else{
 			*sucess = 0;
+			printd(")")
+			return;
 		}
 
 		GET_TOKEN
 		EOL_FORBID
 	}
+	
 }
 
