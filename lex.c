@@ -2,6 +2,7 @@
 
 // project.h ... obsahuje rozhrani pro komunikaci v ramci prekladu (vcetne #include <stdio.h>)
 #include "project.h"
+#include "error.h"
 
 int getToken(tToken *token, tKWPtr table) {
 
@@ -73,7 +74,7 @@ int getToken(tToken *token, tKWPtr table) {
 		if(isalnum(XX)|| XX == '_') {
 
 			fprintf(stderr, "Chyba: Prilis dlouhy identifikator! [%s]\n Maximalni delka je %d znaku\n", buffer, MAX_LEN-2);
-			//SetError(1);
+			setError(LEX_ERROR);
 			return 0;
 		}
 
@@ -103,7 +104,7 @@ int getToken(tToken *token, tKWPtr table) {
 
 				ok = 0;
 				fprintf(stderr, "Varovani: Na zacatku cislicoveho literalu nesmi byt prebytecne nuly, cislo bude prijato jako desitkove\n");
-				//SetError(1);
+				setError(LEX_ERROR);
 				while(XX == '0')
 					XX = getchar();
 
@@ -123,7 +124,7 @@ int getToken(tToken *token, tKWPtr table) {
 		if(isdigit(XX)) {
 
 			fprintf(stderr, "Chyba: Prilis dlouhy celociselny literal\n Pouzivejte prosim, rozumne velka cisla\n");
-			//SetError(1);
+			setError(LEX_ERROR);
 			return 0;
 		}
 
@@ -147,7 +148,7 @@ int getToken(tToken *token, tKWPtr table) {
 
 				if(isdigit(XX)) {
 					fprintf(stderr, "Chyba: Prilis dlouhe desetinne cislo\n Pouzivejte prosim rozumna cisla\n");
-					//SetError(1);
+					setError(LEX_ERROR);
 					return 0;
 				}
 
@@ -155,7 +156,7 @@ int getToken(tToken *token, tKWPtr table) {
 			} else {
 
 				fprintf(stderr, "Chyba: Neplatna desetinna cast cisla [%s]\n", buffer);
-				//SetError(1);
+				setError(LEX_ERROR);
 				ok = 0;
 			}
 		}
@@ -194,7 +195,7 @@ int getToken(tToken *token, tKWPtr table) {
 				if(isdigit(XX)) {
 
 					fprintf(stderr, "Chyba: Prilis dlouhy exponent\n Pouzivejte prosim rozumna cisla\n");
-					//SetError(1);
+					setError(LEX_ERROR);
 					return 0;
 				}
 
@@ -202,7 +203,7 @@ int getToken(tToken *token, tKWPtr table) {
 			} else {
 
 				fprintf(stderr, "Chyba: Neplatna exponentova cast cisla [%s]\n", buffer);
-				//SetError(1);
+				setError(LEX_ERROR);
 				ok = 0;
 			}
 		}
@@ -276,14 +277,14 @@ int getToken(tToken *token, tKWPtr table) {
 								ungetc(XX, stdin);
 								XX = '\0';
 								fprintf(stderr, "Chyba: Neplatna hexadecimalni cislice v escape sekvenci\n");
-								//SetError(1);
+								setError(LEX_ERROR);
 								ok = 0;
 							}
 							break;
 
 						default:
 							fprintf(stderr, "Chyba: Nespravna escape sekvence %c%c \n", '\\', (char)XX);
-							//SetError(1);
+							setError(LEX_ERROR);
 							ok = 0;
 							break;
 					}
@@ -295,7 +296,7 @@ int getToken(tToken *token, tKWPtr table) {
 				} else {
 
 					fprintf(stderr, "Chyba: Literal na vstupu obsahoval neplatny znak\n");
-					//SetError(1);
+					setError(LEX_ERROR);
 					ok = 0;
 				}
 
@@ -308,7 +309,7 @@ int getToken(tToken *token, tKWPtr table) {
 				token->attr[MAX_LEN-2] = XX;
 				ungetc('"', stdin);
 				fprintf(stderr, "Chyba: Prilis dlouhy retezcovy literal\n");
-				//SetError(1);
+				setError(LEX_ERROR);
 				return 0;
 			}
 
@@ -349,7 +350,7 @@ int getToken(tToken *token, tKWPtr table) {
 			}
 			ungetc(XX, stdin);
 			fprintf(stderr, "Chyba: Neplatny operator [!]\n");
-			//SetError(1);
+			setError(LEX_ERROR);
 			return 0;
 		case ':':
 			XX = getchar();
@@ -359,7 +360,7 @@ int getToken(tToken *token, tKWPtr table) {
 			}
 			ungetc(XX, stdin);
 			fprintf(stderr, "Chyba: Neplatny operator [:]\n");
-			//SetError(1);
+			setError(LEX_ERROR);
 			return 0;
 		case '=':
 			XX = getchar();
@@ -394,7 +395,7 @@ int getToken(tToken *token, tKWPtr table) {
 		default:
 			token->type = UNKNOWN;
 			fprintf(stderr, "Chyba: Neplatny znak [%c]\n", (char)XX);
-			//SetError(1);
+			setError(LEX_ERROR);
 			return 0;
 	}
 }
