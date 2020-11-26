@@ -7,6 +7,7 @@
 #include <ctype.h>
 #include <stdbool.h>
 #include "error.h"
+
 // maximalni delka identifikatoru
 #define MAX_LEN 1024
 #define KW_LEN 10
