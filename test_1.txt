@@ -4,7 +4,7 @@ package main
 
 func main() {
 	print("Zadejte cislo pro vypocet faktorialu: ")
-	a := 0
+	a : 0
 	a, _ = inputi()
 	if a < 0 {
 		print("Faktorial nejde spocitat!\n")

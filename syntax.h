@@ -5,7 +5,7 @@
 
 
  
-#define DEBUG
+//#define DEBUG
 #define GET_TOKEN getToken(token,  keyWords);
   
 // EOL_REQUIRED kontroluje, ci pred aktualne nacitanim tokenom bol EOL, vracia chybu, ak nebol
@@ -18,9 +18,10 @@
 // nasleduje, a vsetky ostatne zahadzujeme, pripadne koncime na EOF
 #define CHECK_POINT(tp,fsm) \
     if (!*sucess){\
+		setError(SYN_ERROR);\
         while (token->tp != fsm && token->type !=TOKEN_EOF){\
             GET_TOKEN\
-            printf("--token:%d\n",*sucess);\
+            /*printf("--token:%d\n",*sucess);*/\
         }\
         if(token->tp == fsm) *sucess = 1; else return;\
     }
@@ -34,6 +35,7 @@
             fsm, *sucess, __LINE__, __func__);
 #else
     #define print_debug(fsm)
+	#define printd(fsm)
 #endif
 
 

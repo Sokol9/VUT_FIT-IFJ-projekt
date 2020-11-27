@@ -2,7 +2,7 @@
 
 package main
 
-func factorial(n int) (int) {
+func factorial n int) (int) {
 	dec_n := n - 1
 	if n < 2 {
 		return 1

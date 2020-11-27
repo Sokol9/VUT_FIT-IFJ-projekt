@@ -9,6 +9,7 @@
 */
 
 
+
 // <prog> - package main <func_def> <func_n> EOF
 //
 // <func_n> - epsilon
@@ -48,10 +49,13 @@ void rule_prog(tToken *token, tKWPtr keyWords,  bool* sucess){
 
 	/*****************EOF***********************/
 	if (token->type == TOKEN_EOF){
-		print_debug("valid TOKEN_EOF")
+		return;
+	//	print_debug("valid TOKEN_EOF")
 		
-		printf("\n===================================================\n\n ANALIZATION FINISH %s\n\n", \
-				*sucess ? "SUCESSFULL" : "WITH FAILS");
+	/*	printf("\n===================================================\n\n ANALIZATION FINISH %s\n\n", \
+				*sucess ? "SUCESSFULL" : "WITH FAILS");*/
+	}else{
+		setError(SYN_ERROR);
 	}
 	/****************END OF EOF*****************/
 }
