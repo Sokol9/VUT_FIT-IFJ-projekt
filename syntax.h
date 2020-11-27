@@ -53,7 +53,7 @@
 
 void rule_prog(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess);
 void rule_func_def(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess);
-void rule_params(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess);
+void rule_params(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess, bool* sem_sucess);
 void rule_return_type(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess);
 void rule_body(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess);
 void rule_stat(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess);
@@ -73,9 +73,9 @@ void rule_expr_bool(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* suc
 void rule_bool_op(tToken *token, tKWPtr keyWords, bool* sucess);
 void rule_else(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess);
 void rule_for(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess);
-void rule_params(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess);
-void rule_params_n(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess);
-void rule_type(tToken *token, tKWPtr keyWords, bool* sucess);
+void rule_params(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess, bool* sem_sucess);
+void rule_params_n(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess, bool* sem_sucess);
+void rule_type(tToken *token, tKWPtr keyWords, tSymTable STab, bool* sucess, bool* sem_sucess);
 void rule_type_n(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess);
 void rule_return_type(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess);
 void rule_func_n(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess);
