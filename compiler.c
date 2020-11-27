@@ -1,22 +1,19 @@
 #include "project.h"
 #include "syntax.h"
 #include "symtable.h"
+#include "error.h"
 
 int main() {
 
 	tKWPtr keyWords = KWInit();
 	tToken token;
 	bool sucess = true;
-	tGRPtr 	GTable = GTInit();
+	tSymTablePtr STab = malloc (sizeof(struct SymTable));
+	if (!STab) setError(INTERNAL_ERROR); else printf("STab init sucess\n\n");
 
-	if (!GTable) setError(INTERNAL_ERROR); else	printf("GT init sucess\n\n");
-
-
-	//char *type[] = {"UNKNOWN", "ADD", "SUB", "MULT", "DIV", "SEM", "OBR", "CBR", "OB", "CB", "LT", "LTEQ", "GT", "GTEQ", "EQ", "NEQ", "ASG", "DEF", "COM", "KW_ELSE", "KW_FLOAT64", "KW_FOR", "KW_FUNC", "KW_IF", "KW_INT", "KW_PACKAGE", "KW_RETURN", "KW_STRING", "ID", "US", "INT_L", "FLOAT_L", "STRING_L", "TOKEN_EOF"};
-
-	rule_prog(&token, GTable, keyWords, &sucess);	
-
+	rule_prog(&token, STab, keyWords, &sucess);	
 	
+	STDispose(STab);
 	KWDispose(&keyWords);
 	return getError() ;
 }

@@ -13,7 +13,7 @@
 // <prog> - package main <func_def> <func_n> EOF
 //
 // <func_n> - epsilon
-void rule_prog(tToken *token, tGRPtr GTable, tKWPtr keyWords,  bool* sucess){
+void rule_prog(tToken *token, tSymTablePtr STab, tKWPtr keyWords,  bool* sucess){
 	/*************PACKAGE MAIN*****************/
 	do{
 		GET_TOKEN
@@ -62,7 +62,7 @@ void rule_prog(tToken *token, tGRPtr GTable, tKWPtr keyWords,  bool* sucess){
 //
 // <params> - epsilon
 // <return_types> - epsilon
-void rule_func_def(tToken *token, tGRPtr GTable, tKWPtr keyWords, bool* sucess){
+void rule_func_def(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 	CHECK_POINT(type,KW_FUNC)	
 	do{
 		if (!*sucess) break;
@@ -146,7 +146,7 @@ void rule_func_def(tToken *token, tGRPtr GTable, tKWPtr keyWords, bool* sucess){
 //<func_n> - <func_def> <func_n>
 //
 //<func_n> - epsilon
-void rule_func_n(tToken *token, tGRPtr GTable, tKWPtr keyWords, bool* sucess){
+void rule_func_n(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 	CHECK_POINT(type,KW_FUNC)
 	if (token->type != TOKEN_EOF){
 		rule_func_def(PARAMS);
@@ -161,7 +161,7 @@ void rule_func_n(tToken *token, tGRPtr GTable, tKWPtr keyWords, bool* sucess){
 //
 //<stat> - epsilon
 //<body> - epsilon
-void rule_body(tToken *token, tGRPtr GTable, tKWPtr keyWords, bool* sucess){
+void rule_body(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 	if (token->type != CB){
 		rule_stat(PARAMS);
 
@@ -181,7 +181,7 @@ void rule_body(tToken *token, tGRPtr GTable, tKWPtr keyWords, bool* sucess){
 //<stat> - id <var_asg>
 //<stat> - return <expr_opt> <expr_n>
 //<stat> - epsilon
-void rule_stat(tToken *token, tGRPtr GTable, tKWPtr keyWords, bool* sucess){
+void rule_stat(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 
 	if (token->type == KW_IF){
 		print_debug("valid KW_IF")
@@ -250,7 +250,7 @@ void rule_stat(tToken *token, tGRPtr GTable, tKWPtr keyWords, bool* sucess){
 //<func_call> - (<params_actual>)
 //
 //<params_actual> - epsilon
-void rule_func_call(tToken *token, tGRPtr GTable, tKWPtr keyWords, bool* sucess){
+void rule_func_call(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 
 	if (token->type != CBR){
 
@@ -295,7 +295,7 @@ void rule_term(tToken *token,  bool* sucess){
 //<term_n> - , <term> <term_n>
 //
 //<term_n> - epsilon
-void rule_term_n(tToken *token, tGRPtr GTable, tKWPtr keyWords, bool* sucess){
+void rule_term_n(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 	if (token->type == COM){
 		print_debug("valid ,")
 
@@ -311,7 +311,7 @@ void rule_term_n(tToken *token, tGRPtr GTable, tKWPtr keyWords, bool* sucess){
 }
 
 //<var_def> -  := <expr>
-void rule_var_def(tToken *token, tGRPtr GTable, tKWPtr keyWords, bool* sucess){
+void rule_var_def(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 	// := uz skontrolovan=a
 	GET_TOKEN
 	//EOL_OPTIONAL - nie som si tym isty
@@ -322,7 +322,7 @@ void rule_var_def(tToken *token, tGRPtr GTable, tKWPtr keyWords, bool* sucess){
 //<expr> - <expr> <op> <expr>
 //<expr> - ( <expr> )
 //<expr> - <term>
-void rule_expr(tToken *token, tGRPtr GTable, tKWPtr keyWords, bool* sucess){
+void rule_expr(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 	if (token->type == OBR){
 		print_debug("valid (")
 
@@ -380,7 +380,7 @@ void rule_op(tToken *token, bool* sucess){
 }
 	
 //<var asg> - <id_n> = <values>
-void rule_var_asg(tToken *token, tGRPtr GTable, tKWPtr keyWords, bool* sucess){
+void rule_var_asg(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 
 	rule_id_n(PARAMS);
 	if (!*sucess) return;
@@ -402,7 +402,7 @@ void rule_var_asg(tToken *token, tGRPtr GTable, tKWPtr keyWords, bool* sucess){
 //<values> - <expr> <expr_n>
 //<values> - id <func_call>
 //<values> - id <op> <expr>    --> <expr> - <expr> <op> <expr>
-void rule_values(tToken *token, tGRPtr GTable, tKWPtr keyWords, bool* sucess){
+void rule_values(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 	if (token->type == OBR || token->type ==INT_L || token->type == FLOAT_L ||\
 			token->type == STRING_L){
 
@@ -448,7 +448,7 @@ void rule_values(tToken *token, tGRPtr GTable, tKWPtr keyWords, bool* sucess){
 
 //<expr_n> - , <expr> <expr_n>
 //<expr_n> - epsilon
-void rule_expr_n(tToken *token, tGRPtr GTable, tKWPtr keyWords, bool* sucess){
+void rule_expr_n(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 	if (token->type == COM){
 		print_debug("valid ,")
 		EOL_FORBID
@@ -465,7 +465,7 @@ void rule_expr_n(tToken *token, tGRPtr GTable, tKWPtr keyWords, bool* sucess){
 //<id_n> - , id <id_n> 
 //<id_n> - , _ <id_n>
 //<id_n> - epsilon
-void rule_id_n(tToken *token, tGRPtr GTable, tKWPtr keyWords, bool* sucess){
+void rule_id_n(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 	if (token->type == COM){
 		print_debug("valid ,  ")
 		EOL_FORBID
@@ -491,7 +491,7 @@ void rule_id_n(tToken *token, tGRPtr GTable, tKWPtr keyWords, bool* sucess){
 // <expr_bool> - epsilon
 // <body> - epsilon
 // <else> - epsilon
-void rule_if(tToken *token, tGRPtr GTable, tKWPtr keyWords, bool* sucess){
+void rule_if(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 	do{
 		GET_TOKEN
 		EOL_FORBID
@@ -535,7 +535,7 @@ void rule_if(tToken *token, tGRPtr GTable, tKWPtr keyWords, bool* sucess){
 
 // <expr_bool> - <bool_op> <expr>
 // <expr_bool> - epsilon
-void rule_expr_bool(tToken *token, tGRPtr GTable, tKWPtr keyWords, bool* sucess){
+void rule_expr_bool(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 	EOL_FORBID
 	rule_bool_op(token, keyWords, sucess);
 	if (!*sucess) return;
@@ -548,7 +548,7 @@ void rule_expr_bool(tToken *token, tGRPtr GTable, tKWPtr keyWords, bool* sucess)
 //<else> - epsilon
 //
 //<body> - epsiolon
- void rule_else(tToken *token, tGRPtr GTable, tKWPtr keyWords, bool* sucess){
+ void rule_else(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 	if (token->type == KW_ELSE)	{
 		print_debug("valid KW_ELSE")
 		EOL_FORBID
@@ -612,7 +612,7 @@ void rule_bool_op(tToken *token, tKWPtr keyWords, bool* sucess){
 //<var_def_cycle> - epsilon
 //<asg_opt> - <expr> = <expr>
 //<expr_opt> - epsilon
-void rule_for(tToken *token, tGRPtr GTable, tKWPtr keyWords, bool* sucess){
+void rule_for(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 	do{
 		GET_TOKEN
 		EOL_FORBID
@@ -717,7 +717,7 @@ void rule_for(tToken *token, tGRPtr GTable, tKWPtr keyWords, bool* sucess){
 //<params> - epsilon
 //
 //<type_n> - epsilon
-void rule_params(tToken *token, tGRPtr GTable, tKWPtr keyWords, bool* sucess){
+void rule_params(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 	if (token->type == ID){
 		print_debug("valid ID")
 
@@ -736,7 +736,7 @@ void rule_params(tToken *token, tGRPtr GTable, tKWPtr keyWords, bool* sucess){
 //<params_n> - epsilon
 //
 //<type_n> - epsilon
-void rule_params_n(tToken *token, tGRPtr GTable, tKWPtr keyWords, bool* sucess){
+void rule_params_n(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 	if (token->type == COM){
 		print_debug("valid , ")
 
@@ -781,7 +781,7 @@ void rule_type(tToken *token,  tKWPtr keyWords, bool* sucess){
 //<type_n> - , <type> <type_n>
 //
 //<type_n> - epsilon 
-void rule_type_n(tToken *token, tGRPtr GTable, tKWPtr keyWords, bool* sucess){
+void rule_type_n(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 	if (token->type == COM){
 		print_debug("valid , ")
 
@@ -801,7 +801,7 @@ void rule_type_n(tToken *token, tGRPtr GTable, tKWPtr keyWords, bool* sucess){
 //<return_types> - epsilon
 //
 //<type_n> - epsilon
-void rule_return_type(tToken *token, tGRPtr GTable, tKWPtr keyWords, bool* sucess){
+void rule_return_type(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 	if (token->type == OBR){
 		print_debug("valid (")
 
