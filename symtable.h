@@ -1,4 +1,4 @@
-// hlavickovy soubor pro tabulky symbolu
+// hlavickovy soubor pro praci s tabulkami symbolu
 
 #ifndef SYMTABLE_H
 #define SYMTABLE_H
@@ -8,119 +8,93 @@ typedef enum {UNKNOWN_T=0, INT_T, FLOAT64_T, STRING_T} varType;
 
 //================================================================
 // Globalni tabulka
-//
-// struktura pro parametr funkce jako clena linearniho seznamu
-typedef struct funcParam{
-	varType type;
-	struct funcParam *next;
-	char id[];
-}*tParamPtr;
 
-// struktura pro navratove typy funkce jako cleny linearniho seznamu
-typedef struct funcRet{
-	varType type;
-	struct funcRet *next;
-}*tRetPtr;
+// parametr funkce jako prvek linearniho seznamu
+struct funcParam;
+// ukazatel na paramteru funkce
+typedef struct funcParam* tParamPtr;
 
-// struktura pro zaznam o funkci
-// prvek globalni tabulky symbolu realizovane binarnim vyhledavacim stromem
-typedef struct globalRec{
-	bool randomPCount;
-	tParamPtr params;
-	tRetPtr returns;
-	bool defined;
-	struct globalRec *LPtr;
-	struct globalRec *RPtr;
-	char id[];
-}*tGRPtr;
+// navratova hodnota jako prvek linearniho seznamu
+struct funcRet;
+// ukazatel na navratovou hodnotu funkce
+typedef struct funcRet* tRetPtr;
 
-// inicializace globalni tabulky symbolu
-//    v nove inicializovane tabulce se jiz nachazi zaznam pro povinnou funkci main
-//    dale se v ni nachazi vestavene funkce jazyka
-tGRPtr GTInit();
-
-// vyhledani zaznamu v globalni tabulce
-//    vraci ukazatel na nalezenou polozku nebo NULL pri neuspechu
-tGRPtr GTLookUp(tGRPtr rootPtr, char *key);
-
-// zjistuje, zda je funkce jiz definovana nebo ne
-//    funkce prijima jako parametr ukazatel na zaznam o teto funkci
-bool GTIsDefined(tGRPtr ptr);
-
-// definuje polozku, na niz ukazuje ptr
-void GTDefine(tGRPtr ptr);
-
-// pridani zaznamu do globalni tabulky
-//    vraci ukazatel na nove vytvorenou polozku nebo NULL pri neuspechu
-//    pomoci parametru define je mozne urcit, zda jde o definici funkce
-//    nachazi-li se jiz v tabulce zaznam s priznakem defined=true a volam funkci s define=true dochazi k chybe redefinice funkce
-tGRPtr GTInsert(tGRPtr *rootPtr, char *key, bool define);
-
-// prida novy parametr do seznamu parametru funkce
-//    ptr je ukazatel na dany zaznam o funkci
-int GTAddParam(tGRPtr ptr, varType type, char *id);
-
-// prida novou navratovou hodnotu do seznamu navratovych hodnot funkce
-//    ptr je ukazatel na dany zaznam o funkci
-int GTAddRet(tGRPtr ptr, varType type);
-
-// smazani globalni tabulky
-void GTDispose(tGRPtr *rootPtr);
+// zaznam o funkci v globalni tabulce symbolu
+struct globalRec;
+// ukazatel na zaznam o funkci
+typedef struct globalRec* tGRPtr;
 
 //================================================================
 // Lokalni tabulka
-//
-// struktura pro zaznam o promenne
-// prvek lokalni tabulky symbolu realizovane binarnim vyhledavacim stromem
-typedef struct localRec{
-	varType type;
-	//bool used;
-	struct localRec *LPtr;
-	struct localRec *RPtr;
-	char id[];
-}*tLRPtr;
 
-// linearni seznam s jednotlivymi lokalnimi tabulkami
-//    vzajemne provazane lokalni ramce
-typedef struct localFrame{
-	tLRPtr rootPtr;
-	struct localFrame *upper;
-}*tLFPtr;
+// zaznam o promenne v lokalni tabulce symbolu
+struct localRec;
+// ukazatel na zaznam o promenne
+typedef struct localRec* tLRPtr;
 
-// vytvoreni a inicializace nove urovne lokalni tabulky symbolu
-//    pokud jde o ramec funkce, seznam ramcu zatim neexistuje, volejte tedy funkci s upper=NULL
-//    vraci ukazatel na novy zacatek seznamu retezenych ramcu
-//    parametrem je ukazatel na dosavadni zacatek seznamu
-//    je-li func != NULL vklada do noveho ramce i parametry funkce
-tLFPtr LTCreateFrame(tLFPtr upper, tGRPtr func);
+// ramec lokalni tabulky symbolu jako prvek linearniho seznamu
+struct localFrame;
+// ukazatel na ramec lokalni tabulky symbolu
+typedef struct localFrame* tLFPtr;
 
-// vyhledani zaznamu
-//    pomocna funkce pro LTSearch
-//    rekurzivni implementace prohledani BVS
-//    vraci ukazatel na zaznam o promenne nebo NULL pokud zaznam neexistuje
-tLRPtr LTLookUp(tLRPtr framePtr, char *key);
+//================================================================
+// Rozhrani pro praci s tabulkami symbolu
+//    funkce vraci 0 pri neuspechu, 1 jinak
+typedef struct SymTable{
+	tGRPtr rootPtr;
+	tGRPtr activeFunc;
+	tLFPtr topFrame;
+	tLRPtr activeVar;
+}*tSymTablePtr;
 
-// prohledani ramce/ramcu lokalni tabulky symbolu
-//    parametr searchAll udava, zda se ma hledat pouze v nejzanorenejsim ramci nebo ve vsech
-tLRPtr LTSearch(tLFPtr framePtr, char *key, bool searchAll);
+// inicializace tabulky symbolu
+int STInit(tSymTablePtr *ptr);
 
-// pomocna funkce pro LTInsert, vlozeni zaznamu do stromu
-//   vraci ukazatel na nove vytvoreny zaznam nebo NULL, pokud se ho nepodarilo vytvorit
-//   pokus o vlozeni zaznamu s identifikatorem, ktery se jiz ve stromu nachazi, vyusti v chybu redefinice promenne
-tLRPtr LTInsertToTree(tLRPtr *rootPtr, char *key);
+// vyhledani funkce
+//    vyhledanou funkci nastavuje na aktivni
+//    v pripade chyby ponechava aktivitu na puvodni funkci
+int STFuncLookUp(tSymTablePtr ptr, char *key);
 
-// vlozeni zaznamu do daneho ramce
-//    vraci ukazatel na zaznam o promenne
-tLRPtr LTInsert(tLFPtr framePtr, char *key);
+// zjisteni definovani aktivni funkce
+bool STFuncIsDefined(tSymTablePtr ptr);
 
-// zmeni typ promenne, na jejiz zaznam ukazuje ptr
-//    pokud neni dosavadni typ promenne UNKNOWN_T nastava chyba
-int LTAddType(tLRPtr ptr, varType type);
+// nastaveni aktivity na funkci
+int STFuncSetActive(tSymTablePtr ptr, tGRPtr funcPtr);
 
-// pomocna funkce provadejici smazani binarniho stromu
-void LTDeleteTree (tLRPtr *rootPtr);
+// pridani nove funkce do tabulky symbolu
+//    novou polozku nastavuje na aktivni
+//    v pripade chyby ponechava aktivitu na puvodni funkci
+int STFuncInsert(tSymTablePtr ptr, char *key, bool define);
 
-// zrusi nejvice zanoreny ramec
-//    vraci ukazatel na ramec o uroven vyse, NULL pokud byl zrusen nejvrchnejsi ramec
-tLFPtr LTDeleteFrame(tLFPtr framePtr);
+// prida novy parametr do seznamu parametru aktivni funkce
+int STFuncAddParam(tSymTablePtr ptr, varType type, char *id);
+
+// prida novou navratovou hodnotu do seznamu navratovych hodnot aktivni funkce
+int STFuncAddRet(tSymTablePtr ptr, varType type);
+
+// vytvoreni noveho lokalniho ramce
+//    pokud je func=true, vytvari novy ramec pro aktivni funkci
+int STCreateFrame(tSymTablePtr ptr, bool func);
+
+// vyhledani promenne
+//    v pripade nalezeni nastavuje aktivitu na nalezenou promennou
+int STVarLookUp(tSymTablePtr ptr, char *key);
+
+// vlozeni promenne do tabulky symbolu
+//    v pripade uspechu nastavuje aktivitu na nove vlozenou prommenou
+//    vychozi datovy typ je UNKNOWN
+int STVarInsert(tSymTablePtr ptr, char *key);
+
+// zjisti datovy typ aktivni promenne
+varType STVarGetType(tSymTablePtr ptr);
+
+// zmena datoveho typu aktivni promenne
+//    pokud je typ jiny nez UNKNOWN dochazi k chybe
+int STVarSetType(tSymTablePtr ptr, varType type);
+
+// smaze ramec na vrcholu zasobniku
+int STDeleteFrame(tSymTablePtr ptr);
+
+// odstrani tabulku symbolu
+int STDispose(tSymTablePtr *ptr);
 #endif
