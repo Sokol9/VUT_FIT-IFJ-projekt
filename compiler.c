@@ -13,6 +13,6 @@ int main() {
 
 	
 	KWDispose(&keyWords);
-	printf("return:%d\n\n", getError());
+	//printf("return:%d\n\n", getError());
 	return getError() ;
 }
