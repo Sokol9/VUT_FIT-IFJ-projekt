@@ -102,7 +102,7 @@ void rule_func_def(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* suce
 	
 		GET_TOKEN
 		//EOL_OPTIONAL -- nie som si isty
-		rule_params(PARAMS, *sem_sucess);
+		rule_params(PARAMS, &sem_sucess);
 		if (!*sucess) break;
 
 		EOL_FORBID
@@ -114,7 +114,7 @@ void rule_func_def(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* suce
 
 		GET_TOKEN
 		EOL_FORBID
-		rule_return_type(PARAMS,sem_sucess);
+		rule_return_type(PARAMS, &sem_sucess);
 	}while(0);
 
 	CHECK_POINT(type,OB)
@@ -721,16 +721,15 @@ void rule_for(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 void rule_params(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess, bool* sem_sucess){
 	if (token->type == ID){
 		print_debug("valid ID")
-		int type;
 
 		GET_TOKEN
 		EOL_FORBID
-		rule_type(PARAMS, *type);
+		rule_type(PARAMS, sem_sucess);
 		if (!*sucess) return;
 
 
 		EOL_FORBID
-		rule_params_n(PARAMS, sem_suces);
+		rule_params_n(PARAMS, sem_sucess);
 		if (!sucess) return;
 	}
 }
@@ -745,7 +744,7 @@ void rule_params_n(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* suce
 
 		if (token->type == ID){
 			print_debug("valid ID")
-			if (sem_sucess) STVarInsert(STab, token->attr);				
+			if (*sem_sucess) STVarInsert(STab, token->attr);				
 			
 		}else{
 			*sucess = 0;
@@ -767,16 +766,16 @@ void rule_params_n(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* suce
 //<type> - int
 //<type> - float64
 //<type> - string
-void rule_type(tToken *token,  tKWPtr keyWords, tSymTablePtr STab, bool* sucess, bool* sum_sucess){
+void rule_type(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess, bool* sem_sucess){
 	if (token->type == KW_INT){
 		print_debug("valid KW_INT")
-		if (sem_sucess) STSetVarType(STab, INT_T);
+		if (*sem_sucess) STVarSetType(STab, INT_T);
 	}else if (token->type == KW_FLOAT64){
 		print_debug("valid KW_FLOAT64")
-		if (sem_sucess) STSetVarType(STab, FLOAT64_T);
+		if (*sem_sucess) STVarSetType(STab, FLOAT64_T);
 	}else if (token->type == KW_STRING){
 		print_debug("valid KW_STRING")
-		if (sem_sucess) STSetVarType(STab, STRING_T);
+		if (*sem_sucess) STVarSetType(STab, STRING_T);
 	}else{
 		*sucess = 0;
 		printd("type")
@@ -786,27 +785,6 @@ void rule_type(tToken *token,  tKWPtr keyWords, tSymTablePtr STab, bool* sucess,
 	GET_TOKEN
 }
 
-//<type> - int
-//<type> - float64
-//<type> - string
-void rule_type_r(tToken *token,  tKWPtr keyWords, tSymTablePtr STab, bool* sucess, bool* sum_sucess){
-	if (token->type == KW_INT){
-		print_debug("valid KW_INT")
-		if (sem_sucess) STFuncAddRet(STab, INT_T);
-	}else if (token->type == KW_FLOAT64){
-		print_debug("valid KW_FLOAT64")
-		if (sem_sucess) STFuncAddRet(STab, FLOAT64_T);
-	}else if (token->type == KW_STRING){
-		print_debug("valid KW_STRING")
-		if (sem_sucess) STFuncAddRet(STab, STRING_T);
-	}else{
-		*sucess = 0;
-		printd("type")
-		return;
-	}
-
-	GET_TOKEN
-}
 //<type_n> - , <type> <type_n>
 //
 //<type_n> - epsilon 
@@ -816,7 +794,7 @@ void rule_type_n(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess
 
 		GET_TOKEN
 		EOL_FORBID
-		rule_type_r(PARAMS, sem_sucess);
+		rule_type(PARAMS, sem_sucess);
 		if (!*sucess) return;
 		
 		EOL_FORBID
@@ -837,7 +815,7 @@ void rule_return_type(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* s
 
 		GET_TOKEN
 		//EOL_OPRIONAL - nie som si isty
-		rule_type_r(PARAMS, sem_sucess);
+		rule_type(PARAMS, sem_sucess);
 		if (!*sucess) return;
 	
 		EOL_FORBID
