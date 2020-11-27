@@ -304,8 +304,15 @@ tLRPtr LTInsert(tLFPtr framePtr, char *key) {
 	return NULL;
 }
 
+// vrati typ promenne, na jejiz zaznam ukazuje ptr
+varType LTGetType(tLRPtr ptr) {
+	if(ptr != NULL)
+		return ptr->type;
+	return UNKNOWN_T;
+}
+
 // zmeni typ promenne, na jejiz zaznam ukazuje ptr
-int LTAddType(tLRPtr ptr, varType type) {
+int LTSetType(tLRPtr ptr, varType type) {
 	if(ptr == NULL)
 		return 0;
 	if(ptr->type == UNKNOWN_T) {

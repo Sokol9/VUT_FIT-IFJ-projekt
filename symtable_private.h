@@ -93,17 +93,19 @@ struct localFrame{
 //    je-li func != NULL vklada do noveho ramce i parametry funkce
 tLFPtr LTCreateFrame(tLFPtr upper, tGRPtr func);
 
-// prohledani ramce/ramcu lokalni tabulky symbolu
-//    parametr searchAll udava, zda se ma hledat pouze v nejzanorenejsim ramci nebo ve vsech
+// prohledani vsech ramcu lokalni tabulky symbolu
 tLRPtr LTSearch(tLFPtr framePtr, char *key);
 
 // vlozeni zaznamu do daneho ramce
 //    vraci ukazatel na zaznam o promenne
 tLRPtr LTInsert(tLFPtr framePtr, char *key);
 
+// vrati datovy typ promenne dane parametrem ptr
+varType LTGetType(tLRPtr ptr);
+
 // zmeni typ promenne, na jejiz zaznam ukazuje ptr
 //    pokud neni dosavadni typ promenne UNKNOWN_T nastava chyba
-int LTAddType(tLRPtr ptr, varType type);
+int LTSetType(tLRPtr ptr, varType type);
 
 // zrusi nejvice zanoreny ramec
 //    vraci ukazatel na ramec o uroven vyse, NULL pokud byl zrusen nejvrchnejsi ramec

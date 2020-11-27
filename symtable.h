@@ -48,7 +48,7 @@ typedef struct SymTable{
 }*tSymTablePtr;
 
 // inicializace tabulky symbolu
-int STInit(tSymTablePtr *ptr);
+int STInit(tSymTablePtr ptr);
 
 // vyhledani funkce
 //    vyhledanou funkci nastavuje na aktivni
@@ -96,5 +96,5 @@ int STVarSetType(tSymTablePtr ptr, varType type);
 int STDeleteFrame(tSymTablePtr ptr);
 
 // odstrani tabulku symbolu
-int STDispose(tSymTablePtr *ptr);
+int STDispose(tSymTablePtr ptr);
 #endif
