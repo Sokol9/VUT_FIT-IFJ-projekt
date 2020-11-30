@@ -228,7 +228,7 @@ tLFPtr LTCreateFrame(tLFPtr upper, tGRPtr func) {
 			tLRPtr local;
 			while(par != NULL) {
 				local = LTInsert(pointer, par->id);
-				LTAddType(local, par->type);
+				LTSetType(local, par->type);
 				par = par->next;
 			}
 		}
@@ -239,7 +239,7 @@ tLFPtr LTCreateFrame(tLFPtr upper, tGRPtr func) {
 
 // vyhledani zaznamu ve strome
 tLRPtr LTLookUp (tLRPtr rootPtr, char *key) {
-	ef(rootPtr == NULL)
+	if(rootPtr == NULL)
 		return NULL;
 
 	int result = strcmp(key, rootPtr->id);

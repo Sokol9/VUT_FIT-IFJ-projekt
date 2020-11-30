@@ -1,6 +1,7 @@
 // externi definice funkci pro praci s tabulkou symbolu
 #include "project.h"
 #include "symtable.h"
+#include "symtable_private.h"
 #include "error.h"
 
 // inicializace
@@ -49,7 +50,7 @@ int STFuncSetActive(tSymTablePtr ptr, tGRPtr funcPtr) {
 // pridani nove funkce do tabulky symbolu
 int STFuncInsert(tSymTablePtr ptr, char *key, bool define) {
 	if(ptr != NULL) {
-		tGRPtr tmp = GTInsert(ptr->rootPtr, key, define);
+		tGRPtr tmp = GTInsert(&(ptr->rootPtr), key, define);
 		if(tmp != NULL) {
 			ptr->activeFunc = tmp;
 			return 1;
@@ -81,7 +82,7 @@ int STCreateFrame(tSymTablePtr ptr, bool func) {
 			return 1;
 		}
 	}
-	return 0
+	return 0;
 }
 
 // vyhledani promenne
@@ -96,7 +97,7 @@ int STVarLookUp(tSymTablePtr ptr, char *key) {
 	return 0;
 }
 
-// // vlozeni promenne do tabulky symbolu
+// vlozeni promenne do tabulky symbolu
 int STVarInsert(tSymTablePtr ptr, char *key) {
 	if(ptr != NULL) {
 		tLRPtr tmp = LTInsert(ptr->topFrame, key);
@@ -132,7 +133,7 @@ int STDeleteFrame(tSymTablePtr ptr) {
 }
 
 // odstrani tabulku symbolu
-int STDispose(tSymTablePtr *ptr) {
+int STDispose(tSymTablePtr ptr) {
 	if(ptr != NULL) {
 		GTDispose(&(ptr->rootPtr));
 		while(ptr->topFrame != NULL)
