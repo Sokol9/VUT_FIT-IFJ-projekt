@@ -7,6 +7,7 @@
 // inicializace
 int STInit(tSymTablePtr ptr) {
 	if(ptr != NULL) {
+		ptr->rootPtr = NULL;
 		if(GTInit(&(ptr->rootPtr))) {
 			// default aktivni funkce je main
 			ptr->activeFunc = GTLookUp(ptr->rootPtr, "main");
