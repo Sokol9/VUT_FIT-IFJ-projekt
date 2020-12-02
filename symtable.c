@@ -75,6 +75,8 @@ int STFuncInsert(tSymTablePtr ptr, char *key, bool define) {
 int STFuncInsertParamType(tSymTablePtr ptr, varType type) {
 	if(ptr != NULL && ptr->activeFunc != NULL) {
 		if(ptr->activeFunc->used) {
+			if(ptr->activeFunc->randomPCount)
+				return 1;
 			if(ptr->activeParam != NULL) {
 				if(ptr->activeParam->type == type) {
 					ptr->activeParam = ptr->activeParam->next;
