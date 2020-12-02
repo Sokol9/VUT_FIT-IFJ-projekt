@@ -10,9 +10,9 @@
 
 // parametr funkce jako prvek linearniho seznamu
 struct funcParam{
+	char *id;
         varType type;
         struct funcParam *next;
-        char id[];
 };
 
 // navratova hodnota jako prvek linearniho seznamu
@@ -23,13 +23,15 @@ struct funcRet{
 
 // zaznam o funkci v binarnim vyhledavacim strome
 struct globalRec{
-        bool randomPCount;
-        tParamPtr params;
-        tRetPtr returns;
-        bool defined;
-        struct globalRec *LPtr;
-        struct globalRec *RPtr;
-        char id[];
+	bool randomPCount;
+	tParamPtr params;
+	tRetPtr returns;
+	bool defined;
+	bool used;
+	bool retDefined;
+	struct globalRec *LPtr;
+	struct globalRec *RPtr;
+	char id[];
 };
 
 // private prototypy funkci
@@ -37,11 +39,11 @@ struct globalRec{
 // inicializace globalni tabulky symbolu
 //    v nove inicializovane tabulce se jiz nachazi zaznam pro povinnou funkci main
 //    dale se v ni nachazi vestavene funkce jazyka
-int GTInit(tGRPtr *rootPtr);
+void GTInit(tGRPtr *rootPtr);
 
 // vyhledani zaznamu v globalni tabulce
 //    vraci ukazatel na nalezenou polozku nebo NULL pri neuspechu
-tGRPtr GTLookUp(tGRPtr rootPtr, char *key);
+//tGRPtr GTLookUp(tGRPtr rootPtr, char *key);
 
 // zjistuje, zda je funkce jiz definovana nebo ne
 //    funkce prijima jako parametr ukazatel na zaznam o teto funkci
@@ -53,7 +55,15 @@ bool GTIsDefined(tGRPtr ptr);
 //    nachazi-li se jiz v tabulce zaznam s priznakem defined=true a volam funkci s define=true dochazi k chybe redefinice funkce
 tGRPtr GTInsert(tGRPtr *rootPtr, char *key, bool define);
 
-// prida novy parametr do seznamu parametru funkce
+// prida datovy typ parametru, pokud parametr neexistuje, vytvori ho
+//    vraci NULL pokud vytvoreni selze
+tParamPtr GTAddParamType(tParamPtr ptr, varType type);
+
+// prida id parametru, pokud parametr neexistuje, vytvori ho
+//    vraci NULL pokud vytvoreni selze
+tParamPtr GTAddParamId(tParamPtr ptr, char *id);
+
+// prida novy parametr do seznamu parametru funkce, pomocna funkce GTInit
 //    ptr je ukazatel na dany zaznam o funkci
 int GTAddParam(tGRPtr ptr, varType type, char *id);
 

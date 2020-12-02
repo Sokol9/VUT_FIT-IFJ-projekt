@@ -6,83 +6,93 @@
 // GLOBALNI TABULKA SYMBOLU
 //================================================================
 
+// pomocna funkce pro inicializaci vestavenych funkci jazyka
+void IFJ20Func(tGRPtr ptr) {
+	if(ptr != NULL) {
+		ptr->used       = true;
+		ptr->retDefined = true;
+	}
+}
+
 // inicializace globalni tabulky symbolu
-int GTInit(tGRPtr *rootPtr) {
+void GTInit(tGRPtr *rootPtr) {
 
-	tGRPtr tmp;
-	// func len(s string) (int)
-	if ((tmp = GTInsert(rootPtr, "len", true)) == NULL)
-		return 0;
-	GTAddParam(tmp, STRING_T, "s");
-	GTAddRet(tmp, INT_T);
+	if(rootPtr != NULL) {
+		tGRPtr tmp;
 
-	// func inputi() (int, int)
-	if ((tmp = GTInsert(rootPtr, "inputi", true)) == NULL)
-		return 0;
-	GTAddRet(tmp, INT_T);
-	GTAddRet(tmp, INT_T);
+		// func len(s string) (int)
+		tmp = GTInsert(rootPtr, "len", true);
+		GTAddParam(tmp, STRING_T, "s");
+		GTAddRet(tmp, INT_T);
+		IFJ20Func(tmp);
 
-	// func float2int(f float64) (int)
-	if ((tmp = GTInsert(rootPtr, "float2int", true)) == NULL)
-		return 0;
-	GTAddParam(tmp, FLOAT64_T, "f");
-	GTAddRet(tmp, INT_T);
+		// func inputi() (int, int)
+		tmp = GTInsert(rootPtr, "inputi", true);
+		GTAddRet(tmp, INT_T);
+		GTAddRet(tmp, INT_T);
+		IFJ20Func(tmp);
 
-	// func chr(i int) (string, int)
-	if ((tmp = GTInsert(rootPtr, "chr", true)) == NULL)
-		return 0;
-	GTAddParam(tmp, INT_T, "i");
-	GTAddRet(tmp, STRING_T);
-	GTAddRet(tmp, INT_T);
+		// func float2int(f float64) (int)
+		tmp = GTInsert(rootPtr, "float2int", true);
+		GTAddParam(tmp, FLOAT64_T, "f");
+		GTAddRet(tmp, INT_T);
+		IFJ20Func(tmp);
 
-	// func inputf() (float64, int)
-	if ((tmp = GTInsert(rootPtr, "inputf", true)) == NULL)
-		return 0;
-	GTAddRet(tmp, FLOAT64_T);
-	GTAddRet(tmp, INT_T);
+		// func chr(i int) (string, int)
+		tmp = GTInsert(rootPtr, "chr", true);
+		GTAddParam(tmp, INT_T, "i");
+		GTAddRet(tmp, STRING_T);
+		GTAddRet(tmp, INT_T);
+		IFJ20Func(tmp);
 
-	// func inputs() (string, int)
-	if ((tmp = GTInsert(rootPtr, "inputs", true)) == NULL)
-		return 0;
-	GTAddRet(tmp, STRING_T);
-	GTAddRet(tmp, INT_T);
+		// func inputf() (float64, int)
+		tmp = GTInsert(rootPtr, "inputf", true);
+		GTAddRet(tmp, FLOAT64_T);
+		GTAddRet(tmp, INT_T);
+		IFJ20Func(tmp);
 
-	// func int2float(i int) (float64)
-	if ((tmp = GTInsert(rootPtr, "int2float", true)) == NULL)
-		return 0;
-	GTAddParam(tmp, INT_T, "i");
-	GTAddRet(tmp, FLOAT64_T);
+		// func inputs() (string, int)
+		tmp = GTInsert(rootPtr, "inputs", true);
+		GTAddRet(tmp, STRING_T);
+		GTAddRet(tmp, INT_T);
+		IFJ20Func(tmp);
 
-	// func print(term_1, term_2, ..., term_n)
-	if ((tmp = GTInsert(rootPtr, "print", true)) == NULL)
-		return 0;
-	tmp->randomPCount = true;
+		// func int2float(i int) (float64)
+		tmp = GTInsert(rootPtr, "int2float", true);
+		GTAddParam(tmp, INT_T, "i");
+		GTAddRet(tmp, FLOAT64_T);
+		IFJ20Func(tmp);
 
-	// func main() ()
-	if ((tmp = GTInsert(rootPtr, "main", false)) == NULL)
-		return 0;
+		// func print(term_1, term_2, ..., term_n)
+		tmp = GTInsert(rootPtr, "print", true);
+		tmp->randomPCount = true;
+		IFJ20Func(tmp);
 
-	// func ord(s string, i int) (int, int)
-	if ((tmp = GTInsert(rootPtr, "ord", true)) == NULL)
-		return 0;
-	GTAddParam(tmp, STRING_T, "s");
-	GTAddParam(tmp, INT_T, "i");
-	GTAddRet(tmp, INT_T);
-	GTAddRet(tmp, INT_T);
+		// func main() ()
+		tmp = GTInsert(rootPtr, "main", false);
+		IFJ20Func(tmp);
 
-	// func substr(s string, i int, n int) (string, int)
-	if ((tmp = GTInsert(rootPtr, "substr", true)) == NULL)
-		return 0;
-	GTAddParam(tmp, STRING_T, "s");
-	GTAddParam(tmp, INT_T, "i");
-	GTAddParam(tmp, INT_T, "n");
-	GTAddRet(tmp, STRING_T);
-	GTAddRet(tmp, INT_T);
+		// func ord(s string, i int) (int, int)
+		tmp = GTInsert(rootPtr, "ord", true);
+		GTAddParam(tmp, STRING_T, "s");
+		GTAddParam(tmp, INT_T, "i");
+		GTAddRet(tmp, INT_T);
+		GTAddRet(tmp, INT_T);
+		IFJ20Func(tmp);
 
-	return 1;
+		// func substr(s string, i int, n int) (string, int)
+		tmp = GTInsert(rootPtr, "substr", true);
+		GTAddParam(tmp, STRING_T, "s");
+		GTAddParam(tmp, INT_T, "i");
+		GTAddParam(tmp, INT_T, "n");
+		GTAddRet(tmp, STRING_T);
+		GTAddRet(tmp, INT_T);
+		IFJ20Func(tmp);
+	}
 }
 
 // vyhledani zaznamu v globalni tabulce
+/*
 tGRPtr GTLookUp(tGRPtr rootPtr, char *key) {
 	if(rootPtr == NULL)
 		return NULL;
@@ -98,6 +108,7 @@ tGRPtr GTLookUp(tGRPtr rootPtr, char *key) {
 		}
 	}
 }
+*/
 
 // zjistuje, zda je funkce jiz definovana nebo ne
 bool GTIsDefined(tGRPtr ptr) {
@@ -111,6 +122,7 @@ tGRPtr GTInsert(tGRPtr *rootPtr, char *key, bool define) {
 		if(ptr != NULL) {
 			int rel = strcmp(key, ptr->id);
 			if(rel == 0) {
+				ptr->used = true;
 				if(!ptr->defined) {
 					ptr->defined = define;
 					return ptr;
@@ -119,6 +131,7 @@ tGRPtr GTInsert(tGRPtr *rootPtr, char *key, bool define) {
 					setError(SEM_DEF_ERROR);
 					return NULL;
 				}
+				return ptr;
 			} else {
 				if(rel < 0)
 					return GTInsert(&(ptr->LPtr), key, define);
@@ -129,11 +142,13 @@ tGRPtr GTInsert(tGRPtr *rootPtr, char *key, bool define) {
 			ptr = malloc(sizeof(struct globalRec) + strlen(key) + 1);
 			if(ptr != NULL) {
 				ptr->randomPCount = false;
-				ptr->params = NULL;
-				ptr->returns = NULL;
-				ptr->defined = define;
-				ptr->LPtr = NULL;
-				ptr->RPtr = NULL;
+				ptr->params       = NULL;
+				ptr->returns      = NULL;
+				ptr->defined      = define;
+				ptr->used         = false;
+				ptr->retDefined   = false;
+				ptr->LPtr         = NULL;
+				ptr->RPtr         = NULL;
 				strcpy(ptr->id, key);
 				*rootPtr = ptr;
 				return ptr;
@@ -144,25 +159,79 @@ tGRPtr GTInsert(tGRPtr *rootPtr, char *key, bool define) {
 	return NULL;
 }
 
+// prida datovy typ parametru, pokud parametr ptr=NULL, vytvori novy parametr
+tParamPtr GTAddParamType(tParamPtr ptr, varType type) {
+	if(ptr != NULL)
+		ptr->type = type;
+	else {
+		tParamPtr tmp = malloc(sizeof(struct funcParam));
+		if(tmp != NULL) {
+			tmp->id   = NULL;
+			tmp->type = type;
+			tmp->next = NULL;
+			return tmp;
+		}
+		setError(INTERNAL_ERROR);
+	}
+	return ptr;
+}
+
+// prida id parametru, pokud parametr ptr=NULL, vytvori novy parametr
+tParamPtr GTAddParamId(tParamPtr ptr, char *id) {
+	if(ptr != NULL) {
+		ptr->id = malloc(strlen(id)+1);
+		if(ptr->id != NULL) {
+			strcpy(ptr->id, id);
+			return ptr;
+		}
+		setError(INTERNAL_ERROR);
+		return NULL;
+	} else {
+		tParamPtr tmp = malloc(sizeof(struct funcParam));
+                if(tmp != NULL) {
+                        tmp->id = malloc(strlen(id)+1);
+			if(tmp->id != NULL) {
+				strcpy(tmp->id, id);
+	                        tmp->type = UNKNOWN_T;
+        	                tmp->next = NULL;
+                	        return tmp;
+			} else
+				free(tmp);
+                }
+                setError(INTERNAL_ERROR);
+		return NULL;
+	}
+}
+
 // prida novy parametr do seznamu parametru funkce
 int GTAddParam(tGRPtr ptr, varType type, char *id) {
 	if(ptr != NULL) {
-		tParamPtr tmp = malloc(sizeof(struct funcParam) + strlen(id) + 1);
-		if(tmp != NULL) {
-			tmp->type = type;
-			tmp->next = NULL;
-			strcpy(tmp->id, id);
-			tParamPtr last = ptr->params;
-			if(last == NULL)
-				ptr->params = tmp;
-			else {
-				while(last->next != NULL)
-					last = last->next;
-				last->next = tmp;
+		tParamPtr last = ptr->params;
+		if(last == NULL) {
+			ptr->params = GTAddParamType(NULL, type);
+			if(ptr->params != NULL) {
+				if(GTAddParamId(ptr->params, id) == NULL) {
+					free(ptr->params);
+					ptr->params = NULL;
+					return 0;
+				}
+				return 1;
 			}
-			return 1;
-		} else
-			setError(INTERNAL_ERROR);
+			return 0;
+		} else {
+			while(last->next != NULL)
+				last = last->next;
+			last->next = GTAddParamType(NULL, type);
+			if(last->next != NULL) {
+				if(GTAddParamId(last->next, id) == NULL) {
+					free(last->next);
+					last->next = NULL;
+					return 0;
+				}
+				return 1;
+			}
+			return 0;
+		}
 	}
 	return 0;
 }
@@ -199,6 +268,7 @@ void GTDispose(tGRPtr *rootPtr) {
 			tParamPtr par = ptr->params;
 			while(par != NULL) {
 				ptr->params = par->next;
+				free(par->id);
 				free(par);
 				par = ptr->params;
 			}

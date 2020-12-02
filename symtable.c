@@ -8,19 +8,23 @@
 int STInit(tSymTablePtr ptr) {
 	if(ptr != NULL) {
 		ptr->rootPtr = NULL;
-		if(GTInit(&(ptr->rootPtr))) {
+		GTInit(&(ptr->rootPtr));
+		if(getError() == 0){
 			// default aktivni funkce je main
-			ptr->activeFunc = GTLookUp(ptr->rootPtr, "main");
-			ptr->topFrame = NULL;
-			ptr->activeVar = NULL;
+			ptr->activeFunc  = GTInsert(&(ptr->rootPtr), "main", false);
+			ptr->activeParam = NULL;
+			ptr->activeRet   = NULL;
+			ptr->topFrame    = NULL;
+			ptr->activeVar   = NULL;
 			return 1;
 		}
-			GTDispose(&(ptr->rootPtr));
+		GTDispose(&(ptr->rootPtr));
 	}
 	return 0;
 }
 
 // vyhledani funkce
+/*
 int STFuncLookUp(tSymTablePtr ptr, char *key) {
 	if(ptr != NULL) {
 		tGRPtr tmp = GTLookUp(ptr->rootPtr, key);
@@ -31,6 +35,7 @@ int STFuncLookUp(tSymTablePtr ptr, char *key) {
 	}
 	return 0;
 }
+*/
 
 // zjisteni definovani aktivni funkce
 bool STFuncIsDefined(tSymTablePtr ptr) {
@@ -42,7 +47,9 @@ bool STFuncIsDefined(tSymTablePtr ptr) {
 // nastaveni aktivity na funkci
 int STFuncSetActive(tSymTablePtr ptr, tGRPtr funcPtr) {
 	if(ptr != NULL && funcPtr != NULL) {
-		ptr->activeFunc = funcPtr;
+		ptr->activeFunc  = funcPtr;
+		ptr->activeParam = funcPtr->params;
+		ptr->activeRet   = funcPtr->returns;
 		return 1;
 	}
 	return 0;
@@ -53,17 +60,74 @@ int STFuncInsert(tSymTablePtr ptr, char *key, bool define) {
 	if(ptr != NULL) {
 		tGRPtr tmp = GTInsert(&(ptr->rootPtr), key, define);
 		if(tmp != NULL) {
-			ptr->activeFunc = tmp;
+			ptr->activeFunc  = tmp;
+			ptr->activeParam = tmp->params;
+			ptr->activeRet   = tmp->returns;
 			return 1;
 		}
 	}
 	return 0;	
 }
 
-// prida novy parametr do seznamu parametru aktivni funkce
-int STFuncAddParam(tSymTablePtr ptr, varType type, char *id) {
-	if(ptr != NULL)
-		return GTAddParam(ptr->activeFunc, type, id);
+// nejdrive zjisti, zda byla aktivni funkce jiz drive pouzita nebo definovana
+//    pokud ano, zkontroluje datovy typ aktivniho parametru a aktivitu posune na dalsi parametr (NULL, kdyz byl kontrolovan posledni)
+//    pokud ne, prida aktivnimu parametru datovy typ, pokud parametr neexistuje, vytvori novy a nastavi ho jako aktivni
+int STFuncInsertParamType(tSymTablePtr ptr, varType type) {
+	if(ptr != NULL && ptr->activeFunc != NULL) {
+		if(ptr->activeFunc->used) {
+			if(ptr->activeParam != NULL) {
+				if(ptr->activeParam->type == type) {
+					ptr->activeParam = ptr->activeParam->next;
+					return 1;
+				}
+				setError(SEM_FUNC_ERROR);
+			} else
+				setError(SEM_FUNC_ERROR);
+		} else {
+			if(ptr->activeParam == NULL) {
+				if((ptr->activeFunc->params = GTAddParamType(NULL, type)) != NULL) {
+					ptr->activeParam = ptr->activeFunc->params;
+					return 1;
+				}
+			} else {
+				if(ptr->activeParam->id != NULL)
+					GTAddParamType(ptr->activeParam, type);
+				else {
+					if((ptr->activeParam->next = GTAddParamType(NULL, type)) != NULL) {
+						ptr->activeParam = ptr->activeParam->next;
+						return 1;
+					}
+				}
+			}
+		}
+	}
+	return 0;
+}
+
+// prida aktivnimu parametru id, pokud parametr neexistuje, vytvori novy a nastavi ho jako aktivni
+int STFuncInsertParamId(tSymTablePtr ptr, char *id) {
+	if(ptr != NULL && ptr->activeFunc != NULL) {
+		if(ptr->activeFunc->used) {
+			if(ptr->activeParam != NULL) {
+				if(GTAddParamId(ptr->activeParam, id) != NULL)
+					return 1;
+			}
+			else
+				setError(SEM_FUNC_ERROR);
+		} else {
+			if(ptr->activeParam == NULL) {
+				if((ptr->activeFunc->params = GTAddParamId(NULL, id)) != NULL) {
+					ptr->activeParam = ptr->activeFunc->params;
+					return 1;
+				}
+			} else {
+				if((ptr->activeParam->next = GTAddParamId(NULL, id)) != NULL) {
+					ptr->activeParam = ptr->activeParam->next;
+					return 1;
+				}
+			}
+		}
+	}
 	return 0;
 }
 

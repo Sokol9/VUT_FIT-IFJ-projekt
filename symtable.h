@@ -41,10 +41,12 @@ typedef struct localFrame* tLFPtr;
 // Rozhrani pro praci s tabulkami symbolu
 //    funkce vraci 0 pri neuspechu, 1 jinak
 typedef struct SymTable{
-	tGRPtr rootPtr;
-	tGRPtr activeFunc;
-	tLFPtr topFrame;
-	tLRPtr activeVar;
+	tGRPtr    rootPtr;
+	tGRPtr    activeFunc;
+	tParamPtr activeParam;
+	tRetPtr   activeRet;
+	tLFPtr    topFrame;
+	tLRPtr    activeVar;
 }*tSymTablePtr;
 
 // inicializace tabulky symbolu
@@ -53,7 +55,7 @@ int STInit(tSymTablePtr ptr);
 // vyhledani funkce
 //    vyhledanou funkci nastavuje na aktivni
 //    v pripade chyby ponechava aktivitu na puvodni funkci
-int STFuncLookUp(tSymTablePtr ptr, char *key);
+//int STFuncLookUp(tSymTablePtr ptr, char *key);
 
 // zjisteni definovani aktivni funkce
 bool STFuncIsDefined(tSymTablePtr ptr);
@@ -66,8 +68,13 @@ int STFuncSetActive(tSymTablePtr ptr, tGRPtr funcPtr);
 //    v pripade chyby ponechava aktivitu na puvodni funkci
 int STFuncInsert(tSymTablePtr ptr, char *key, bool define);
 
-// prida novy parametr do seznamu parametru aktivni funkce
-int STFuncAddParam(tSymTablePtr ptr, varType type, char *id);
+// nejdrive zjisti, zda byla aktivni funkce jiz drive pouzita nebo definovana
+//    pokud ano, zkontroluje datovy typ aktivniho parametru a aktivitu posune na dalsi parametr (NULL, kdyz byl kontrolovan posledni)
+//    pokud ne, prida aktivnimu parametru datovy typ, pokud parametr neexistuje, vytvori novy a nastavi ho jako aktivni
+int STFuncInsertParamType(tSymTablePtr ptr, varType type);
+
+// prida aktivnimu parametru id, pokud parametr neexistuje, vytvori novy a nastavi ho jako aktivni
+int STFuncInsertParamId(tSymTablePtr ptr, char *id);
 
 // prida novou navratovou hodnotu do seznamu navratovych hodnot aktivni funkce
 int STFuncAddRet(tSymTablePtr ptr, varType type);
