@@ -147,6 +147,7 @@ tGRPtr GTInsert(tGRPtr *rootPtr, char *key, bool define) {
 				ptr->defined      = define;
 				ptr->used         = false;
 				ptr->retDefined   = false;
+				ptr->errorFlag    = false;
 				ptr->LPtr         = NULL;
 				ptr->RPtr         = NULL;
 				strcpy(ptr->id, key);
@@ -236,7 +237,7 @@ int GTAddParam(tGRPtr ptr, varType type, char *id) {
 	return 0;
 }
 
-// prida novou navratovou hodnotu do seznamu navratovych hodnot funkce
+// pomocna funkce pro GTInit
 int GTAddRet(tGRPtr ptr, varType type) {
 	if(ptr != NULL) {
 		tRetPtr tmp = malloc(sizeof(struct funcRet));

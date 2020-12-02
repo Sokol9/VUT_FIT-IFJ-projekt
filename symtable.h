@@ -15,9 +15,10 @@ struct funcParam;
 typedef struct funcParam* tParamPtr;
 
 // navratova hodnota jako prvek linearniho seznamu
-struct funcRet;
-// ukazatel na navratovou hodnotu funkce
-typedef struct funcRet* tRetPtr;
+typedef struct funcRet{
+	varType type;
+        struct funcRet *next;
+}*tRetPtr;
 
 // zaznam o funkci v globalni tabulce symbolu
 struct globalRec;
@@ -48,6 +49,25 @@ typedef struct SymTable{
 	tLFPtr    topFrame;
 	tLRPtr    activeVar;
 }*tSymTablePtr;
+
+// seznam navratovych hodnot
+typedef struct{
+	tRetPtr first;
+	tRetPtr active;
+	tRetPtr last;
+}*tRetListPtr;
+
+// inicializuje seznam navratovych hodnot
+void retListInit(tRetListPtr list);
+
+// vlozi navratovou hodnotu na konec seznamu
+int retListInsert(tRetListPtr list, varType type);
+
+// posune aktivitu na dalsi prvek
+void retListNext(tRetListPtr list);
+
+// zrusi seznam navratovych hodnot
+void retListDispose(tRetListPtr list);
 
 // inicializace tabulky symbolu
 int STInit(tSymTablePtr ptr);

@@ -4,6 +4,58 @@
 #include "symtable_private.h"
 #include "error.h"
 
+// inicializuje seznam navratovych hodnot
+void retListInit(tRetListPtr list) {
+	if(list != NULL) {
+		list->first  = NULL;
+		list->active = NULL;
+		list->last   = NULL;
+	}
+}
+
+// vlozi navratovou hodnotu na konec seznamu
+int retListInsert(tRetListPtr list, varType type) {
+	if(list != NULL) {
+		if(list->first == NULL) {
+			list->first = malloc(sizeof(struct funcRet));
+			if(list->first != NULL) {
+				list->active      = list->first;
+				list->last        = list->first;
+				list->first->type = type;
+				list->first->next = NULL;
+				return 1;
+			}
+		} else {
+			list->last->next = malloc(sizeof(struct funcRet));
+			if(list->last->next != NULL) {
+				list->last = list->last->next;
+				return 1;
+			}
+		}
+		setError(INTERNAL_ERROR);
+	}
+	return 0;
+}
+
+// posune aktivitu na dalsi prvek
+void retListNext(tRetListPtr list) {
+	if(list != NULL && list->active != NULL)
+		list->active = list->active->next;
+}
+
+// zrusi seznam navratovych hodnot
+void retListDispose(tRetListPtr list) {
+	if(list != NULL) {
+		while(list->first != NULL) {
+			list->active = list->first;
+			list->first = list->first->next;
+			free(list->active);
+		}
+		list->active = NULL;
+		list->last   = NULL;
+	}
+}
+
 // inicializace
 int STInit(tSymTablePtr ptr) {
 	if(ptr != NULL) {
@@ -85,6 +137,7 @@ int STFuncInsertParamType(tSymTablePtr ptr, varType type) {
 				setError(SEM_FUNC_ERROR);
 			} else
 				setError(SEM_FUNC_ERROR);
+			ptr->activeFunc->errorFlag = true;
 		} else {
 			if(ptr->activeParam == NULL) {
 				if((ptr->activeFunc->params = GTAddParamType(NULL, type)) != NULL) {
@@ -114,8 +167,10 @@ int STFuncInsertParamId(tSymTablePtr ptr, char *id) {
 				if(GTAddParamId(ptr->activeParam, id) != NULL)
 					return 1;
 			}
-			else
+			else {
 				setError(SEM_FUNC_ERROR);
+				ptr->activeFunc->errorFlag = true;
+			}
 		} else {
 			if(ptr->activeParam == NULL) {
 				if((ptr->activeFunc->params = GTAddParamId(NULL, id)) != NULL) {
@@ -145,10 +200,43 @@ int STFuncParamEnd(tSymTablePtr ptr) {
 	return 0;
 }
 
-// prida novou navratovou hodnotu do seznamu navratovych hodnot aktivni funkce
-int STFuncAddRet(tSymTablePtr ptr, varType type) {
-	if(ptr != NULL)
-		return GTAddRet(ptr->activeFunc, type);
+// nejdrive zjisti, zda byly funkci jiz definovany navratove hodnoty
+//    pokud ano, provadi kontrolu porovnanim dvou seznamu navratovych hodnot
+//    pokud ne, vklada aktivni funkci seznam navratovych hodnot
+//
+//    seznam navratovych hodnot, ktery bude predan funkci se stava prazdnym
+int STFuncInsertRet(tSymTablePtr ptr, tRetListPtr list) {
+	if(ptr != NULL && list != NULL && ptr->activeFunc != NULL){
+		if(ptr->activeFunc->retDefined) {
+			while(ptr->activeRet != NULL) {
+				if(list->active != NULL) {
+					if(ptr->activeRet->type != list->active->type) {
+						setError(SEM_FUNC_ERROR);
+						retListDispose(list);
+						return 0;
+					}
+					ptr->activeRet = ptr->activeRet->next;
+					retListNext(list);
+				} else {
+					setError(SEM_FUNC_ERROR);
+					retListDispose(list);
+					return 0;
+				}
+			}
+			if(list->active != NULL)
+				setError(SEM_FUNC_ERROR);
+			else {
+				retListDispose(list);
+				return 1;
+			}
+		} else {
+			ptr->activeFunc->returns = list->first;
+			list->first = list->active = list->last = NULL;
+			ptr->activeFunc->retDefined = true;
+			return 1;
+		}
+	}
+	retListDispose(list);
 	return 0;
 }
 

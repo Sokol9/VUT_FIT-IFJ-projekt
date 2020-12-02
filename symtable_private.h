@@ -15,12 +15,6 @@ struct funcParam{
         struct funcParam *next;
 };
 
-// navratova hodnota jako prvek linearniho seznamu
-struct funcRet{
-        varType type;
-        struct funcRet *next;
-};
-
 // zaznam o funkci v binarnim vyhledavacim strome
 struct globalRec{
 	bool randomPCount;
@@ -29,6 +23,7 @@ struct globalRec{
 	bool defined;
 	bool used;
 	bool retDefined;
+	bool errorFlag;
 	struct globalRec *LPtr;
 	struct globalRec *RPtr;
 	char id[];
