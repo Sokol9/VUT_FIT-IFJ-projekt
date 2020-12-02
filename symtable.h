@@ -76,6 +76,9 @@ int STFuncInsertParamType(tSymTablePtr ptr, varType type);
 // prida aktivnimu parametru id, pokud parametr neexistuje, vytvori novy a nastavi ho jako aktivni
 int STFuncInsertParamId(tSymTablePtr ptr, char *id);
 
+// zadana na konci prace s parametry - provadi-li se kontrola, kontroluje, ze je spravny pocet parametru
+int STFuncParamEnd(tSymTablePtr ptr);
+
 // prida novou navratovou hodnotu do seznamu navratovych hodnot aktivni funkce
 int STFuncAddRet(tSymTablePtr ptr, varType type);
 

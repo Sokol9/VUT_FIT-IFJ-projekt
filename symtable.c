@@ -130,6 +130,18 @@ int STFuncInsertParamId(tSymTablePtr ptr, char *id) {
 	}
 	return 0;
 }
+// pri kontrole parametru kontroluje jejich spravny pocet
+int STFuncParamEnd(tSymTablePtr ptr) {
+	if(ptr != NULL && ptr->activeFunc != NULL) {
+		if(ptr->activeFunc->used) {
+			if(ptr->activeParam == NULL)
+				return 1;
+			setError(SEM_FUNC_ERROR);
+		} else
+			return 1;
+	}
+	return 0;
+}
 
 // prida novou navratovou hodnotu do seznamu navratovych hodnot aktivni funkce
 int STFuncAddRet(tSymTablePtr ptr, varType type) {
