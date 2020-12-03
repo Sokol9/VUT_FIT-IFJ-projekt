@@ -5,6 +5,7 @@
 #include "project.h"
 #include "symtable.h"
 
+// struktura pro token jako clena dvojsmerne vazaneho linearniho seznamu
 typedef struct tokenListItem{
 	tToken token;
 	bool startOfExpr;
@@ -14,9 +15,11 @@ typedef struct tokenListItem{
 	struct tToken *prev;
 }*tokenListItemPtr;
 
+// dvojsmerne vazany linearni seznam tokenu
 typedef struct tokenList{
 	tokenListItemPtr first;
 	tokenListItemPtr active;
+	tokenListItemPtr last;
 	tokenListItemPtr lastTerm;
 	tokenListItemPtr startOfExpr;
 }*tokenListPtr;
