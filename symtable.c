@@ -233,6 +233,8 @@ int STFuncInsertRet(tSymTablePtr ptr, tRetListPtr list) {
 			return 1;
 		}
 	}
+	if(list == NULL)
+		ptr->activeFunc->retDefined = true;
 	retListDispose(list);
 	return 0;
 }
