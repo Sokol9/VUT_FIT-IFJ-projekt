@@ -352,7 +352,7 @@ tLRPtr LTInsertToTree(tLRPtr *rootPtr, char *key) {
 					return LTInsertToTree(&(ptr->RPtr), key);
 			}
 		} else {
-			ptr = malloc(sizeof(struct localRec));
+			ptr = malloc(sizeof(struct localRec) + strlen(key) + 1);
 			if(ptr != NULL) {
 				strcpy(ptr->id, key);
 				ptr->LPtr = NULL;

@@ -170,6 +170,7 @@ void tokenGenerate(tokenListPtr ptr) {
 			tmp->next                    = end->next;
 			end->next->prev              = tmp;
 			free(end);
+			return;
 		}
 		switch(ptr->startOfExpr)
 	}
