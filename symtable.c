@@ -137,7 +137,6 @@ int STFuncInsertParamType(tSymTablePtr ptr, varType type) {
 				setError(SEM_FUNC_ERROR);
 			} else
 				setError(SEM_FUNC_ERROR);
-			ptr->activeFunc->errorFlag = true;
 		} else {
 			if(ptr->activeParam == NULL) {
 				if((ptr->activeFunc->params = GTAddParamType(NULL, type)) != NULL) {
@@ -167,10 +166,8 @@ int STFuncInsertParamId(tSymTablePtr ptr, char *id) {
 				if(GTAddParamId(ptr->activeParam, id) != NULL)
 					return 1;
 			}
-			else {
+			else
 				setError(SEM_FUNC_ERROR);
-				ptr->activeFunc->errorFlag = true;
-			}
 		} else {
 			if(ptr->activeParam == NULL) {
 				if((ptr->activeFunc->params = GTAddParamId(NULL, id)) != NULL) {
@@ -260,6 +257,7 @@ int STVarLookUp(tSymTablePtr ptr, char *key) {
 			ptr->activeVar = tmp;
 			return 1;
 		}
+		setError(SEM_DEF_ERROR);
 	}
 	return 0;
 }
