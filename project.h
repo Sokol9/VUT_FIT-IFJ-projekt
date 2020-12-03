@@ -29,7 +29,9 @@ typedef enum {UNKNOWN=0, ADD, SUB, MULT, DIV, SEM, OBR, CBR, OB, CB, LT, LTEQ, G
 // eolFlag urcuje, zda byl pri nacitani znaku zaznamenan konec radku
 typedef struct{
 	tokenType type;
+	tokenType oldType;
 	char attr[MAX_LEN];
+	char oldAttr[MAX_LEN];
 	bool eolFlag;
 }tToken;
 
@@ -70,7 +72,7 @@ int getToken(tToken *token, tKWPtr table);
 
 //================================================================
 
-
+void saveToken(tToken* token);
 
 
 
