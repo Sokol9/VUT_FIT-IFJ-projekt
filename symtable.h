@@ -99,8 +99,12 @@ int STFuncInsertParamId(tSymTablePtr ptr, char *id);
 // zadana na konci prace s parametry - provadi-li se kontrola, kontroluje, ze je spravny pocet parametru
 int STFuncParamEnd(tSymTablePtr ptr);
 
-// prida novou navratovou hodnotu do seznamu navratovych hodnot aktivni funkce
-int STFuncAddRet(tSymTablePtr ptr, varType type);
+// nejdrive zjisti, zda byly funkci jiz definovany navratove hodnoty
+//    pokud ano, provadi kontrolu porovnanim dvou seznamu navratovych hodnot
+//    pokud ne, vklada aktivni funkci seznam navratovych hodnot
+//
+//    seznam navratovych hodnot, ktery bude predan funkci se stava prazdnym
+int STFuncInsertRet(tSymTablePtr ptr, tRetListPtr list);
 
 // vytvoreni noveho lokalniho ramce
 //    pokud je func=true, vytvari novy ramec pro aktivni funkci
