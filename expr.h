@@ -1,3 +1,6 @@
+#ifndef EXPR_H
+#define EXPR_H
+
 // rozhrani pro zpracovani vyrazu
 #include "project.h"
 #include "symtable.h"
@@ -68,3 +71,5 @@ void tokenStartOfExpr(tokenListPtr ptr);
 //    pokud ma terminal nastaven jak zacatek, tak konec podvyrazu, pouze ho meni na neterminal
 //    generuje instrukce
 void tokenGenerate(tokenListPtr ptr);
+
+#endif
