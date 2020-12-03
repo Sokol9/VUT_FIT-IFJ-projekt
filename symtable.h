@@ -51,7 +51,7 @@ typedef struct SymTable{
 }*tSymTablePtr;
 
 // seznam navratovych hodnot
-typedef struct{
+typedef struct RetList{
 	tRetPtr first;
 	tRetPtr active;
 	tRetPtr last;
