@@ -9,7 +9,6 @@
 typedef struct tokenListItem{
 	tToken token;
 	bool startOfExpr;
-	bool endOfExpr;
 	bool term;
 	struct tToken *next;
 	struct tToken *prev;
@@ -32,6 +31,7 @@ void tokenListInit(tokenListPtr ptr);
 
 // pridani tokenu na konec seznamu
 //    prvni token pridany do seznamu se automaticky stava aktivnim
+//    pridava-li do seznamu token ID nebo literal, nastavuje term=false
 int tokenAppend(tokenListPtr ptr, tToken token);
 
 // zruseni seznamu
@@ -66,12 +66,13 @@ int tokenPrecedence(tokenListPtr ptr);
 void tokenLastTerm(tokenListPtr ptr);
 
 // zpetne hleda zacatek podvyrazu
-//    pokud je po volani teto funkce startOfExpr=NULL, analyza je u konce
 void tokenStartOfExpr(tokenListPtr ptr);
 
-// nahrazuje podvyraz "neterminalem"
+// nahrazuje podvyraz
 //    zrusi cast seznamu a na jeho misto vlozi novy prvek s term=false
-//    pokud ma terminal nastaven jak zacatek, tak konec podvyrazu, pouze ho meni na neterminal
+//    novy prvku je pomocna promenna
+//    pokud je posledni prvek podvyrazu aktivni, posunuje aktivitu na dalsi prvek
+//    pokud je prvek posledni v seznamu, je vyraz zpracovan
 //    generuje instrukce
 void tokenGenerate(tokenListPtr ptr);
 
