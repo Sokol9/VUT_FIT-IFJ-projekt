@@ -16,21 +16,19 @@ void retListInit(tRetListPtr list) {
 // vlozi navratovou hodnotu na konec seznamu
 int retListInsert(tRetListPtr list, varType type) {
 	if(list != NULL) {
-		if(list->first == NULL) {
-			list->first = malloc(sizeof(struct funcRet));
-			if(list->first != NULL) {
-				list->active      = list->first;
-				list->last        = list->first;
-				list->first->type = type;
-				list->first->next = NULL;
-				return 1;
+		tRetPtr tmp = malloc(sizeof(struct funcRet));
+		if(tmp != NULL) {
+			tmp->type = type;
+			tmp->next = NULL;
+			if(list->first == NULL) {
+				list->first  = tmp;
+				list->active = tmp;
+				list->last   = tmp;
+			} else {
+				list->last->next = tmp;
+				list->last = tmp;
 			}
-		} else {
-			list->last->next = malloc(sizeof(struct funcRet));
-			if(list->last->next != NULL) {
-				list->last = list->last->next;
-				return 1;
-			}
+			return 1;
 		}
 		setError(INTERNAL_ERROR);
 	}
@@ -200,6 +198,7 @@ int STFuncParamEnd(tSymTablePtr ptr) {
 // nejdrive zjisti, zda byly funkci jiz definovany navratove hodnoty
 //    pokud ano, provadi kontrolu porovnanim dvou seznamu navratovych hodnot
 //    pokud ne, vklada aktivni funkci seznam navratovych hodnot
+//    je-li volana s list=NULL, pouze nastavuje, ze funkce nema zadne navratove hodnoty
 //
 //    seznam navratovych hodnot, ktery bude predan funkci se stava prazdnym
 int STFuncInsertRet(tSymTablePtr ptr, tRetListPtr list) {
@@ -207,7 +206,10 @@ int STFuncInsertRet(tSymTablePtr ptr, tRetListPtr list) {
 		if(ptr->activeFunc->retDefined) {
 			while(ptr->activeRet != NULL) {
 				if(list->active != NULL) {
-					if(ptr->activeRet->type != list->active->type) {
+					if(ptr->activeRet->type == UNKNOWN_T)
+						ptr->activeRet->type = list->active->type;
+					else if(list->active->type == UNKNOWN_T);
+					else if(ptr->activeRet->type != list->active->type) {
 						setError(SEM_FUNC_ERROR);
 						retListDispose(list);
 						return 0;
@@ -233,8 +235,10 @@ int STFuncInsertRet(tSymTablePtr ptr, tRetListPtr list) {
 			return 1;
 		}
 	}
-	if(list == NULL)
+	if(list == NULL) {
 		ptr->activeFunc->retDefined = true;
+		return 1;
+	}
 	retListDispose(list);
 	return 0;
 }
