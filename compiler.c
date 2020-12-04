@@ -7,6 +7,7 @@ int main() {
 
 	tKWPtr keyWords = KWInit();
 	tToken token;
+
 	bool sucess = true;
 	tSymTablePtr STab = malloc (sizeof(struct SymTable));
 	if (!STab) setError(INTERNAL_ERROR); else printf("STab allocation success\n\n");
@@ -17,5 +18,6 @@ int main() {
 	STDispose(STab);
 	free(STab);
 	KWDispose(&keyWords);
+	printf("eroro: %d\n\n", getError());
 	return getError() ;
 }

@@ -5,6 +5,8 @@
 #include "symtable.h"
  
 #define DEBUG_INVALID
+#define DEBUG_VALID
+
 #define GET_TOKEN getToken(token,  keyWords);
   
 // EOL_REQUIRED kontroluje, ci pred aktualne nacitanim tokenom bol EOL, vracia chybu, ak nebol

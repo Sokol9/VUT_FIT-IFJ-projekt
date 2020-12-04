@@ -1,7 +1,0 @@
-package main
-
-//taky skusobny program
-
-func main() {
-	print("hello world!")
-}

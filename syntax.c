@@ -5,6 +5,7 @@
 #include "symtable.h"
 
 
+
 // <prog> - package main <func_def> <func_n> EOF
 //
 // <func_n> - epsilon

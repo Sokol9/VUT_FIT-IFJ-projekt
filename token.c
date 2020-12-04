@@ -3,4 +3,5 @@
 
 void saveToken(tToken* token){
 	strcpy(token->oldAttr, token->attr);
+	token->oldType = token->type;
 }

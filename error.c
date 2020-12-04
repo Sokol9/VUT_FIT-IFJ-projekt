@@ -1,4 +1,5 @@
 #include "error.h"
+#include <stdio.h>
 
 static int ErrorNum = 0; //actual error num
 
