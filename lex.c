@@ -248,15 +248,25 @@ int getToken(tToken *token, tKWPtr table) {
 
 						default:
 							setError(LEX_ERROR);
+							if(XX == EOF) {
+								token->type = TOKEN_EOF;
+								return RET_OK;
+							}
 							break;
 					}
-
-				} else if (XX > 31 && XX != '"')
+				} else if(XX > 31) {
+					if(XX == '"')
+						break;
 					token->attr[buff_index++] = (char)XX;
-				else
+				} else {
 					setError(LEX_ERROR);
+					if(XX == EOF) {
+						token->type = TOKEN_EOF;
+						return RET_OK;
+					}
+				}
 
-			} while(buff_index < MAX_LEN-2 && XX != '"' && XX != '\n');
+			} while(buff_index < MAX_LEN-2 && XX != '\n');
 
 			if(XX != '"' && XX != '\n') {
 				// pri prekroceni velikosti bufferu vrati na stdin '"' pro cteni dalsi casti literalu
