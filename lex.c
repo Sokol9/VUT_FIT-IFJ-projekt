@@ -157,8 +157,14 @@ int getToken(tToken *token, tKWPtr table) {
 			if(isdigit(XX)) {
 				token->type = FLOAT_L;
 				// ignorovani nul na zacatku exponentu
-				while(XX == '0')
+				while(XX == '0') {
 					XX = getchar();
+					if(!isdigit(XX)) {
+						ungetc(XX, stdin);
+						XX = '0';
+						break;
+					}
+				}
 				if(buff_index < ((sign == '\0')? MAX_LEN-2 : MAX_LEN-3)) {
 					token->attr[buff_index++] = 'e';
 					if(sign != '\0')
