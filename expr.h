@@ -74,6 +74,6 @@ void tokenStartOfExpr(tokenListPtr ptr);
 //    pokud je posledni prvek podvyrazu aktivni, posunuje aktivitu na dalsi prvek
 //    pokud je prvek posledni v seznamu, je vyraz zpracovan
 //    generuje instrukce
-void tokenGenerate(tokenListPtr ptr);
+int tokenGenerate(tokenListPtr ptr, int varNumber);
 
 #endif

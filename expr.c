@@ -150,28 +150,64 @@ void tokenStartOfExpr(tokenListPtr ptr) {
 	}
 }
 
-// nahrazuje podvyraz tokenem
-//    generuje instrukce
-void tokenGenerate(tokenListPtr ptr) {
+// nahrazuje podvyraz tokenem, ktery predstavuje nove vygenerovanou pomocnou promennou
+int tokenGenerate(tokenListPtr ptr, int varNumber) {
 	if(ptr != NULL && ptr->startOfExpr != NULL && ptr->startOfExpr->next != NULL) {
 		tokenListItemPtr middle = ptr->startOfExpr->next;
 		tokenListItemPtr end    = middle->next;
+		if(ptr->startOfExpr == ptr->first)
+			ptr->first = middle;
+		if(ptr->last == end)
+			ptr->last = middle;
 		if(end == ptr->active)
 			tokenNext(ptr);
-		if(end->token.type == CBR) {
-			if(ptr->startOfExpr == ptr->first)
-				ptr->first = middle;
-			if(ptr->last == end)
-				ptr->last = middle;
-			ptr->startOfExpr->prev->next = tmp;
-			tmp->prev                    = ptr->startOfExpr->prev;
-			free(ptr->startOfExpr);
-			ptr->startOfExpr             = NULL;
-			tmp->next                    = end->next;
-			end->next->prev              = tmp;
-			free(end);
-			return;
+		if(middle->token.type < ID) {
+			switch(middle->token.type) {
+				case ADD:
+					middle->token.type = ID;
+					sprintf(middle->token.attr, "prec$%d", varNumber);
+					if(type == STRING_L)
+						// generovani instrukce CONCAT
+					else
+						// generovani instrukce ADD
+					break;
+
+				case SUB:
+					middle->token.type = ID;
+					sprintf(middle->token.attr, "prec$%d", varNumber);
+					// generovani instrukce SUB
+					break;
+
+				case MUL:
+					middle->token.type = ID;
+					sprintf(middle->token.attr, "prec$%d", varNumber);
+					// generovani instrukce MUL
+					break;
+
+				case DIV:
+					middle->token.type = ID;
+					sprintf(middle->token.attr, "prec$%d", varNumber);
+					// kontrola nuly
+					if(type == FLOAT_L)
+						// generovani instrukce DIV
+					else
+						// generovani instrukce IDIV
+					break;
+
+				default:
+					setError(SYN_ERROR);
+					return RET_ERR;
+			}
 		}
-		switch(ptr->startOfExpr)
+		middle->term = false;
+		ptr->startOfExpr->prev->next = middle;
+		middle->prev                 = ptr->startOfExpr->prev;
+		free(ptr->startOfExpr);
+		ptr->startOfExpr             = NULL;
+		middle->next                 = end->next;
+		end->next->prev              = middle;
+		free(end);
+		return RET_OK;
 	}
+	return RET_ERR;
 }
