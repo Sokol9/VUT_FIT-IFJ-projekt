@@ -196,7 +196,7 @@ int tokenGenerate(tokenListPtr ptr, int varNumber) {
 			char **endptr = NULL;
 			switch(middle->token.type) {
 				case ADD:
-					middle->token.type = end->token.type;
+					middle->token.type = ID;
 					sprintf(middle->token.attr, "prec$%d", varNumber);
 					if(end->token.type == STRING_L) {
 						// generovani instrukce CONCAT
@@ -210,7 +210,7 @@ int tokenGenerate(tokenListPtr ptr, int varNumber) {
 					break;
 
 				case SUB:
-					middle->token.type = end->token.type;
+					middle->token.type = ID;
 					sprintf(middle->token.attr, "prec$%d", varNumber);
 					// generovani instrukce SUB
 					printf("DEFVAR [%-10s]\n", middle->token.attr);
@@ -218,7 +218,7 @@ int tokenGenerate(tokenListPtr ptr, int varNumber) {
 					break;
 
 				case MULT:
-					middle->token.type = end->token.type;
+					middle->token.type = ID;
 					sprintf(middle->token.attr, "prec$%d", varNumber);
 					// generovani instrukce MUL
 					printf("DEFVAR [%-10s]\n", middle->token.attr);
@@ -226,7 +226,7 @@ int tokenGenerate(tokenListPtr ptr, int varNumber) {
 					break;
 
 				case DIV:
-					middle->token.type = end->token.type;
+					middle->token.type = ID;
 					sprintf(middle->token.attr, "prec$%d", varNumber);
 					if(strtod(end->token.attr, endptr) == 0.0) {
 						setError(SEM_ZERO_ERROR);

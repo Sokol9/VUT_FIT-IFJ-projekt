@@ -57,8 +57,8 @@ void tokenNext(tokenListPtr ptr);
 //  nepovede-li si vlozit zacatek noveho podvyrazu, je nutne zpracovat dosavadni podvyraz
 //    nastavuje startOfExpr tokenu
 //    vraci nasledujici navratove hodnoty:
-//      0 ... nepovedlo se vlozit startOfExpr tokenu .. nasleduje zpracovani podvyrazu
-//      1 ... povedlo se vlozit startOfExpr tokenu   .. nasleduje prochazeni seznamu
+//      RET_ERR ... nepovedlo se vlozit startOfExpr tokenu .. nasleduje zpracovani podvyrazu
+//      RET_OK  ... povedlo se vlozit startOfExpr tokenu   .. nasleduje prochazeni seznamu
 int tokenPrecedence(tokenListPtr ptr);
 
 // zpetne hleda posledni term

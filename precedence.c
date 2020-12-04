@@ -11,9 +11,9 @@ void resetNumber() {
 // probehne-li vse v poradku, seznam obsahuje prave jeden prvek, na ktery funkce vraci ukazatel
 // nastane-li v prubehu analyzy chyba, vraci funkce NULL
 tokenListItemPtr precedence(tokenListPtr ptr, tSymTablePtr STab, bool resetVarNumber) {
-	if(ptr != NULL/* && STab != NULL*/) {
-//		if(!tokenListSemCheck(ptr, STab))
-//			return NULL;
+	if(ptr != NULL && STab != NULL) {
+		if(!tokenListSemCheck(ptr, STab))
+			return NULL;
 		if(resetVarNumber)
 			resetNumber();
 		if(ptr->first != NULL) {
