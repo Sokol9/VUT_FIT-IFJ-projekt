@@ -10,8 +10,8 @@ typedef struct tokenListItem{
 	tToken token;
 	bool startOfExpr;
 	bool term;
-	struct tToken *next;
-	struct tToken *prev;
+	struct tokenListItem *next;
+	struct tokenListItem *prev;
 }*tokenListItemPtr;
 
 // dvojsmerne vazany linearni seznam tokenu
@@ -53,13 +53,12 @@ int tokenListSemCheck(tokenListPtr ptr, tSymTablePtr);
 void tokenNext(tokenListPtr ptr);
 
 // na zaklade priority mezi lastTerm a active
-//  vklada zacatek podvyrazu za lastTerm, pokud lastTerm=NULL, potom vklada zacatek podvyrazu na prvni prvek seznamu
-//  vklada konec podvyrazu pred active, pokud active=NULL, potom vklada konec podvyrazu na posledni prvek seznamu
-//    nastavuje startOfExpr
+//  vklada zacatek podvyrazu do prvku za lastTerm, pokud je NULL, vklada zacatek podvyrazu do prvniho prvku
+//  nepovede-li si vlozit zacatek noveho podvyrazu, je nutne zpracovat dosavadni podvyraz
+//    nastavuje startOfExpr tokenu
 //    vraci nasledujici navratove hodnoty:
-//     -1 ... mel-li lastTerm nizsi prioritu nez active
-//      0 ... byla-li priorita stejna
-//      1 ... mel-li lastTerm vyssi prioritu nez active
+//      0 ... nepovedlo se vlozit startOfExpr tokenu .. nasleduje zpracovani podvyrazu
+//      1 ... povedlo se vlozit startOfExpr tokenu   .. nasleduje prochazeni seznamu
 int tokenPrecedence(tokenListPtr ptr);
 
 // zpetne hleda posledni term
@@ -75,5 +74,8 @@ void tokenStartOfExpr(tokenListPtr ptr);
 //    pokud je prvek posledni v seznamu, je vyraz zpracovan
 //    generuje instrukce
 int tokenGenerate(tokenListPtr ptr, int varNumber);
+
+// precedencni analyza pro zpracovani vyrazu
+tokenListItemPtr precedence(tokenListPtr ptr, tSymTablePtr STab, bool resetVarNumber);
 
 #endif

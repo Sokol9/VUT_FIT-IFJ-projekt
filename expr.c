@@ -2,6 +2,11 @@
 #include "expr.h"
 #include "error.h"
 
+//================
+// PROVIZORNE!!!
+#include <stdio.h>
+//================
+
 // navratove hodnoty
 #define RET_OK  1
 #define RET_ERR 0
@@ -118,23 +123,49 @@ void tokenNext(tokenListPtr ptr) {
 }
 
 // na zaklade priority mezi lastTerm a active
-//  vklada zacatek podvyrazu za lastTerm, pokud lastTerm=NULL, potom vklada zacatek podvyrazu na prvni prvek seznamu
-//  vklada konec podvyrazu pred active, pokud active=NULL, potom vklada konec podvyrazu na posledni prvek seznamu
-//    nastavuje startOfExpr
+//  vklada zacatek podvyrazu do prvku za lastTerm, pokud je NULL, vklada zacatek podvyrazu do prvniho prvku
+//  nepovede-li si vlozit zacatek noveho podvyrazu, je nutne zpracovat dosavadni podvyraz
+//    nastavuje startOfExpr tokenu
 //    vraci nasledujici navratove hodnoty:
-//     -1 ... mel-li lastTerm nizsi prioritu nez active
-//      0 ... byla-li priorita stejna
-//      1 ... mel-li lastTerm vyssi prioritu nez active
-int tokenPrecedence(tokenListPtr ptr);
+//      RET_ERR ... nepovedlo se vlozit startOfExpr tokenu .. nasleduje zpracovani podvyrazu
+//      RET_OK  ... povedlo se vlozit startOfExpr tokenu   .. nasleduje prochazeni seznamu
+int tokenPrecedence(tokenListPtr ptr) {
+	if(ptr->lastTerm == NULL) {
+		ptr->first->startOfExpr = true;
+		return RET_OK;
+	}
+	if(ptr->active == NULL)
+		return RET_ERR;
+	tokenType op = ptr->active->token.type;
+	switch(ptr->lastTerm->token.type) {
+		case ADD:
+		case SUB:
+			if(op == ADD || op == SUB || op == CBR)
+				return RET_ERR;
+			break;
+		case MULT:
+		case DIV:
+			if(op == OBR)
+				break;
+			return RET_ERR;
+		case OBR:
+			if(op == CBR)
+				return RET_ERR;
+			break;
+		default:
+			setError(SYN_ERROR);
+			break;
+	}
+	ptr->lastTerm->next->startOfExpr = true;
+	return RET_OK;
+}
 
 // zpetne hleda posledni term
 void tokenLastTerm(tokenListPtr ptr) {
-	if(ptr != NULL) {
-		while(ptr->lastTerm != NULL) {
+	if(ptr != NULL && ptr->lastTerm != NULL) {
+		do {
 			ptr->lastTerm = ptr->lastTerm->prev;
-			if(ptr->lastTerm->term)
-				break;
-		}
+		} while(ptr->lastTerm != NULL && !ptr->lastTerm->term);
 	}
 }
 
@@ -162,36 +193,54 @@ int tokenGenerate(tokenListPtr ptr, int varNumber) {
 		if(end == ptr->active)
 			tokenNext(ptr);
 		if(middle->token.type < ID) {
+			char **endptr = NULL;
 			switch(middle->token.type) {
 				case ADD:
-					middle->token.type = ID;
+					middle->token.type = end->token.type;
 					sprintf(middle->token.attr, "prec$%d", varNumber);
-					if(type == STRING_L)
+					if(end->token.type == STRING_L) {
 						// generovani instrukce CONCAT
-					else
+						printf("DEFVAR [%-10s]\n", middle->token.attr);
+						printf("CONCAT [%-10s] [%-10s] [%-10s]\n", middle->token.attr, ptr->startOfExpr->token.attr, end->token.attr);
+					} else {
 						// generovani instrukce ADD
+						printf("DEFVAR [%-10s]\n", middle->token.attr);
+						printf("ADD [%-10s] [%-10s] [%-10s]\n", middle->token.attr, ptr->startOfExpr->token.attr, end->token.attr);
+					}
 					break;
 
 				case SUB:
-					middle->token.type = ID;
+					middle->token.type = end->token.type;
 					sprintf(middle->token.attr, "prec$%d", varNumber);
 					// generovani instrukce SUB
+					printf("DEFVAR [%-10s]\n", middle->token.attr);
+					printf("SUB [%-10s] [%-10s] [%-10s]\n", middle->token.attr, ptr->startOfExpr->token.attr, end->token.attr);
 					break;
 
-				case MUL:
-					middle->token.type = ID;
+				case MULT:
+					middle->token.type = end->token.type;
 					sprintf(middle->token.attr, "prec$%d", varNumber);
 					// generovani instrukce MUL
+					printf("DEFVAR [%-10s]\n", middle->token.attr);
+					printf("MUL [%-10s] [%-10s] [%-10s]\n", middle->token.attr, ptr->startOfExpr->token.attr, end->token.attr);
 					break;
 
 				case DIV:
-					middle->token.type = ID;
+					middle->token.type = end->token.type;
 					sprintf(middle->token.attr, "prec$%d", varNumber);
-					// kontrola nuly
-					if(type == FLOAT_L)
+					if(strtod(end->token.attr, endptr) == 0.0) {
+						setError(SEM_ZERO_ERROR);
+						return RET_ERR;
+					}
+					if(end->token.type == FLOAT_L) {
 						// generovani instrukce DIV
-					else
+						printf("DEFVAR [%-10s]\n", middle->token.attr);
+						printf("DIV [%-10s] [%-10s] [%-10s]\n", middle->token.attr, ptr->startOfExpr->token.attr, end->token.attr);
+					} else {
 						// generovani instrukce IDIV
+						printf("DEFVAR [%-10s]\n", middle->token.attr);
+						printf("IDIV [%-10s] [%-10s] [%-10s]\n", middle->token.attr, ptr->startOfExpr->token.attr, end->token.attr);
+					}
 					break;
 
 				default:
@@ -200,12 +249,14 @@ int tokenGenerate(tokenListPtr ptr, int varNumber) {
 			}
 		}
 		middle->term = false;
-		ptr->startOfExpr->prev->next = middle;
-		middle->prev                 = ptr->startOfExpr->prev;
+		middle->prev = ptr->startOfExpr->prev;
+		if(ptr->startOfExpr->prev != NULL)
+			ptr->startOfExpr->prev->next = middle;
 		free(ptr->startOfExpr);
-		ptr->startOfExpr             = NULL;
-		middle->next                 = end->next;
-		end->next->prev              = middle;
+		ptr->startOfExpr = NULL;
+		middle->next = end->next;
+		if(end->next != NULL)
+			end->next->prev = middle;
 		free(end);
 		return RET_OK;
 	}
