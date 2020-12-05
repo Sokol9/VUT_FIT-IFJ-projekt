@@ -19,6 +19,7 @@
 // nasleduje, a vsetky ostatne zahadzujeme, pripadne koncime na EOF
 #define CHECK_POINT(tp,fsm) \
     if (!*sucess){\
+		setError(SYN_ERROR);\
         while (token->tp != fsm && token->type !=TOKEN_EOF){\
             GET_TOKEN\
             printf("--token:%d\n",*sucess);\
