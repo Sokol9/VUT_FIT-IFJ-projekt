@@ -4,7 +4,7 @@
 #define SYMTABLE_H
 
 // vycet typu pro promenne
-typedef enum {UNKNOWN_T=0, INT_T, FLOAT64_T, STRING_T} varType;
+typedef enum {UNKNOWN_T=0, INT_T, FLOAT64_T, STRING_T, BOOL_T} varType;
 
 //================================================================
 // Globalni tabulka

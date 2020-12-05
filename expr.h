@@ -7,11 +7,12 @@
 
 // struktura pro token jako clena dvojsmerne vazaneho linearniho seznamu
 typedef struct tokenListItem{
-	tToken token;
-	bool startOfExpr;
-	bool term;
-	struct tokenListItem *next;
-	struct tokenListItem *prev;
+	tToken  token;
+	bool    startOfExpr;
+	bool    term;
+	varType type;
+	struct  tokenListItem *next;
+	struct  tokenListItem *prev;
 }*tokenListItemPtr;
 
 // dvojsmerne vazany linearni seznam tokenu
@@ -67,13 +68,16 @@ void tokenLastTerm(tokenListPtr ptr);
 // zpetne hleda zacatek podvyrazu
 void tokenStartOfExpr(tokenListPtr ptr);
 
+// reset cislovani promennych
+void resetNumber();
+
 // nahrazuje podvyraz
 //    zrusi cast seznamu a na jeho misto vlozi novy prvek s term=false
 //    novy prvku je pomocna promenna
 //    pokud je posledni prvek podvyrazu aktivni, posunuje aktivitu na dalsi prvek
 //    pokud je prvek posledni v seznamu, je vyraz zpracovan
 //    generuje instrukce
-int tokenGenerate(tokenListPtr ptr, int varNumber);
+int tokenGenerate(tokenListPtr ptr);
 
 // precedencni analyza pro zpracovani vyrazu
 tokenListItemPtr precedence(tokenListPtr ptr, tSymTablePtr STab, bool resetVarNumber);

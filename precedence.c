@@ -1,15 +1,10 @@
 // definice funkce simulujici precedencni syntaktickou analyzu pro zpracovani vyrazu
 #include "expr.h"
 
-static int varNumber = 0;
-
-void resetNumber() {
-	varNumber = 0;
-}
-
 // funkce meni seznam, ktery je ji predan
 // probehne-li vse v poradku, seznam obsahuje prave jeden prvek, na ktery funkce vraci ukazatel
 // nastane-li v prubehu analyzy chyba, vraci funkce NULL
+// je nutne dealokovat misto pridelene seznamu po volani funkce
 tokenListItemPtr precedence(tokenListPtr ptr, tSymTablePtr STab, bool resetVarNumber) {
 	if(ptr != NULL && STab != NULL) {
 		if(!tokenListSemCheck(ptr, STab))
@@ -22,7 +17,8 @@ tokenListItemPtr precedence(tokenListPtr ptr, tSymTablePtr STab, bool resetVarNu
 				if(ptr->active == NULL) {
 					tokenLastTerm(ptr);
 					tokenStartOfExpr(ptr);
-					tokenGenerate(ptr, varNumber++);
+					if(!tokenGenerate(ptr))
+						return NULL;
 				} else if(ptr->active->term) {
 					if(tokenPrecedence(ptr)) {
 						ptr->lastTerm = ptr->active;
@@ -30,7 +26,8 @@ tokenListItemPtr precedence(tokenListPtr ptr, tSymTablePtr STab, bool resetVarNu
 					} else {
 						tokenLastTerm(ptr);
 						tokenStartOfExpr(ptr);
-						tokenGenerate(ptr, varNumber++);
+						if(!tokenGenerate(ptr))
+							return NULL;
 					}
 				} else
 					tokenNext(ptr);
