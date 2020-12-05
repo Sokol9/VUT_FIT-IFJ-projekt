@@ -202,133 +202,133 @@ int tokenGenerate(tokenListPtr ptr) {
 			tokenNext(ptr);
 		if(middle->token.type < ID) {
 			char **endptr = NULL;
-			char cond1[10] = {'\0'};
-			char cond2[10] = {'\0'};
+			char cond1[15] = {'\0'};
+			char cond2[15] = {'\0'};
 			switch(middle->token.type) {
 				case ADD:
 					middle->token.type = ID;
 					middle->type = end->type;
-					sprintf(middle->token.attr, "prec$%d", varNumber++);
+					sprintf(middle->token.attr, "LF@prec$%d", varNumber++);
 					if(end->type == STRING_T) {
 						// generovani instrukce CONCAT
-						printf("DEFVAR [%-10s]\n", middle->token.attr);
-						printf("CONCAT [%-10s] [%-10s] [%-10s]\n", middle->token.attr, ptr->startOfExpr->token.attr, end->token.attr);
+						printf("DEFVAR %s\n", middle->token.attr);
+						printf("CONCAT %s %s %s\n", middle->token.attr, ptr->startOfExpr->token.attr, end->token.attr);
 					} else {
 						// generovani instrukce ADD
-						printf("DEFVAR [%-10s]\n", middle->token.attr);
-						printf("ADD [%-10s] [%-10s] [%-10s]\n", middle->token.attr, ptr->startOfExpr->token.attr, end->token.attr);
+						printf("DEFVAR %s\n", middle->token.attr);
+						printf("ADD %s %s %s\n", middle->token.attr, ptr->startOfExpr->token.attr, end->token.attr);
 					}
 					break;
 
 				case SUB:
 					middle->token.type = ID;
 					middle->type = end->type;
-					sprintf(middle->token.attr, "prec$%d", varNumber++);
+					sprintf(middle->token.attr, "LF@prec$%d", varNumber++);
 					// generovani instrukce SUB
-					printf("DEFVAR [%-10s]\n", middle->token.attr);
-					printf("SUB [%-10s] [%-10s] [%-10s]\n", middle->token.attr, ptr->startOfExpr->token.attr, end->token.attr);
+					printf("DEFVAR %s\n", middle->token.attr);
+					printf("SUB %s %s %s\n", middle->token.attr, ptr->startOfExpr->token.attr, end->token.attr);
 					break;
 
 				case MULT:
 					middle->token.type = ID;
 					middle->type = end->type;
-					sprintf(middle->token.attr, "prec$%d", varNumber++);
+					sprintf(middle->token.attr, "LF@prec$%d", varNumber++);
 					// generovani instrukce MUL
-					printf("DEFVAR [%-10s]\n", middle->token.attr);
-					printf("MUL [%-10s] [%-10s] [%-10s]\n", middle->token.attr, ptr->startOfExpr->token.attr, end->token.attr);
+					printf("DEFVAR %s\n", middle->token.attr);
+					printf("MUL %s %s %s\n", middle->token.attr, ptr->startOfExpr->token.attr, end->token.attr);
 					break;
 
 				case DIV:
 					middle->token.type = ID;
 					middle->type = end->type;
-					sprintf(middle->token.attr, "prec$%d", varNumber++);
+					sprintf(middle->token.attr, "LF@prec$%d", varNumber++);
 					if(end->token.type != ID && strtod(end->token.attr, endptr) == 0.0) {
 						setError(SEM_ZERO_ERROR);
 						return RET_ERR;
 					}
 					if(end->type == FLOAT64_T) {
 						// generovani instrukce DIV
-						printf("DEFVAR [%-10s]\n", middle->token.attr);
-						printf("DIV [%-10s] [%-10s] [%-10s]\n", middle->token.attr, ptr->startOfExpr->token.attr, end->token.attr);
+						printf("DEFVAR %s\n", middle->token.attr);
+						printf("DIV %s %s %s\n", middle->token.attr, ptr->startOfExpr->token.attr, end->token.attr);
 					} else {
 						// generovani instrukce IDIV
-						printf("DEFVAR [%-10s]\n", middle->token.attr);
-						printf("IDIV [%-10s] [%-10s] [%-10s]\n", middle->token.attr, ptr->startOfExpr->token.attr, end->token.attr);
+						printf("DEFVAR %s\n", middle->token.attr);
+						printf("IDIV %s %s %s\n", middle->token.attr, ptr->startOfExpr->token.attr, end->token.attr);
 					}
 					break;
 
 				case LT:
 					middle->token.type = ID;
 					middle->type = BOOL_T;
-					sprintf(middle->token.attr, "prec$%d", varNumber++);
+					sprintf(middle->token.attr, "LF@prec$%d", varNumber++);
 					// generovani instrukce LT
-					printf("DEFVAR [%-10s]\n", middle->token.attr);
-					printf("LT [%-10s] [%-10s] [%-10s]\n", middle->token.attr, ptr->startOfExpr->token.attr, end->token.attr);
+					printf("DEFVAR %s\n", middle->token.attr);
+					printf("LT %s %s %s\n", middle->token.attr, ptr->startOfExpr->token.attr, end->token.attr);
 					break;
 
 				case LTEQ:
 					middle->token.type = ID;
 					middle->type = BOOL_T;
 					// generovani instrukce LT
-					sprintf(cond1, "prec$%d", varNumber++);
-					printf("DEFVAR [%-10s]\n", cond1);
-					printf("LT [%-10s] [%-10s] [%-10s]\n", cond1, ptr->startOfExpr->token.attr, end->token.attr);
+					sprintf(cond1, "LF@prec$%d", varNumber++);
+					printf("DEFVAR %s\n", cond1);
+					printf("LT %s %s %s\n", cond1, ptr->startOfExpr->token.attr, end->token.attr);
 					// generovani instrukce EQ
-					sprintf(cond2, "prec$%d", varNumber++);
-					printf("DEFVAR [%-10s]\n", cond2);
-					printf("EQ [%-10s] [%-10s] [%-10s]\n", cond2, ptr->startOfExpr->token.attr, end->token.attr);
+					sprintf(cond2, "LF@prec$%d", varNumber++);
+					printf("DEFVAR %s\n", cond2);
+					printf("EQ %s %s %s\n", cond2, ptr->startOfExpr->token.attr, end->token.attr);
 					// generovani instrukce OR
-					sprintf(middle->token.attr, "prec$%d", varNumber++);
-					printf("DEFVAR [%-10s]\n", middle->token.attr);
-					printf("OR [%-10s] [%-10s] [%-10s]\n", middle->token.attr, cond1, cond2);
+					sprintf(middle->token.attr, "LF@prec$%d", varNumber++);
+					printf("DEFVAR %s\n", middle->token.attr);
+					printf("OR %s %s %s\n", middle->token.attr, cond1, cond2);
 					break;
 
 				case GT:
 					middle->token.type = ID;
 					middle->type = BOOL_T;
-					sprintf(middle->token.attr, "prec$%d", varNumber++);
+					sprintf(middle->token.attr, "LF@prec$%d", varNumber++);
 					// generovani instrukce GT
-					printf("DEFVAR [%-10s]\n", middle->token.attr);
-					printf("GT [%-10s] [%-10s] [%-10s]\n", middle->token.attr, ptr->startOfExpr->token.attr, end->token.attr);
+					printf("DEFVAR %s\n", middle->token.attr);
+					printf("GT %s %s %s\n", middle->token.attr, ptr->startOfExpr->token.attr, end->token.attr);
 					break;
 
 				case GTEQ:
 					middle->token.type = ID;
 					middle->type = BOOL_T;
 					// generovani instrukce GT
-					sprintf(cond1, "prec$%d", varNumber++);
-					printf("DEFVAR [%-10s]\n", cond1);
-					printf("GT [%-10s] [%-10s] [%-10s]\n", cond1, ptr->startOfExpr->token.attr, end->token.attr);
+					sprintf(cond1, "LF@prec$%d", varNumber++);
+					printf("DEFVAR %s\n", cond1);
+					printf("GT %s %s %s\n", cond1, ptr->startOfExpr->token.attr, end->token.attr);
 					// generovani instrukce EQ
-					sprintf(cond2, "prec$%d", varNumber++);
-					printf("DEFVAR [%-10s]\n", cond2);
-					printf("EQ [%-10s] [%-10s] [%-10s]\n", cond2, ptr->startOfExpr->token.attr, end->token.attr);
+					sprintf(cond2, "LF@prec$%d", varNumber++);
+					printf("DEFVAR %s\n", cond2);
+					printf("EQ %s %s %s\n", cond2, ptr->startOfExpr->token.attr, end->token.attr);
 					// generovani instrukce OR
-					sprintf(middle->token.attr, "prec$%d", varNumber++);
-					printf("DEFVAR [%-10s]\n", middle->token.attr);
-					printf("OR [%-10s] [%-10s] [%-10s]\n", middle->token.attr, cond1, cond2);
+					sprintf(middle->token.attr, "LF@prec$%d", varNumber++);
+					printf("DEFVAR %s\n", middle->token.attr);
+					printf("OR %s %s %s\n", middle->token.attr, cond1, cond2);
 					break;
 
 				case EQ:
 					middle->token.type = ID;
 					middle->type = BOOL_T;
-					sprintf(middle->token.attr, "prec$%d", varNumber++);
+					sprintf(middle->token.attr, "LF@prec$%d", varNumber++);
 					// generovani instrukce EQ
-					printf("DEFVAR [%-10s]\n", middle->token.attr);
-					printf("EQ [%-10s] [%-10s] [%-10s]\n", middle->token.attr, ptr->startOfExpr->token.attr, end->token.attr);
+					printf("DEFVAR %s\n", middle->token.attr);
+					printf("EQ %s %s %s\n", middle->token.attr, ptr->startOfExpr->token.attr, end->token.attr);
 					break;
 
 				case NEQ:
 					middle->token.type = ID;
 					middle->type = BOOL_T;
 					// generovani instrukce EQ
-					sprintf(cond1, "prec$%d", varNumber++);
-					printf("DEFVAR [%-10s]\n", cond1);
-					printf("EQ [%-10s] [%-10s] [%-10s]\n", cond1, ptr->startOfExpr->token.attr, end->token.attr);
+					sprintf(cond1, "LF@prec$%d", varNumber++);
+					printf("DEFVAR %s\n", cond1);
+					printf("EQ %s %s %s\n", cond1, ptr->startOfExpr->token.attr, end->token.attr);
 					// generovani instrukce NOT
-					sprintf(middle->token.attr, "prec$%d", varNumber++);
-					printf("DEFVAR [%-10s]\n", middle->token.attr);
-					printf("NOT [%-10s] [%-10s]\n", middle->token.attr, cond1);
+					sprintf(middle->token.attr, "LF@prec$%d", varNumber++);
+					printf("DEFVAR %s\n", middle->token.attr);
+					printf("NOT %s %s\n", middle->token.attr, cond1);
 					break;
 
 				default:
