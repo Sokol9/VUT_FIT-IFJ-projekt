@@ -243,6 +243,16 @@ int STFuncInsertRet(tSymTablePtr ptr, tRetListPtr list) {
 	return 0;
 }
 
+//vrati ukazatel na activ func
+tGRPtr STGetActiveFunc(tSymTablePtr STab){
+	return STab->activeFunc;
+}
+
+//nastavi ukazatel na activ func
+void STSetActiveFunc(tSymTablePtr STab, tGRPtr func){
+	STab->activeFunc = func;
+}
+
 // vytvoreni noveho lokalniho ramce
 int STCreateFrame(tSymTablePtr ptr, bool func) {
 	if(ptr != NULL) {

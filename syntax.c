@@ -281,7 +281,7 @@ void rule_stat(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 //
 //<params_actual> - epsilon
 void rule_func_call(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
-	STFuncInsert(STab, token->oldAttr, false);	
+	STFuncInsert(STab, token->savedToken->attr, false);	
 
 	if (token->type != CBR){
 		rule_term(token, STab, sucess, RULE_FCALL);
@@ -351,7 +351,7 @@ void rule_term_n(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess
 void rule_var_def(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 	// := uz skontrolovan=a
 	
-	STVarInsert(STab, token->oldAttr);
+	STVarInsert(STab, token->savedToken->attr);
 	GET_TOKEN
 	//EOL_OPTIONAL - nie som si tym isty
 	tokenListPtr tokenList = malloc(sizeof(struct tokenList));
@@ -359,7 +359,7 @@ void rule_var_def(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* suces
 	rule_expr(PARAMS, tokenList);	
 	if (*sucess) {
 		if (precedence(tokenList, STab, false) != NULL){
-			STVarLookUp(STab, token->oldAttr);
+			STVarLookUp(STab, token->savedToken->attr);
 			STVarSetType(STab, tokenListGetFirstType(tokenList));
 		}
 	}
@@ -436,8 +436,8 @@ void rule_op(tToken *token, bool* sucess){
 void rule_var_asg(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 	tRetListPtr retL = malloc(sizeof(struct RetList));
 	if (!retL) setError(INTERNAL_ERROR); else retListInit(retL);
-	if (token->oldType == ID){
-		STVarLookUp(STab, token->oldAttr);
+	if (token->savedToken->type == ID){
+		STVarLookUp(STab, token->savedToken->attr);
 		retListInsert(retL,STVarGetType(STab));	
 	}else{
 		retListInsert(retL,UNKNOWN_T);
@@ -513,10 +513,16 @@ void rule_values(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess
 		EOL_FORBID
 		if (token->type == OBR){
 			print_debug("valid (")
-			STFuncInsert(STab, token->oldAttr, false);
+			//===kontrola navratovych hodnot===
+			//ulozenie aktivnej funkcie
+			tGRPtr actFunc = STGetActiveFunc(STab);
+			//activ func == call func
+			STFuncInsert(STab, token->savedToken->attr, false);
 			//kontrola navratovych hodnot
 			STFuncInsertRet(STab, retL);
-	
+			//nastavenie p;vodnej activ func
+			STSetActiveFunc(STab, actFunc);
+
 			GET_TOKEN
 			rule_func_call(PARAMS);
 			if (!*sucess) return;
@@ -525,8 +531,8 @@ void rule_values(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess
 				token->type == DIV){
 			tokenListPtr tokenList = malloc(sizeof(struct tokenList));
 			if (tokenList) tokenListInit(tokenList); else setError(INTERNAL_ERROR);
-			//todo
-			//tokenAppendOld
+			tokenAppend(tokenList, token->savedToken);
+				
 			rule_op(token, sucess);
 			if (!*sucess) {
 				tokenListDispose(tokenList);
@@ -652,10 +658,6 @@ void rule_if(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 			*sucess=0;
 			printd("chyba precedence");
 			break;
-		//todo
-		//aky vyznam tu ma precedencka rovnako ako vo fore asi iba na generaciu kodu
-//			STVarLookUp(STab, token-oldAttr);
-//			STVarSetType(Stab, tokenListGetFirstType(tokenList));
 		}
 	}while(0);
 	
@@ -841,9 +843,7 @@ void rule_for(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 			printd(";")
 			if (!*sucess) break;
 		}
-//todo
-//je tu potrebna precedencna?
-//podla mna je to blbost
+
 		GET_TOKEN
 		EOL_FORBID
 		tokenListPtr tokenList = malloc(sizeof(struct tokenList));
@@ -860,11 +860,10 @@ void rule_for(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 		
 		if (precedence(tokenList, STab, false) == NULL){
 			*sucess=0;
+			tokenListDispose(tokenList);
+			free(tokenList);
 			printd("chyba precedence")
 			break;
-//		toto je kktina tu by podla mna malo byt sucess = 0
-		//	STVarLookUp(STab, token-oldAttr);
-		//	STVarSetType(Stab, tokenListGetFirstType(tokenList));
 		}
 		tokenListDispose(tokenList);
 		free(tokenList);
@@ -880,8 +879,6 @@ void rule_for(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 
 
 		GET_TOKEN
-		//todo
-		//chck sem of expr
 		if (token->type == ID){
 			EOL_FORBID
 			print_debug("valid ID")
@@ -903,8 +900,15 @@ void rule_for(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 			if (tokenList) tokenListInit(tokenList); else setError(INTERNAL_ERROR);		
 			rule_expr(PARAMS, tokenList);
 			if (*sucess){
-				STVarLookUp(STab, token->oldAttr);
+				if (precedence(tokenList, STab, false) == NULL){
+					printd("chyba precedence");
+				}else{
+
+				//nastavy ako aktivnu premennu, tu ktoru chce skontrolovat
+				STVarLookUp(STab, token->savedToken->attr);
+				//skontroluje typ pomocou vlozenia
 				STVarSetType(STab, tokenListGetFirstType(tokenList));
+				}
 			}
 			tokenListDispose(tokenList);
 			free(tokenList);	 

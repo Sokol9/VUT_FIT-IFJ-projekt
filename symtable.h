@@ -106,6 +106,16 @@ int STFuncParamEnd(tSymTablePtr ptr);
 //    seznam navratovych hodnot, ktery bude predan funkci se stava prazdnym
 int STFuncInsertRet(tSymTablePtr ptr, tRetListPtr list);
 
+//funkcia vrati ukazatel na aktivnu funkciu
+//pouzite v pripade, kedy na chvilu potrebujem zmenit acfivnu funkciu
+//a nasledne sa k nej vratit
+tGRPtr STGetActiveFunc(tSymTablePtr STab);
+
+//funkcia nastavi ukazatel na aktivnu funkciu
+//pouzite v pripade, kedy na chvilu potrebujem zmenit acfivnu funkciu
+//a nasledne sa k nej vratit
+void STSetActiveFunc(tSymTablePtr STab, tGRPtr func);
+
 // vytvoreni noveho lokalniho ramce
 //    pokud je func=true, vytvari novy ramec pro aktivni funkci
 int STCreateFrame(tSymTablePtr ptr, bool func);
