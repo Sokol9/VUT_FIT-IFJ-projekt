@@ -513,10 +513,15 @@ void rule_values(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess
 		EOL_FORBID
 		if (token->type == OBR){
 			print_debug("valid (")
+			//===kontrola navratovych hodnot===
+			//ulozenie aktivnej funkcie
+			tGRPtr actFunc = STGetActiveFunc(STab);
+			//activ func == call func
 			STFuncInsert(STab, token->oldAttr, false);
 			//kontrola navratovych hodnot
 			STFuncInsertRet(STab, retL);
-	
+			//nastavenie p;vodnej activ func
+			STSetActiveFunc(STab, actFunc);
 			GET_TOKEN
 			rule_func_call(PARAMS);
 			if (!*sucess) return;
