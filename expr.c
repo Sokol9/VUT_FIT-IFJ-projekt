@@ -96,6 +96,38 @@ void tokenListDispose(tokenListPtr ptr) {
 	}
 }
 
+// semanticke porovnani dvou seznamu a generovani instrukci pro prirazeni hodnot
+int tokenListAssign(tokenListPtr dest, tokenListPtr src) {
+	if(dest != NULL && src != NULL) {
+		dest->active = dest->first;
+		src->active  = src->first;
+		char pref1[BUFFER] = {'\0'};
+		char pref2[BUFFER] = {'\0'};
+		while(dest->active != NULL && src->active != NULL) {
+			if(dest->active->type != UNKNOWN_T) {
+				if(dest->active->type == src->active->type) {
+					sprintf(pref1, "LF@f%d$", dest->active->frameNumber);
+					sprintf(pref2, "LF@f%d$", src->active->frameNumber);
+					ASSIGN(pref1, dest->active->token.attr, src->active->frameNumber, pref2, src->active->token.attr);
+				} else {
+					setError(SEM_TYPE_ERROR);
+					break;
+				}
+			}
+			tokenNext(dest);
+			tokenNext(src);	
+		}
+		if(dest->active == src->active) {
+			tokenListDispose(dest);
+			tokenListDispose(src);
+			return RET_OK;
+		}
+	}
+	tokenListDispose(dest);
+	tokenListDispose(src);
+	return RET_ERR;
+}
+
 // Semanticka kontrola, zda jsou vsechny tokeny stejneho datoveho typu
 int tokenListSemCheck(tokenListPtr ptr, tSymTablePtr STab) {
 	if(ptr != NULL && STab != NULL) {

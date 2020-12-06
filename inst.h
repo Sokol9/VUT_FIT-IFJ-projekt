@@ -25,3 +25,7 @@
 // instrukce pro definici aktivni promenne v aktivnim bloku
 #define DEFVAR() \
 	printf("DEFVAR %s%d$%s\n", "LF@f", STGetFrameNumber(STab), STGetVarName(STab))
+
+// prirazeni hodnoty do promenne
+#define ASSIGN(pref1, to, frame, pref2, from) \
+	printf("MOVE %s%s %s%s\n", pref1, to, (frame==-1)?"":((frame==0)?constPrefixes[(int)src->active->type]:pref2), from)

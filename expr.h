@@ -49,6 +49,8 @@ void tokenListDispose(tokenListPtr ptr);
 // Prikaz vicenasobneho prirazeni se semantickou kontrolou a generovanim kodu
 //
 // provede semantickou kontrolu pro prikaz prirazeni a vygeneruje odpovidajici instrukce
+//    dest je leva strana prirazeni
+//    src je prava strana prirazeni
 int tokenListAssign(tokenListPtr dest, tokenListPtr src);
 
 
