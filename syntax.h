@@ -66,13 +66,13 @@ void rule_func_def(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* suce
 void rule_var_def(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess);
 void rule_expr(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess, tokenListPtr tokenList);
 void rule_op(tToken *token, bool* sucess);
-void rule_expr_n(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess, tRetListPtr retList);
-void rule_id_n(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess, tRetListPtr ret);
+void rule_expr_n(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess, tokenListPtr tokenListR);
+void rule_id_n(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess, tokenListPtr tokenListL);
 void rule_var_asg(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess);
-void rule_values(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess, tRetListPtr retL);
+void rule_values(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess, tokenListPtr tokenListL);
 void rule_if(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess);
 void rule_expr_bool(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess, tokenListPtr tokenList, int* numBool);
-void rule_bool_op(tToken *token, tKWPtr keyWords, bool* sucess, tokenListPtr tokenList);
+void rule_bool_op(tToken *token,tSymTablePtr STab, tKWPtr keyWords, bool* sucess, tokenListPtr tokenList);
 void rule_else(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess);
 void rule_for(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess);
 void rule_params(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess);

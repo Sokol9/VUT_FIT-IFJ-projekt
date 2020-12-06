@@ -37,8 +37,9 @@ void tokenListInit(tokenListPtr ptr);
 //
 // funkce je pouzita i pro prikaz prirazeni a to nasledovne:
 //    tvorim-li seznam na leve strane, volam funkci s danym tokenem a tabulkou symbolu => result=NULL
-//    tvorim-li seznam na prave strane, volam funkci s vysledkem precedencni analyzy (result)
-//    tvorim-li seznam pro precedencni analyzu volam pouze s tokenem => STab=NULL
+//   
+//    tvorim-li seznam na prave strane, volam funkci s vysledkem precedencni analyzy (result), STab = OPT
+//    tvorim-li seznam pro precedencni analyzu volam pouze s tokenem => STab = OPT, result = NULL
 int tokenAppend(tokenListPtr ptr, tToken* token, tSymTablePtr STab, tokenListItemPtr result);
 
 // zruseni seznamu
