@@ -26,17 +26,17 @@ void tokenListInit(tokenListPtr ptr) {
 }
 
 // pridani tokenu na konec seznamu
-int tokenAppend(tokenListPtr ptr, tToken token) {
+int tokenAppend(tokenListPtr ptr, tToken* token) {
 	if(ptr != NULL) {
 		tokenListItemPtr tmp = malloc(sizeof(struct tokenListItem));
 		if(tmp != NULL) {
-			if(token.type == INT_L) tmp->type = INT_T;
-			else if(token.type == FLOAT_L) tmp->type = FLOAT64_T;
-			else if(token.type == STRING_L) tmp->type = STRING_T;
+			if(token->type == INT_L) tmp->type = INT_T;
+			else if(token->type == FLOAT_L) tmp->type = FLOAT64_T;
+			else if(token->type == STRING_L) tmp->type = STRING_T;
 			else tmp->type = UNKNOWN_T;
-			tmp->token       = token;
+			tmp->token       = *token;
 			tmp->startOfExpr = false;
-			tmp->term        = (token.type < ID)? true : false;
+			tmp->term        = (token->type < ID)? true : false;
 			tmp->next        = NULL;
 			tmp->prev        = ptr->last;
 			if(ptr->first == NULL) {
@@ -351,6 +351,6 @@ int tokenGenerate(tokenListPtr ptr) {
 	return RET_ERR;
 }
 
-varType tokenListGetFirstType(tokenListItemPtr tokenList){
+varType tokenListGetFirstType(tokenListPtr tokenList){
 	return tokenList->first->type;
 }

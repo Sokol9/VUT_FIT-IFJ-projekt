@@ -33,7 +33,7 @@ void tokenListInit(tokenListPtr ptr);
 // pridani tokenu na konec seznamu
 //    prvni token pridany do seznamu se automaticky stava aktivnim
 //    pridava-li do seznamu token ID nebo literal, nastavuje term=false
-int tokenAppend(tokenListPtr ptr, tToken token);
+int tokenAppend(tokenListPtr ptr, tToken* token);
 
 // zruseni seznamu
 void tokenListDispose(tokenListPtr ptr);
