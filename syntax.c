@@ -649,12 +649,9 @@ void rule_if(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 		if (numBool != 1) break;
 
 		if (precedence(tokenList, STab, false) == NULL){
-		// todo 
-		// chyba oprav s tomasom
-		//
-		//	*sucess=0;
-		//	printd("chyba precedence");
-		//	break;
+			*sucess=0;
+			printd("chyba precedence");
+			break;
 		//todo
 		//aky vyznam tu ma precedencka rovnako ako vo fore asi iba na generaciu kodu
 //			STVarLookUp(STab, token-oldAttr);
@@ -863,11 +860,9 @@ void rule_for(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 		}
 		
 		if (precedence(tokenList, STab, false) == NULL){
-			//todo 
-			//chyba najst a odstranit s tomasom	
-			//*sucess=0;
-			//printd("chyba precedence")
-			//break;
+			*sucess=0;
+			printd("chyba precedence")
+			break;
 //		toto je kktina tu by podla mna malo byt sucess = 0
 		//	STVarLookUp(STab, token-oldAttr);
 		//	STVarSetType(Stab, tokenListGetFirstType(tokenList));
