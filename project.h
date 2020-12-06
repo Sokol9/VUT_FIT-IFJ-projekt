@@ -27,12 +27,13 @@ typedef enum {UNKNOWN=0, ADD, SUB, MULT, DIV, SEM, OBR, CBR, OB, CB, LT, LTEQ, G
 // typ urcen lexikalni analyzou, podle typu je rizena syntakticka analyza
 // atribut je precteny retezec ze vstupu
 // eolFlag urcuje, zda byl pri nacitani znaku zaznamenan konec radku
-typedef struct{
+typedef struct token{
 	tokenType type;
-	tokenType oldType;
+//	tokenType oldType;
 	char attr[MAX_LEN];
-	char oldAttr[MAX_LEN];
+//	char oldAttr[MAX_LEN];
 	bool eolFlag;
+	struct token* savedToken;
 }tToken;
 
 //================================================================
@@ -74,6 +75,8 @@ int getToken(tToken *token, tKWPtr table);
 
 void saveToken(tToken* token);
 
+void tokenInit(tToken* token);
 
+void tokenDispose(tToken* token);
 
 #endif
