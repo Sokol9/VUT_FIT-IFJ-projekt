@@ -13,7 +13,7 @@ tokenListItemPtr precedence(tokenListPtr ptr, tSymTablePtr STab, bool resetVarNu
 			resetNumber();
 		if(ptr->first != NULL) {
 			ptr->active = ptr->first;
-			while(ptr->first->next != NULL && ptr->first->next->next != NULL) {
+			while(ptr->lastTerm != ptr->active) {
 				if(ptr->active == NULL) {
 					tokenLastTerm(ptr);
 					tokenStartOfExpr(ptr);
@@ -32,7 +32,7 @@ tokenListItemPtr precedence(tokenListPtr ptr, tSymTablePtr STab, bool resetVarNu
 				} else
 					tokenNext(ptr);
 			}
-			if(ptr->first->next == NULL)
+			if(ptr->lastTerm == NULL)
 				return ptr->first;
 		}
 	}
