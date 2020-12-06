@@ -82,4 +82,6 @@ int tokenGenerate(tokenListPtr ptr);
 // precedencni analyza pro zpracovani vyrazu
 tokenListItemPtr precedence(tokenListPtr ptr, tSymTablePtr STab, bool resetVarNumber);
 
+varType tokenListGetFirstType(tokenListPtr tokenList);
+
 #endif

@@ -3,7 +3,7 @@
 #include "syntax.h"
 #include "error.h"
 #include "symtable.h"
-
+#include "expr.h"
 
 
 // <prog> - package main <func_def> <func_n> EOF
@@ -235,12 +235,40 @@ void rule_stat(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 		//forbid EOL strazi semanticky analiyator, podla toho, kolko exp tu ocakava
 		GET_TOKEN
 		if (!token->eolFlag){
-	
-			rule_expr(PARAMS);
-			if (!*sucess) return;
-		
-			rule_expr_n(PARAMS);
+			tRetListPtr retList = malloc(sizeof(struct RetList))	;
+			if (retList) retListInit(retList); else setError(INTERNAL_ERROR);
+
+			tokenListPtr tokenList = malloc(sizeof(struct tokenList));
+			if (tokenList) tokenListInit(tokenList); else setError(INTERNAL_ERROR);
+			rule_expr(PARAMS, tokenList);
+			if (*sucess) {
+				if (precedence(tokenList, STab, false) != NULL){
+					retListInsert(retList, tokenListGetFirstType(tokenList));
+				tokenListDispose(tokenList);
+				free(tokenList);	
+				}
+			}else{
+				tokenListDispose(tokenList);
+				free(tokenList);
+				retListDispose(retList);
+				free(retList);
+				return;
+			}	
+			
+			
+			rule_expr_n(PARAMS, retList);
+			if (!*sucess){
+				retListDispose(retList);
+				free(retList);
+				return;
+			}	
+			//kontrola ret	
+			STFuncInsertRet(STab, retList);
+			retListDispose(retList);
+			free(retList);
+			
 		}
+
 	}else if(token->type != OB){
 		//follow(<stat>) == OB (})
 		//valid epsilon
@@ -325,25 +353,35 @@ void rule_var_def(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* suces
 	STVarInsert(STab, token->oldAttr);
 	GET_TOKEN
 	//EOL_OPTIONAL - nie som si tym isty
-	rule_expr(PARAMS);	
-	//todo
-	//vloz typ premennej
-	if (!*sucess) return;
+	tokenListPtr tokenList = malloc(sizeof(struct tokenList));
+	if (tokenList) tokenListInit(tokenList); else setError(INTERNAL_ERROR);
+	rule_expr(PARAMS, tokenList);	
+	if (*sucess) {
+		if (precedence(tokenList, STab, false) != NULL){
+			STVarLookUp(STab, token->oldAttr);
+			STVarSetType(STab, tokenListGetFirstType(tokenList));
+		}
+	}
+	tokenListDispose(tokenList);	
+	free(tokenList);
 }
 
 //<expr> - <expr> <op> <expr>
 //<expr> - ( <expr> )
 //<expr> - <term>
-void rule_expr(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
+void rule_expr(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess, tokenListPtr tokenList){
 	if (token->type == OBR){
 		print_debug("valid (")
+		tokenAppend(tokenList, token);
 
 		GET_TOKEN
-		rule_expr(PARAMS);
+		rule_expr(PARAMS, tokenList);
 		if (!*sucess) return;
 		
 		if (token->type == CBR){
 			print_debug("valid )")
+			tokenAppend(tokenList, token);
+			
 			EOL_FORBID
 
 		}else{
@@ -354,7 +392,7 @@ void rule_expr(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 		}
 	}else{ 
 		rule_term(token, STab, sucess, RULE_EXPR);
-		if (!*sucess) return;
+		if (!*sucess) return; else tokenAppend(tokenList, token);
 		
 		GET_TOKEN
 	}
@@ -364,10 +402,10 @@ void rule_expr(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 			 token->type == DIV){
 		EOL_FORBID
 		rule_op(token, sucess);
-		if (!*sucess) return;
+		if (!*sucess) return; else tokenAppend(tokenList, token);
 
 		GET_TOKEN
-		rule_expr(PARAMS);
+		rule_expr(PARAMS, tokenList);
 		if (!*sucess) return;
 		}
 }
@@ -393,81 +431,135 @@ void rule_op(tToken *token, bool* sucess){
 	
 //<var asg> - <id_n> = <values>
 void rule_var_asg(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
-	tRetListPtr ret = malloc(sizeof(struct RetList));
-	if (!ret) setError(INTERNAL_ERROR); else retListInit(ret);
+	tRetListPtr retL = malloc(sizeof(struct RetList));
+	if (!retL) setError(INTERNAL_ERROR); else retListInit(retL);
 	if (token->oldType == ID){
 		STVarLookUp(STab, token->oldAttr);
-		retListInsert(ret,STVarGetType(STab));	
+		retListInsert(retL,STVarGetType(STab));	
 	}else{
-		retListInsert(ret,UNKNOWN_T);
+		retListInsert(retL,UNKNOWN_T);
 	}	
 		
 
-	rule_id_n(PARAMS, ret);
+	rule_id_n(PARAMS, retL);
 	if (!*sucess) {
-		retListDispose(ret);
-		free(ret);
+		retListDispose(retL);
+		free(retL);
 		return;
 	}
 
 	if (token->type == ASG){
-	print_debug("valid =")	
-
+	print_debug("valid =")
 	}else{
 		*sucess = 0;
 		printd("=")
-		if (!*sucess) return;
+		retListDispose(retL);
+		free(retL);
+		return;
 	}
 
 	GET_TOKEN
-	if (token->type == ID) STFuncInsertRet(STab, ret);
-	retListDispose(ret);
-	free(ret);
-	
-	rule_values(PARAMS);
-	if (!*sucess) return;
+	rule_values(PARAMS, retL);
+	retListDispose(retL);
+	free(retL);
 }
 
 //<values> - <expr> <expr_n>
 //<values> - id <func_call>
 //<values> - id <op> <expr>    --> <expr> - <expr> <op> <expr>
-void rule_values(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
-	//todo
-	//retList retList check
+void rule_values(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess, tRetListPtr retL){
 	if (token->type == OBR || token->type ==INT_L || token->type == FLOAT_L ||\
 			token->type == STRING_L){
+		
+		tRetListPtr retR = malloc(sizeof(struct RetList));
+		if (!retR) setError(INTERNAL_ERROR); else retListInit(retR);
 
-		rule_expr(PARAMS);
-		if (!*sucess) return;
+		tokenListPtr tokenList = malloc(sizeof(struct tokenList));
+		if (tokenList) tokenListInit(tokenList); else setError(INTERNAL_ERROR);	
+		rule_expr(PARAMS, tokenList);
+		if (!*sucess) {
+			retListDispose(retR);
+			tokenListDispose(tokenList);
+			free(retR);
+			free(tokenList);
+			return;
+		}
+		if (precedence(tokenList, STab, false) != NULL){	
+			retListInsert(retR, tokenListGetFirstType(tokenList));
+		}
+		tokenListDispose(tokenList);
+		free(tokenList);
 
-		rule_expr_n(PARAMS);
-		if (!*sucess) return;
+		rule_expr_n(PARAMS, retR);
+		if (!*sucess){
+			retListDispose(retR);
+			free(retR);
+			return;
+		}
+		//todo
+		//retL vs retR check
+
+		retListDispose(retR);
+		free(retR);
 
 	}else if (token->type == ID){
 		print_debug("valid ID")
 		saveToken(token);
-
+		
 		GET_TOKEN
 		EOL_FORBID
 		if (token->type == OBR){
 			print_debug("valid (")
-
+			STFuncInsert(STab, token->oldAttr, false);
+			//kontrola navratovych hodnot
+			STFuncInsertRet(STab, retL);
+	
 			GET_TOKEN
 			rule_func_call(PARAMS);
 			if (!*sucess) return;
 
 		}else if(token->type == ADD || token->type == SUB || token->type == MULT || \
 				token->type == DIV){
-
+			tokenListPtr tokenList = malloc(sizeof(struct tokenList));
+			if (tokenList) tokenListInit(tokenList); else setError(INTERNAL_ERROR);
+			//todo
+			//tokenAppendOld
 			rule_op(token, sucess);
-			if (!*sucess) return;
+			if (!*sucess) {
+				tokenListDispose(tokenList);
+				free(tokenList);
+				return;
+			}
+			tokenAppend(tokenList, token);
 
 			GET_TOKEN
-			rule_expr(PARAMS);
-			if (!*sucess) return;
+			rule_expr(PARAMS, tokenList);
+			if (!*sucess) {
+				tokenListDispose(tokenList);
+				free(tokenList);
+				return;
+			}
+			tRetListPtr retR = malloc(sizeof(struct RetList));
+			if (!retR) setError(INTERNAL_ERROR); else retListInit(retR);
 			
-			rule_expr_n(PARAMS);
-			if (!*sucess) return;
+			if (precedence(tokenList, STab, false) != NULL){
+				 retListInsert(retR,tokenListGetFirstType(tokenList));
+			}	
+			tokenListDispose(tokenList);
+			free(tokenList);
+
+			
+			rule_expr_n(PARAMS, retR);
+			if (!*sucess){
+				retListDispose(retR);
+				free(retR);
+				return;
+			}
+			//todo
+			//retL vs retR check
+			
+			retListDispose(retR);
+			free(retR);	
 		}else{
 			*sucess = 0;
 			printd("func call or expr")
@@ -480,16 +572,28 @@ void rule_values(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess
 
 //<expr_n> - , <expr> <expr_n>
 //<expr_n> - epsilon
-void rule_expr_n(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
+void rule_expr_n(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess, tRetListPtr retList){
 	if (token->type == COM){
 		print_debug("valid ,")
 		EOL_FORBID
 
 		GET_TOKEN
-		rule_expr(PARAMS);
-		if (!*sucess) return;
+		tokenListPtr tokenList = malloc(sizeof(struct tokenList));
+		if (tokenList) tokenListInit(tokenList); else setError(INTERNAL_ERROR);
+		rule_expr(PARAMS, tokenList);
+		if (*sucess) {
+			if (precedence(tokenList, STab, false) != NULL){
+				retListInsert(retList, tokenListGetFirstType(tokenList));
+				tokenListDispose(tokenList);
+				free(tokenList);
+			}else{
+				tokenListDispose(tokenList);
+				free(tokenList);
+				return;
+			}	
+		}
 
-        rule_expr_n(PARAMS);
+        rule_expr_n(PARAMS, retList);
 		if (!*sucess) return;
 	}
 }
@@ -530,19 +634,30 @@ void rule_id_n(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess, 
 // <body> - epsilon
 // <else> - epsilon
 void rule_if(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
-	//todo 
-	//check sem of bool expr
+	tokenListPtr tokenList = malloc(sizeof(struct tokenList));
+	if (tokenList) tokenListInit(tokenList); else setError(INTERNAL_ERROR);
 	do{
 		GET_TOKEN
 		EOL_FORBID
-		rule_expr(PARAMS);
+		
+		rule_expr(PARAMS, tokenList);
 		if (!*sucess) break;
 
 		if (token->type != OB){
-			rule_expr_bool(PARAMS);
+			rule_expr_bool(PARAMS, tokenList);
 			if (!*sucess) break;
 		}
+		if (precedence(tokenList, STab, false) == NULL){
+			*sucess=0;
+		//todo
+		//aky vyznam tu ma precedencka rovnako ako vo fore asi iba na generaciu kodu
+//			STVarLookUp(STab, token-oldAttr);
+//			STVarSetType(Stab, tokenListGetFirstType(tokenList));
+		}
 	}while(0);
+	
+	tokenListDispose(tokenList);
+	free(tokenList);
 
 	CHECK_POINT(type,OB)
 
@@ -575,12 +690,11 @@ void rule_if(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 
 // <expr_bool> - <bool_op> <expr>
 // <expr_bool> - epsilon
-void rule_expr_bool(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
+void rule_expr_bool(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess, tokenListPtr tokenList){
 	EOL_FORBID
-	rule_bool_op(token, keyWords, sucess);
+	rule_bool_op(token, keyWords, sucess, tokenList);
 	if (!*sucess) return;
-
-	rule_expr(PARAMS);	
+	rule_expr(PARAMS, tokenList);	
 }
 
 
@@ -625,7 +739,7 @@ void rule_expr_bool(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* suc
 //<bool_op> - >=
 //<bool_op> - ==
 //<bool_op> - !=
-void rule_bool_op(tToken *token, tKWPtr keyWords, bool* sucess){
+void rule_bool_op(tToken *token, tKWPtr keyWords, bool* sucess, tokenListPtr tokenList){
 
 	if (token->type == LT){
 		print_debug("valid <")
@@ -644,13 +758,14 @@ void rule_bool_op(tToken *token, tKWPtr keyWords, bool* sucess){
 		printd("operator rovnosti")
 		return;
 	}
+	tokenAppend(tokenList, token);
 	GET_TOKEN
 }
 
 //<for> - for <var_def_cycle>; <expr_bool>; <asg_opt> { <body> }
 //<var_def_cycle> - ID <var_def>
 //<var_def_cycle> - epsilon
-//<asg_opt> - <expr> = <expr>
+//<asg_opt> - ID = <expr>
 //<expr_opt> - epsilon
 void rule_for(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 	do{
@@ -682,16 +797,35 @@ void rule_for(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 			printd(";")
 			if (!*sucess) break;
 		}
-		//todo
-		//check sem of bool expr
-
+//todo
+//je tu potrebna precedencna?
+//podla mna je to blbost
 		GET_TOKEN
 		EOL_FORBID
-		rule_expr(PARAMS);
-		if (!*sucess) break;
+		tokenListPtr tokenList = malloc(sizeof(struct tokenList));
+		if (tokenList) tokenListInit(tokenList); else setError(INTERNAL_ERROR);
+		rule_expr(PARAMS, tokenList);
+		if (!*sucess) {
+			tokenListDispose(tokenList);
+			free(tokenList);
+			break;
+		}
 				
-		rule_expr_bool(PARAMS);
-		if (!*sucess) break;
+		rule_expr_bool(PARAMS, tokenList);
+		if (!*sucess) {
+			tokenListDispose(tokenList);
+			free(tokenList);
+			break;
+		}
+		
+		if (precedence(tokenList, STab, false) == NULL){
+			*sucess=0;
+//		toto je kktina tu by podla mna malo byt sucess = 0
+		//	STVarLookUp(STab, token-oldAttr);
+		//	STVarSetType(Stab, tokenListGetFirstType(tokenList));
+		}
+		tokenListDispose(tokenList);
+		free(tokenList);
 			
 		EOL_FORBID
 		if (token->type == SEM){
@@ -706,10 +840,12 @@ void rule_for(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 		GET_TOKEN
 		//todo
 		//chck sem of expr
-		if (token->type != OB){
+		if (token->type == ID){
 			EOL_FORBID
-			rule_expr(PARAMS);
-			if (!*sucess) break;
+			print_debug("valid ID")
+			STVarInsert(STab, token->attr);
+			saveToken(token);
+			GET_TOKEN
 
 			if (token->type == ASG){
 				print_debug("valid =")
@@ -721,8 +857,15 @@ void rule_for(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 
 			GET_TOKEN
 			EOL_FORBID
-			rule_expr(PARAMS);
-			if (!*sucess) break;
+			tokenListPtr tokenList = malloc(sizeof(struct tokenList));
+			if (tokenList) tokenListInit(tokenList); else setError(INTERNAL_ERROR);		
+			rule_expr(PARAMS, tokenList);
+			if (*sucess){
+				STVarLookUp(STab, token->oldAttr);
+				STVarSetType(STab, tokenListGetFirstType(tokenList));
+			}
+			tokenListDispose(tokenList);
+			free(tokenList);	 
 		}
 	}while(0);
 

@@ -350,3 +350,7 @@ int tokenGenerate(tokenListPtr ptr) {
 	}
 	return RET_ERR;
 }
+
+varType tokenListGetFirstType(tokenListItemPtr tokenList){
+	return tokenList->first->type;
+}
