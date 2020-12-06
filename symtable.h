@@ -110,6 +110,9 @@ int STFuncInsertRet(tSymTablePtr ptr, tRetListPtr list);
 //    pokud je func=true, vytvari novy ramec pro aktivni funkci
 int STCreateFrame(tSymTablePtr ptr, bool func);
 
+// ziskani cisla ramce na vrcholu zasobniku
+int STGetFrameNumber(tSymTablePtr ptr);
+
 // vyhledani promenne
 //    v pripade nalezeni nastavuje aktivitu na nalezenou promennou
 //    v pripade nalezeni take vraci cislo ramce, ve kterem byla promenna nalezena, jinak 0
@@ -122,6 +125,9 @@ int STVarInsert(tSymTablePtr ptr, char *key);
 
 // zjisti datovy typ aktivni promenne
 varType STVarGetType(tSymTablePtr ptr);
+
+// vraci identifikator aktivni promenne
+char* STVarGetName(tSymTablePtr ptr);
 
 // zmena datoveho typu aktivni promenne
 //    pokud je typ jiny nez UNKNOWN dochazi k chybe

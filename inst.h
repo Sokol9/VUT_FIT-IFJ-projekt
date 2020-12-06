@@ -19,6 +19,6 @@
 #define INST_PREC(inst, target, f1, var1, f2, var2) \
 	printf("%s %s %s%s %s%s\n", inst, target, (f1 == -1)? "" : pref1, var1, (f2 == -1)? "" : pref2, var2)
 
-// definice promenne v bloku
+// instrukce pro definici aktivni promenne v aktivnim bloku
 #define DEFVAR() \
-	printf("DEFVAR %s\n")
+	printf("DEFVAR %s%d$%s\n", "LF@f", STGetFrameNumber(STab), STGetVarName(STab))
