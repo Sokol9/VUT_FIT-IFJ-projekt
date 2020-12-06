@@ -71,7 +71,7 @@ void rule_id_n(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess, 
 void rule_var_asg(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess);
 void rule_values(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess, tRetListPtr retL);
 void rule_if(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess);
-void rule_expr_bool(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess, tokenListPtr tokenList);
+void rule_expr_bool(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess, tokenListPtr tokenList, int* numBool);
 void rule_bool_op(tToken *token, tKWPtr keyWords, bool* sucess, tokenListPtr tokenList);
 void rule_else(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess);
 void rule_for(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess);
