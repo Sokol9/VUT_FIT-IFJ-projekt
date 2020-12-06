@@ -31,29 +31,49 @@ void tokenListInit(tokenListPtr ptr) {
 }
 
 // pridani tokenu na konec seznamu
-int tokenAppend(tokenListPtr ptr, tToken* token) {
+int tokenAppend(tokenListPtr ptr, tToken* token, tSymTablePtr STab, tokenListItemPtr result) {
 	if(ptr != NULL) {
-		tokenListItemPtr tmp = malloc(sizeof(struct tokenListItem));
-		if(tmp != NULL) {
-			if(token->type == INT_L) tmp->type = INT_T;
-			else if(token->type == FLOAT_L) tmp->type = FLOAT64_T;
-			else if(token->type == STRING_L) tmp->type = STRING_T;
-			else tmp->type = UNKNOWN_T;
-			tmp->token       = *token;
-			tmp->startOfExpr = false;
-			tmp->term        = (token->type < ID)? true : false;
-			tmp->frameNumber = -1;
-			tmp->next        = NULL;
-			tmp->prev        = ptr->last;
+		if(result != NULL) {
 			if(ptr->first == NULL) {
-				ptr->first  = tmp;
-				ptr->active = tmp;
-				ptr->last   = tmp;
+				ptr->first  = result;
+				ptr->active = result;
+				ptr->last   = result;
 			} else {
-				ptr->last->next = tmp;
-				ptr->last = tmp;
+				ptr->last->next = result;
+				ptr->last = result;
 			}
-			return RET_OK;
+		} else if(token != NULL) {
+			tokenListItemPtr tmp = malloc(sizeof(struct tokenListItem));
+			if(tmp != NULL) {
+				if(token->type == INT_L)         tmp->type = INT_T;
+				else if(token->type == FLOAT_L)  tmp->type = FLOAT64_T;
+				else if(token->type == STRING_L) tmp->type = STRING_T;
+				else                             tmp->type = UNKNOWN_T;
+				tmp->token       = *token;
+				tmp->startOfExpr = false;
+				tmp->term        = (token->type < ID)? true : false;
+				tmp->frameNumber = -1;
+				tmp->next        = NULL;
+				tmp->prev        = ptr->last;
+				if(ptr->first == NULL) {
+					ptr->first  = tmp;
+					ptr->active = tmp;
+					ptr->last   = tmp;
+				} else {
+					ptr->last->next = tmp;
+					ptr->last = tmp;
+				}
+				if(STab != NULL) {
+					if(token->type != US) {
+						tmp->frameNumber = STVarLookUp(STab, token->attr);
+						if(tmp->frameNumber != 0)
+							if((tmp->type = STVarGetType(STab)) != UNKNOWN_T)
+								return RET_OK;
+						setError(SEM_DEF_ERROR);
+					}
+				}
+				return RET_OK;
+			}
 		}
 		setError(INTERNAL_ERROR);
 	}

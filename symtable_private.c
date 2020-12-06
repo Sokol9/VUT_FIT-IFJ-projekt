@@ -296,6 +296,7 @@ tLFPtr LTCreateFrame(tLFPtr upper, tGRPtr func) {
 	if(pointer != NULL) {
 		pointer->upper = upper;
 		pointer->frameNumber = frame++;
+		pointer->returnFlag = false;
 		pointer->rootPtr = NULL;
 		if(func != NULL) {
 			tParamPtr par = func->params;
@@ -316,6 +317,26 @@ int LTGetFrameNumber(tLFPtr frame) {
 	if(frame != NULL)
 		return frame->frameNumber;
 	return 0;
+}
+
+// nastaveni returnFlagu
+void LTSetReturnFlag(tLFPtr frame) {
+	if(frame != NULL)
+		frame->returnFlag = true;
+}
+
+// ziskani returnFlagu
+bool LTGetReturnFlag(tLFPtr frame) {
+	if(frame != NULL)
+		return frame->returnFlag;
+	return false;
+}
+
+// zjistuje, zda je ramec ramcem funkce
+bool LTIsFuncFrame(tLFPtr frame) {
+	if(frame != NULL)
+		return (frame->upper == NULL);
+	return false;
 }
 
 // vyhledani zaznamu ve strome

@@ -77,6 +77,7 @@ void GTDispose(tGRPtr *rootPtr);
 struct localFrame{
         tLRPtr rootPtr;
 	int frameNumber;
+	bool returnFlag;
         struct localFrame *upper;
 };
 
@@ -99,6 +100,15 @@ tLFPtr LTCreateFrame(tLFPtr upper, tGRPtr func);
 
 // ziskani cisla ramce
 int LTGetFrameNumber(tLFPtr frame);
+
+// nastaveni returnFlagu
+void LTSetReturnFlag(tLFPtr frame);
+
+// ziskani returnFlagu
+bool LTGetReturnFlag(tLFPtr frame);
+
+// zjistuje, zda se jedna o ramec funkce
+bool LTIsFuncFrame(tLFPtr frame);
 
 // prohledani vsech ramcu lokalni tabulky symbolu
 tLRPtr LTSearch(tLFPtr framePtr, char *key, int *frameNumber);

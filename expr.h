@@ -34,10 +34,22 @@ void tokenListInit(tokenListPtr ptr);
 // pridani tokenu na konec seznamu
 //    prvni token pridany do seznamu se automaticky stava aktivnim
 //    pridava-li do seznamu token ID nebo literal, nastavuje term=false
-int tokenAppend(tokenListPtr ptr, tToken* token);
+//
+// funkce je pouzita i pro prikaz prirazeni a to nasledovne:
+//    tvorim-li seznam na leve strane, volam funkci s danym tokenem a tabulkou symbolu => result=NULL
+//    tvorim-li seznam na prave strane, volam funkci s vysledkem precedencni analyzy (result)
+//    tvorim-li seznam pro precedencni analyzu volam pouze s tokenem => STab=NULL
+int tokenAppend(tokenListPtr ptr, tToken* token, tSymTablePtr STab, tokenListItemPtr result);
 
 // zruseni seznamu
 void tokenListDispose(tokenListPtr ptr);
+
+
+// ==========================================================================
+// Prikaz vicenasobneho prirazeni se semantickou kontrolou a generovanim kodu
+//
+// provede semantickou kontrolu pro prikaz prirazeni a vygeneruje odpovidajici instrukce
+int tokenListAssign(tokenListPtr dest, tokenListPtr src);
 
 
 // ===================================================================

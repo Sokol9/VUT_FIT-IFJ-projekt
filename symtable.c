@@ -262,6 +262,26 @@ int STGetFrameNumber(tSymTablePtr ptr) {
 	return 0;
 }
 
+// nastaveni returnFlagu ramci na vrcholu zasobniku
+void STSetFrameReturn(tSymTablePtr ptr) {
+	if(ptr != NULL)
+		LTSetReturnFlag(ptr->topFrame);
+}
+
+// ziskani returnFlagu ramce na vrcholu zasobniku
+bool STGetFrameReturn(tSymTablePtr ptr) {
+	if(ptr != NULL)
+		return LTGetReturnFlag(ptr->topFrame);
+	return false;
+}
+
+// vraci, zda je ramec na vrcholu zasobniku ramcem funkce
+bool STIsFuncFrame(tSymTablePtr ptr) {
+	if(ptr != NULL)
+		return LTIsFuncFrame(ptr->topFrame);
+	return false;
+}
+
 // vyhledani promenne
 int STVarLookUp(tSymTablePtr ptr, char *key) {
 	if(ptr != NULL) {
