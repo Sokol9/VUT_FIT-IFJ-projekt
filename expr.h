@@ -11,6 +11,7 @@ typedef struct tokenListItem{
 	bool    startOfExpr;
 	bool    term;
 	varType type;
+	int     frameNumber;
 	struct  tokenListItem *next;
 	struct  tokenListItem *prev;
 }*tokenListItemPtr;
