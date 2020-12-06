@@ -12,6 +12,7 @@
 #define RET_ERR 0
 
 static int varNumber = 0;
+static char* constPrefixes[5] = {"nil@", "int@", "float@", "string@", "bool@"};
 
 // reset pocitadla pro generovani promennych
 void resetNumber() {
@@ -112,9 +113,11 @@ int tokenListSemCheck(tokenListPtr ptr, tSymTablePtr STab) {
 						tmp->type = type;
 					} else
  						break;
-				} else if(tmp->token.type > ID && tmp->type != type)
-					break;
-				else if(type == STRING_T)
+				} else if(tmp->token.type > ID) {
+					if(tmp->type != type)
+						break;
+					tmp->frameNumber = 0;
+				} else if(type == STRING_T)
 					if(tmp->token.type != ADD)
 						break;
 				tmp = tmp->next;

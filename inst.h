@@ -17,7 +17,10 @@
 
 // makro pro generovani jednoduchych trojadresnych aritmetickych nebo logickych instrukci
 #define INST_PREC(inst, target, f1, var1, f2, var2) \
-	printf("%s %s %s%s %s%s\n", inst, target, (f1 == -1)? "" : pref1, var1, (f2 == -1)? "" : pref2, var2)
+	printf("%s %s %s%s %s%s\n", inst, target, (f1==-1)?"":((f1==0)?constPrefixes[(int)start->type]:pref1), var1, (f2==-1)?"":((f2==0)?constPrefixes[(int)end->type]:pref2), var2)
+
+// ===================
+// Syntaxe a Semantika
 
 // instrukce pro definici aktivni promenne v aktivnim bloku
 #define DEFVAR() \
