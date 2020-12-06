@@ -74,20 +74,18 @@ void GTDispose(tGRPtr *rootPtr);
 //
 // private datove typy
 
-// zaznam o promenne v binarnim vyhledavacim strome
-struct localRec{
-	varType type;
-	//bool used;
-	struct localRec *LPtr;
-	struct localRec *RPtr;
-	char id[];
-};
-
-// ramec lokalni tabulky symbolu jako prvek linearniho seznamu
 struct localFrame{
         tLRPtr rootPtr;
 	int frameNumber;
         struct localFrame *upper;
+};
+
+// zaznam o promenne v binarnim vyhledavacim strome
+struct localRec{
+	varType type;
+	struct localRec *LPtr;
+	struct localRec *RPtr;
+	char id[];
 };
 
 //private prototypy funkci
@@ -99,6 +97,9 @@ struct localFrame{
 //    je-li func != NULL vklada do noveho ramce i parametry funkce
 tLFPtr LTCreateFrame(tLFPtr upper, tGRPtr func);
 
+// ziskani cisla ramce
+int LTGetFrameNumber(tLFPtr frame);
+
 // prohledani vsech ramcu lokalni tabulky symbolu
 tLRPtr LTSearch(tLFPtr framePtr, char *key, int *frameNumber);
 
@@ -108,6 +109,9 @@ tLRPtr LTInsert(tLFPtr framePtr, char *key);
 
 // vrati datovy typ promenne dane parametrem ptr
 varType LTGetType(tLRPtr ptr);
+
+// vraci ukazatel na identifikator promenne
+char* LTGetName(tLRPtr ptr);
 
 // zmeni typ promenne, na jejiz zaznam ukazuje ptr
 //    pokud neni dosavadni typ promenne UNKNOWN_T nastava chyba

@@ -311,6 +311,13 @@ tLFPtr LTCreateFrame(tLFPtr upper, tGRPtr func) {
 	return pointer;
 }
 
+// ziskani cisla ramce
+int LTGetFrameNumber(tLFPtr frame) {
+	if(frame != NULL)
+		return frame->frameNumber;
+	return 0;
+}
+
 // vyhledani zaznamu ve strome
 tLRPtr LTLookUp (tLRPtr rootPtr, char *key) {
 	if(rootPtr == NULL)
@@ -384,6 +391,13 @@ varType LTGetType(tLRPtr ptr) {
 	if(ptr != NULL)
 		return ptr->type;
 	return UNKNOWN_T;
+}
+
+// vraci ukazatel na identifikator promenne
+char* LTGetName(tLRPtr ptr) {
+	if(ptr != NULL)
+		return ptr->id;
+	return NULL;
 }
 
 // zmeni typ promenne, na jejiz zaznam ukazuje ptr

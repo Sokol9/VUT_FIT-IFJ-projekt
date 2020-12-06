@@ -255,6 +255,13 @@ int STCreateFrame(tSymTablePtr ptr, bool func) {
 	return 0;
 }
 
+// ziskani cisla ramce na vrcholu zasobniku
+int STGetFrameNumber(tSymTablePtr ptr) {
+	if(ptr != NULL)
+		return LTGetFrameNumber(ptr->topFrame);
+	return 0;
+}
+
 // vyhledani promenne
 int STVarLookUp(tSymTablePtr ptr, char *key) {
 	if(ptr != NULL) {
@@ -286,6 +293,13 @@ varType STVarGetType(tSymTablePtr ptr) {
 	if(ptr != NULL)
 		return LTGetType(ptr->activeVar);
 	return UNKNOWN_T;
+}
+
+// vraci identifikator aktivni promenne
+char* STVarGetName(tSymTablePtr ptr) {
+	if(ptr != NULL)
+		return LTGetName(ptr->activeVar);
+	return NULL;
 }
 
 // zmena datoveho typu aktivni promenne
