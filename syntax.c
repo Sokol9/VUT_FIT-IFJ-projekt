@@ -735,7 +735,6 @@ void rule_expr_bool(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* suc
 		(*numBool)++;
 		EOL_FORBID
 		rule_bool_op(token, keyWords, sucess, tokenList);
-		if (!*sucess) return; else tokenAppend(tokenList, token);
 
 		rule_expr_bool(PARAMS, tokenList, numBool);
 		if (!*sucess) return;
