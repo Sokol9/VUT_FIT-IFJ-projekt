@@ -258,10 +258,11 @@ int STCreateFrame(tSymTablePtr ptr, bool func) {
 // vyhledani promenne
 int STVarLookUp(tSymTablePtr ptr, char *key) {
 	if(ptr != NULL) {
-		tLRPtr tmp = LTSearch(ptr->topFrame, key);
+		int frame;
+		tLRPtr tmp = LTSearch(ptr->topFrame, key, &frame);
 		if(tmp != NULL) {
 			ptr->activeVar = tmp;
-			return 1;
+			return frame;
 		}
 		setError(SEM_DEF_ERROR);
 	}

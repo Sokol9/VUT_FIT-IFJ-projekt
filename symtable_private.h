@@ -86,6 +86,7 @@ struct localRec{
 // ramec lokalni tabulky symbolu jako prvek linearniho seznamu
 struct localFrame{
         tLRPtr rootPtr;
+	int frameNumber;
         struct localFrame *upper;
 };
 
@@ -99,7 +100,7 @@ struct localFrame{
 tLFPtr LTCreateFrame(tLFPtr upper, tGRPtr func);
 
 // prohledani vsech ramcu lokalni tabulky symbolu
-tLRPtr LTSearch(tLFPtr framePtr, char *key);
+tLRPtr LTSearch(tLFPtr framePtr, char *key, int *frameNumber);
 
 // vlozeni zaznamu do daneho ramce
 //    vraci ukazatel na zaznam o promenne

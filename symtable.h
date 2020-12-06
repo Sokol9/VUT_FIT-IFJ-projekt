@@ -112,6 +112,7 @@ int STCreateFrame(tSymTablePtr ptr, bool func);
 
 // vyhledani promenne
 //    v pripade nalezeni nastavuje aktivitu na nalezenou promennou
+//    v pripade nalezeni take vraci cislo ramce, ve kterem byla promenna nalezena, jinak 0
 int STVarLookUp(tSymTablePtr ptr, char *key);
 
 // vlozeni promenne do tabulky symbolu

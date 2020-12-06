@@ -3,6 +3,8 @@
 #include "symtable_private.h"
 #include "error.h"
 
+static int frame = 1;
+
 // GLOBALNI TABULKA SYMBOLU
 //================================================================
 
@@ -293,6 +295,7 @@ tLFPtr LTCreateFrame(tLFPtr upper, tGRPtr func) {
 	tLFPtr pointer = malloc(sizeof(struct localFrame));
 	if(pointer != NULL) {
 		pointer->upper = upper;
+		pointer->frameNumber = frame++;
 		pointer->rootPtr = NULL;
 		if(func != NULL) {
 			tParamPtr par = func->params;
@@ -325,13 +328,14 @@ tLRPtr LTLookUp (tLRPtr rootPtr, char *key) {
 }
 
 // prohledani ramce/ramcu
-tLRPtr LTSearch (tLFPtr framePtr, char *key) {
+tLRPtr LTSearch (tLFPtr framePtr, char *key, int *frameNumber) {
 	if(framePtr != NULL) {
 		tLRPtr ptr = LTLookUp(framePtr->rootPtr, key);
-		if(ptr != NULL)
+		if(ptr != NULL) {
+			*frameNumber = framePtr->frameNumber;
 			return ptr;
-		else
-			return LTSearch(framePtr->upper, key);
+		} else
+			return LTSearch(framePtr->upper, key, frameNumber);
 	}
 	return NULL;
 }
