@@ -9,6 +9,7 @@ void saveToken(tToken* token){
 void tokenInit(tToken* token){
 	tToken* savedToken = malloc(sizeof(tToken));
 	if (savedToken == NULL) setError(INTERNAL_ERROR);
+	savedToken->savedToken = NULL;
 	token->savedToken = savedToken;
 }
 
@@ -18,7 +19,9 @@ void tokenDispose(tToken* token){
 		free(token);
 		token = savedToken;
 		savedToken = token->savedToken;
+		
 	}
+	free(token);
 }
 
 

@@ -531,8 +531,8 @@ void rule_values(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess
 				token->type == DIV){
 			tokenListPtr tokenList = malloc(sizeof(struct tokenList));
 			if (tokenList) tokenListInit(tokenList); else setError(INTERNAL_ERROR);
-			//todo
-			//tokenAppendOld
+			tokenAppend(tokenList, token->savedToken);
+				
 			rule_op(token, sucess);
 			if (!*sucess) {
 				tokenListDispose(tokenList);
@@ -658,10 +658,6 @@ void rule_if(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 			*sucess=0;
 			printd("chyba precedence");
 			break;
-		//todo
-		//aky vyznam tu ma precedencka rovnako ako vo fore asi iba na generaciu kodu
-//			STVarLookUp(STab, token-savedToken->attr);
-//			STVarSetType(Stab, tokenListGetFirstType(tokenList));
 		}
 	}while(0);
 	
@@ -847,9 +843,7 @@ void rule_for(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 			printd(";")
 			if (!*sucess) break;
 		}
-//todo
-//je tu potrebna precedencna?
-//podla mna je to blbost
+
 		GET_TOKEN
 		EOL_FORBID
 		tokenListPtr tokenList = malloc(sizeof(struct tokenList));
@@ -866,11 +860,10 @@ void rule_for(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 		
 		if (precedence(tokenList, STab, false) == NULL){
 			*sucess=0;
+			tokenListDispose(tokenList);
+			free(tokenList);
 			printd("chyba precedence")
 			break;
-//		toto je kktina tu by podla mna malo byt sucess = 0
-		//	STVarLookUp(STab, token-savedToken->attr);
-		//	STVarSetType(Stab, tokenListGetFirstType(tokenList));
 		}
 		tokenListDispose(tokenList);
 		free(tokenList);
@@ -886,8 +879,6 @@ void rule_for(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 
 
 		GET_TOKEN
-		//todo
-		//chck sem of expr
 		if (token->type == ID){
 			EOL_FORBID
 			print_debug("valid ID")
@@ -909,8 +900,15 @@ void rule_for(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 			if (tokenList) tokenListInit(tokenList); else setError(INTERNAL_ERROR);		
 			rule_expr(PARAMS, tokenList);
 			if (*sucess){
+				if (precedence(tokenList, STab, false) == NULL){
+					printd("chyba precedence");
+				}else{
+
+				//nastavy ako aktivnu premennu, tu ktoru chce skontrolovat
 				STVarLookUp(STab, token->savedToken->attr);
+				//skontroluje typ pomocou vlozenia
 				STVarSetType(STab, tokenListGetFirstType(tokenList));
+				}
 			}
 			tokenListDispose(tokenList);
 			free(tokenList);	 
