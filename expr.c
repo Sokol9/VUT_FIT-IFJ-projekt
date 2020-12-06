@@ -42,6 +42,7 @@ int tokenAppend(tokenListPtr ptr, tToken* token, tSymTablePtr STab, tokenListIte
 				ptr->last->next = result;
 				ptr->last = result;
 			}
+			return RET_OK;
 		} else if(token != NULL) {
 			tokenListItemPtr tmp = malloc(sizeof(struct tokenListItem));
 			if(tmp != NULL) {
@@ -64,7 +65,7 @@ int tokenAppend(tokenListPtr ptr, tToken* token, tSymTablePtr STab, tokenListIte
 					ptr->last = tmp;
 				}
 				if(STab != NULL) {
-					if(token->type != US) {
+					if(token->type == ID) {
 						tmp->frameNumber = STVarLookUp(STab, token->attr);
 						if(tmp->frameNumber != 0)
 							if((tmp->type = STVarGetType(STab)) != UNKNOWN_T)
@@ -74,8 +75,8 @@ int tokenAppend(tokenListPtr ptr, tToken* token, tSymTablePtr STab, tokenListIte
 				}
 				return RET_OK;
 			}
+			setError(INTERNAL_ERROR);
 		}
-		setError(INTERNAL_ERROR);
 	}
 	return RET_ERR;
 }
