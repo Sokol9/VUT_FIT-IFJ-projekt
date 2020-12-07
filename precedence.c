@@ -1,5 +1,6 @@
 // definice funkce simulujici precedencni syntaktickou analyzu pro zpracovani vyrazu
 #include "expr.h"
+#include "error.h"
 
 #define DEBUG \
 	list = ptr->first;\
@@ -19,7 +20,7 @@ tokenListItemPtr precedence(tokenListPtr ptr, tSymTablePtr STab, bool resetVarNu
 
 		tokenListItemPtr list;
 
-		if(!tokenListSemCheck(ptr, STab)) {
+		if(getError() != RESULT_OK || !tokenListSemCheck(ptr, STab)) {
 	printf("\nChybna semantika\n\n");
 			return NULL;
 		}
