@@ -933,7 +933,7 @@ void rule_for(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 		if (token->type == ID){
 			EOL_FORBID
 			print_debug("valid ID")
-			STVarInsert(STab, token->attr);
+			STVarLookUp(STab, token->attr);
 			saveToken(token);
 			GET_TOKEN
 
