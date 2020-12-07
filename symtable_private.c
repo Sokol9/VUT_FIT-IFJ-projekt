@@ -117,9 +117,9 @@ bool GTIsDefined(tGRPtr ptr) {
 	return (ptr != NULL)? ptr->defined : false;
 }
 
-// zjistuje, zda se jedna o funkci print
-bool GTIsPrint(tGRPtr ptr) {
-	return (ptr != NULL)? ptr->randomPCount: false;
+// vraci jmeno funkce
+char* GTGetName(tGRPtr ptr) {
+	return (ptr != NULL)? ptr->id : NULL;
 }
 
 // pridani zaznamu do globalni tabulky

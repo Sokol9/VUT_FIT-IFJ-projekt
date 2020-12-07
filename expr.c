@@ -13,8 +13,10 @@
 
 static int varNumber = 0;
 static char* constPrefixes[5] = {"nil@", "int@", "float@", "string@", "bool@"};
+/*
 static int paramNumber = 0;
 static int retNumber = 0;
+*/
 
 // reset pocitadla pro generovani promennych
 void resetNumber() {
@@ -45,6 +47,9 @@ int tokenAppend(tokenListPtr ptr, tToken* token, tSymTablePtr STab, tokenListIte
 				ptr->last = result;
 			}
 			return RET_OK;
+
+	printf("\nToken pridan do seznamu na prave strane prirazeni\n\n");
+
 		} else if(token != NULL) {
 			tokenListItemPtr tmp = malloc(sizeof(struct tokenListItem));
 			if(tmp != NULL) {
@@ -70,8 +75,10 @@ int tokenAppend(tokenListPtr ptr, tToken* token, tSymTablePtr STab, tokenListIte
 					if(token->type == ID) {
 						tmp->frameNumber = STVarLookUp(STab, token->attr);
 						if(tmp->frameNumber != 0)
-							if((tmp->type = STVarGetType(STab)) != UNKNOWN_T)
+							if((tmp->type = STVarGetType(STab)) != UNKNOWN_T) {
+	printf("\nPridano ID do seznamu: frame=%d typ=%d\n\n", tmp->frameNumber, tmp->type);
 								return RET_OK;
+							}
 						setError(SEM_DEF_ERROR);
 					}
 				}
@@ -132,10 +139,46 @@ int tokenListAssign(tokenListPtr dest, tokenListPtr src) {
 }
 
 // preda hodnotu parametru, provadi nektere vestavene funkce (print)
-void tokenParamHandler(tSymTablePtr STab, tToken *token) {
+int tokenParamHandler(tSymTablePtr STab, tToken *token, tokenListPtr ptr) {
 	if(STab != NULL && token != NULL) {
-		
+		char prefix[BUFFER]   = {'\0'};
+		char prefix2[BUFFER]  = {'\0'};
+		char* function = STFuncGetName(STab);
+		int frame = 0;
+		varType type;
+		switch(token->type) {
+			case ID:
+				frame = STVarLookUp(STab, token->attr);
+				if(frame > 0)
+					sprintf(prefix, "LF@f%d$", frame);
+				else {
+					setError(SEM_DEF_ERROR);
+					return RET_ERR;
+				}
+				break;
+			case INT_L:    type = INT_T;
+				break;
+			case FLOAT_L:  type = FLOAT64_T;
+				break;
+			case STRING_L: type = STRING_T;
+				break;
+			default:       type = UNKNOWN_T;
+				break;
+		}
+		if(strcmp(function, "print") == 0) {
+			WRITE();
+			return RET_OK;
+		} else if(ptr != NULL && strcmp(function, "int2float") == 0) {
+			sprintf(prefix2, "LF@f%d$", ptr->first->frameNumber);
+			I2F(ptr->first->token.attr, token->attr);
+			return RET_OK;
+		} else if(ptr != NULL && strcmp(function, "float2int") == 0) {
+			sprintf(prefix2, "LF@f%d$", ptr->first->frameNumber);
+			F2I(ptr->first->token.attr, token->attr);
+			return RET_OK;
+		}
 	}
+	return RET_ERR;
 }
 
 

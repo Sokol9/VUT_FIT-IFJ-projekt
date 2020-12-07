@@ -94,13 +94,6 @@ bool STFuncIsDefined(tSymTablePtr ptr) {
 	return false;
 }
 
-// zjistuje, zda je aktivni funkce print
-bool STIsPrint(tSymTablePtr ptr) {
-	if(ptr != NULL)
-		return GTIsPrint(ptr->activeFunc);
-	return false;
-}
-
 // nastaveni aktivity na funkci
 int STFuncSetActive(tSymTablePtr ptr, tGRPtr funcPtr) {
 	if(ptr != NULL && funcPtr != NULL) {
@@ -248,6 +241,13 @@ int STFuncInsertRet(tSymTablePtr ptr, tRetListPtr list) {
 	}
 	retListDispose(list);
 	return 0;
+}
+
+// vraci nazev aktivni funkce
+char* STFuncGetName(tSymTablePtr ptr) {
+	if(ptr != NULL)
+		return GTGetName(ptr->activeFunc);
+	return NULL;
 }
 
 //vrati ukazatel na activ func

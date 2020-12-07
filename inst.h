@@ -37,3 +37,15 @@
 // prirazeni hodnoty do promenne
 #define ASSIGN(pref1, to, frame, pref2, from) \
 	printf("MOVE %s%s %s%s\n", pref1, to, (frame==-1)?"":((frame==0)?constPrefixes[(int)src->active->type]:pref2), from)
+
+// instrukce WRITE
+#define WRITE() \
+	printf("WRITE %s%s\n", (frame > 0)? prefix : constPrefixes[(int)type], token->attr)
+
+// instrukce INT2FLOAT
+#define I2F(dest, src) \
+	printf("INT2FLOAT %s%s %s%s\n", prefix2, dest, (frame > 0)? prefix : constPrefixes[(int)type], src)
+
+// instrukce FLOAT2INT
+#define F2I(dest, src) \
+	printf("FLOAT2INT %s%s %s%s\n", prefix2, dest, (frame > 0)? prefix : constPrefixes[(int)type], src)

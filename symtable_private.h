@@ -44,8 +44,8 @@ void GTInit(tGRPtr *rootPtr);
 //    funkce prijima jako parametr ukazatel na zaznam o teto funkci
 bool GTIsDefined(tGRPtr ptr);
 
-// zjistuje, zda se jedna o funkci print
-bool GTIsPrint(tGRPtr ptr);
+// vraci jmeno funkce
+char* GTGetName(tGRPtr ptr);
 
 // pridani zaznamu do globalni tabulky
 //    vraci ukazatel na nove vytvorenou polozku nebo NULL pri neuspechu
