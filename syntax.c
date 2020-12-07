@@ -336,6 +336,14 @@ void rule_stat(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 			//todo set bola navratova hodnota
 		}
 	/*************END OF RETURN******************/
+	}else if(token->type == OBR){
+		
+		*sucess = 0;
+		printd("here can't be {")
+		GET_TOKEN
+		if (token->type == OB){
+			GET_TOKEN
+		}
 	}else if(token->type != OB){
 		//follow(<stat>) == OB (})
 		//valid epsilon
@@ -1148,10 +1156,16 @@ void rule_type_n(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess
 void rule_return_type(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 	if (token->type == OBR){
 		print_debug("valid (")
+
+		GET_TOKEN
+		if(token->type == CBR){
+			print_debug("valid )")
+			return;
+		}
+
 		tRetListPtr ret = malloc(sizeof(struct RetList));
 		if (!ret) setError(INTERNAL_ERROR); else retListInit(ret);
 
-		GET_TOKEN
 		//EOL_OPRIONAL - nie som si isty
 		rule_type_r(token, keyWords, sucess, ret);
 		if (!*sucess) {
