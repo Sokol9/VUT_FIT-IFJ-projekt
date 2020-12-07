@@ -730,7 +730,7 @@ void rule_if(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 		rule_expr_bool(PARAMS, tokenList, &numBool);
 		if (!*sucess) break;
 		
-		if (numBool != 1) break;
+		if (numBool != 1) setError(SEM_TYPE_ERROR); 
 
 		if (precedence(tokenList, STab, false) == NULL){
 			*sucess=0;
