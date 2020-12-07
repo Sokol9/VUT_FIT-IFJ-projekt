@@ -434,6 +434,8 @@ int LTSetType(tLRPtr ptr, varType type) {
 		ptr->type = type;
 		return 1;
 	}
+	if(ptr->type == type)
+		return 1;
 	setError(SEM_TYPEDEF_ERROR);
 	return 0;
 }
