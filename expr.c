@@ -233,8 +233,9 @@ int tokenListSemCheck(tokenListPtr ptr, tSymTablePtr STab) {
 						break;
 					tmp->frameNumber = 0;
 				} else if(type == STRING_T)
-					if(tmp->token.type != ADD)
-						break;
+					if(tmp->token.type != ADD && tmp->token.type != OBR && tmp->token.type != CBR)
+						if(tmp->token.type < LT || tmp->token.type > NEQ)
+							break;
 				tmp = tmp->next;
 			}
 			if(tmp == NULL)
