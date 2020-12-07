@@ -62,8 +62,8 @@ int tokenListAssign(tokenListPtr dest, tokenListPtr src);
 // jsou-li vsechny operandy typu string, kontroluje, zda neni pouzita jina operace nez konkatenace
 int tokenListSemCheck(tokenListPtr ptr, tSymTablePtr);
 
-// semanticke porovnani s retListem pri volani funkce a pri return statementu
-int tokenRetListCompare(tokenListPtr tList, tRetListPtr rList);
+// semanticke porovnani tokenListu a seznamu navratovych hodnot aktivni funkce
+int tokenRetListCompare(tokenListPtr tList, tSymTablePtr STab);
 
 // =============================
 // Zpracovani seznamu

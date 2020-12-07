@@ -109,22 +109,21 @@ void tokenListDispose(tokenListPtr ptr) {
 	}
 }
 
-// semanticke porovnani s retListem pri volani funkce a pri return statementu
-int tokenRetListCompare(tokenListPtr tList, tRetListPtr rList) {
-	if(tList != NULL && rList != NULL) {
+// semanticke porovnani tokenListu a seznamu navratovych hodnot aktivni funkce
+int tokenRetListCompare(tokenListPtr tList, tSymTablePtr STab) {
+	if(tList != NULL && STab != NULL) {
 		tList->active = tList->first;
-		rList->active = rList->first;
-		while(tList->active != NULL && rList->active != NULL) {
+		while(tList->active != NULL && STab->activeRet != NULL) {
 			if(tList->active->type != UNKNOWN_T) {
-				if(tList->active->type != rList->active->type) {
+				if(tList->active->type != STab->activeRet->type) {
 					setError(SEM_TYPE_ERROR);
 					break;
 				}
 			}
 			tokenNext(tList);
-			retListNext(rList);
+			STab->activeRet = STab->activeRet->next;
 		}
-		if((void*)tList->active == (void*)rList->active)
+		if((void*)tList->active == (void*)STab->activeRet)
 			return RET_OK;
 		setError(SEM_FUNC_ERROR);
 	}
