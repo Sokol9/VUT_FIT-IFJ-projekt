@@ -60,7 +60,7 @@ int tokenListAssign(tokenListPtr dest, tokenListPtr src);
 //
 // najde-li id, vyhledava promenne v tabulkach symbolu
 // jsou-li vsechny operandy typu string, kontroluje, zda neni pouzita jina operace nez konkatenace
-int tokenListSemCheck(tokenListPtr ptr, tSymTablePtr);
+int tokenListSemCheck(tokenListPtr ptr, tSymTablePtr STab);
 
 // semanticke porovnani tokenListu a seznamu navratovych hodnot aktivni funkce
 int tokenRetListCompare(tokenListPtr tList, tSymTablePtr STab);

@@ -113,6 +113,7 @@ void tokenListDispose(tokenListPtr ptr) {
 int tokenRetListCompare(tokenListPtr tList, tSymTablePtr STab) {
 	if(tList != NULL && STab != NULL) {
 		tList->active = tList->first;
+		STFuncSetActive(STab, STab->activeFunc);
 		while(tList->active != NULL && STab->activeRet != NULL) {
 			if(tList->active->type != UNKNOWN_T) {
 				if(tList->active->type != STab->activeRet->type) {
