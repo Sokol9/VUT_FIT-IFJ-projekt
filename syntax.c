@@ -839,7 +839,7 @@ void rule_expr_bool(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* suc
 		EOL_FORBID
 		if ( token->type == OB){
 			print_debug("valid {")
-
+			STCreateFrame(STab, false);
 			GET_TOKEN
 			EOL_REQUIRED
 			rule_body(PARAMS);
@@ -848,7 +848,7 @@ void rule_expr_bool(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* suc
 			EOL_REQUIRED
 			if (token->type == CB){
 				print_debug("valid }")
-
+				STDeleteFrame(STab);
 				GET_TOKEN
 			}else{
 				*sucess = 0;
