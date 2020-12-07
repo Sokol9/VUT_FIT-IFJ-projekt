@@ -323,7 +323,7 @@ void rule_stat(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 			//STFuncInsertRet(STab, tokenListRet);
 			tokenListDispose(tokenListRet);
 			free(tokenListRet);
-			if (STIsFuncFrame) STSetFrameReturn(STab);	
+			if (STIsFuncFrame(STab)) STSetFrameReturn(STab);	
 		}
 	/*************END OF RETURN******************/
 	}else if(token->type != OB){
