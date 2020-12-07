@@ -36,12 +36,16 @@ void rule_prog(tToken *token, tSymTablePtr STab, tKWPtr keyWords,  bool* sucess)
 		}
 	}while(0);
 	/**********END OF PACKEGE MAIN *************/
-	
+
+	/**************<FUNC_DEF>*******************/
 	rule_func_def(PARAMS);
 	EOL_REQUIRED
- 	
+ 	/***********END OF <FUNC_DEF>***************/
+
+	/***************<FUNC_N>********************/
 	rule_func_n(PARAMS);
 	GET_TOKEN
+	/************END OF <FUNC_N>****************/
 
 	/*****************EOF***********************/
 	if (token->type == TOKEN_EOF){
@@ -60,7 +64,7 @@ void rule_prog(tToken *token, tSymTablePtr STab, tKWPtr keyWords,  bool* sucess)
 // <return_types> - epsilon
 void rule_func_def(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 	CHECK_POINT(type,KW_FUNC)	
-
+	/*****************FUNC**********************/
 	do{
 		if (!*sucess) break;
 	
@@ -71,7 +75,9 @@ void rule_func_def(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* suce
 			printd("KW_FUNC")
 			break;
 		}
-	
+	/*************END OF FUNC*******************/
+
+	/******************ID***********************/
 		GET_TOKEN
 		EOL_FORBID
 		if (token->type == ID){
@@ -84,7 +90,9 @@ void rule_func_def(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* suce
 			printd("ID")
 			break;
 		}
-			
+	/**************END OF ID********************/	
+
+	/***************BRACKETS********************/
 		GET_TOKEN
 		EOL_FORBID
 		if (token->type == OBR){
@@ -94,29 +102,42 @@ void rule_func_def(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* suce
 			printd("(")
 			break;
 		}
+	/*************END OF BRACKETS***************/
 	
+	/*****************<PARAMS>******************/
 		GET_TOKEN
 		//EOL_OPTIONAL -- nie som si isty
 		rule_params(PARAMS);
 		if (!*sucess) break;
+		//vola semanticku kontrolu, ci vsetky doterz nacitane parametre boli spravne
+		//v pripade, ze funkcia este nie je definovana, nastavi hodnoty parametrov,
+		//pre neskorsiu kontrolu
 		STFuncParamEnd(STab);
+	/**************END OF <PARAMS>**************/
 
+	/***************BRACKETS********************/
 		EOL_FORBID
 		if (token->type == CBR){
 			print_debug("valid )")
 		}else{
 			*sucess = 0;
 		}
+	/*************END OF BRACKETS****************/
 
+	/**************<RETURN TYPES>****************/
 		GET_TOKEN
 		EOL_FORBID
 		rule_return_type(PARAMS);
+	/***********END OF <RETURN TYPES>************/
+
 	}while(0);
 	
-	
 	CHECK_POINT(type,OB)
+
+	//vytvorenie ramca pre semantiku
 	STCreateFrame(STab, true);
 
+	/***************BRACKETS********************/
 	if (token->type == OB){
 		print_debug("valid {")
     }else{
@@ -124,21 +145,29 @@ void rule_func_def(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* suce
 		printd("{")
 		return;
     }
+	/*************END OF BRACKETS***************/
 
+	/*****************<BODY>********************/
 	GET_TOKEN
 	EOL_REQUIRED
 	rule_body(PARAMS);
 	if (!*sucess) return;
-	
+	/*************END OF <BODY>*****************/
+
+	/***************BRACKETS********************/
 	if (token->type == CB){
 		print_debug("valid }")
 		EOL_REQUIRED
+		//todo
+		//chceck returnFlag in frame
+		//ukoncenie ramca pre semantiku
 		STDeleteFrame(STab);
 	}else{
 		*sucess = 0;
 		printd("}")
 		return;
 	}
+	/*************END OF BRACKETS***************/	
 
 	GET_TOKEN
 }
@@ -147,12 +176,19 @@ void rule_func_def(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* suce
 //
 //<func_n> - epsilon
 void rule_func_n(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
-	CHECK_POINT(type,KW_FUNC)
-	if (token->type != TOKEN_EOF){
-		rule_func_def(PARAMS);
 
+	CHECK_POINT(type,KW_FUNC)
+	
+	//epsilon
+	if (token->type != TOKEN_EOF){
+	/*****************<FUNC>********************/
+		rule_func_def(PARAMS);
+	/**************END OF <FUNC>****************/
+
+	/***************<FUNC_N>********************/	
 		EOL_REQUIRED
 		rule_func_n(PARAMS);
+	/*************END OF <FUNC_N>***************/
 	}
 }
 
@@ -162,15 +198,20 @@ void rule_func_n(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess
 //<stat> - epsilon
 //<body> - epsilon
 void rule_body(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
+	//epsilon
 	if (token->type != CB){
+	/*****************<STAT>********************/
 		rule_stat(PARAMS);
+	/**************END OF <STAT>****************/
 
 		CHECK_POINT(eolFlag, true)
-		//podmienka, ktora odchyti chybajucu zatvorku
+		//podmienka, ktora odchyti chybajucu zatvorku (SYNTAX ERROR)
 		if (token->type == KW_FUNC || token->type == TOKEN_EOF) return;
 
+	/*****************<BODY>********************/
 		EOL_REQUIRED
 		rule_body(PARAMS);
+	/**************END OF <BODY>****************/
 	}
 }
 
@@ -184,64 +225,78 @@ void rule_body(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 void rule_stat(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 
 	if (token->type == KW_IF){
+	/*******************<IF>********************/
 		print_debug("valid KW_IF")
-
 		rule_if(PARAMS);
+	/***************END OF <IF>*****************/
 
 	}else if (token->type == KW_FOR){
-		print_debug("valid KW_FOR")     
- 
+	/******************<FOR>********************/
+		print_debug("valid KW_FOR") 
         rule_for(PARAMS);
+	/**************WND OF <FOR>*****************/
 
 	}else if (token->type ==  US){
+	/**************<VAR_ASG>********************/
 		print_debug("valid _")      
 		saveToken(token);
 
 		GET_TOKEN
 		EOL_FORBID
 		rule_var_asg(PARAMS);
+	/***********ENF OF <VAR_ASG>****************/
 
 	}else if( token->type == ID){
+	/******************ID***********************/
 		print_debug("valid ID")      
 		saveToken(token);		
 
 		GET_TOKEN
 		EOL_FORBID
+	/***************END OF ID*******************/
+
 		if (token->type == OBR){
+	/**************<FUNC CALL>******************/
 			print_debug("valid (")
 
 			GET_TOKEN
 	     	rule_func_call(PARAMS);
-          
+    /***********END OF <FUNC CALL>***************/
+
         }else if (token->type == DEF){
+	/**************<VAR_DEF>********************/
 			print_debug("valid :=")   
-   
 			rule_var_def(PARAMS);
+	/***********ENF OF <VAR_DEF>****************/
 
 		}else if (token->type == ASG || token->type ==COM){
-
+	/**************<VAR_ASG>********************/
 			rule_var_asg(PARAMS);
+	/***********ENF OF <VAR_ASG>****************/
 
 		}else{
 			*sucess = 0;
 			printd("need valid operand")	
 		}
-
+	/****************RETURN*********************/
 	}else if(token->type == KW_RETURN){
 		print_debug("valid KW_RETURN")
-		//>>>expr_opt???? v pripade eps potrebujem striktne vratit hodnotu EOL, 
-		//resp, pristupit k nej ako k hodnote, pre potrebu kontroli
 
-		//forbid EOL strazi semanticky analiyator, podla toho, kolko exp tu ocakava
 		GET_TOKEN
+		//podmienka zachytava koniec statementu
 		if (!token->eolFlag){
+			//vytvorenie zoznamu tokenov pre kontrolu navratovych hodnot
 			tokenListPtr tokenListRet = malloc(sizeof(struct tokenList));
 			if (tokenListRet) tokenListInit(tokenListRet); else setError(INTERNAL_ERROR);
-
+			
+			//pomocny zoznam tokenov pre vyhodnotenie expr
 			tokenListPtr tokenListTmp = malloc(sizeof(struct tokenList));
 			if (tokenListTmp) tokenListInit(tokenListTmp); else setError(INTERNAL_ERROR);
+
 			rule_expr(PARAMS, tokenListTmp);
 			if (*sucess) {
+				//precedencna analiza spracuje zoznam tokenov a vysldedny prida
+				//do zoznamu urceneho na porovnanie
 				if (precedence(tokenListTmp, STab, false) != NULL){
 					tokenAppend(tokenListRet, NULL, STab, tokenListTmp->first);
 				tokenListDispose(tokenListTmp);
@@ -268,9 +323,9 @@ void rule_stat(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 			//STFuncInsertRet(STab, tokenListRet);
 			tokenListDispose(tokenListRet);
 			free(tokenListRet);
-			
+			if (STIsFuncFrame) STSetFrameReturn(STab);	
 		}
-
+	/*************END OF RETURN******************/
 	}else if(token->type != OB){
 		//follow(<stat>) == OB (})
 		//valid epsilon
