@@ -1056,6 +1056,7 @@ void rule_params_n(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* suce
 	if (token->type == COM){
 		print_debug("valid , ")
 
+		GET_TOKEN
 		if (token->type == ID){
 			print_debug("valid ID")
 			STFuncInsertParamId(STab, token->attr);		
