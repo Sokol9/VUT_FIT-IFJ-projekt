@@ -299,9 +299,15 @@ void rule_stat(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 				//do zoznamu urceneho na porovnanie
 				if (precedence(tokenListTmp, STab, false) != NULL){
 					tokenAppend(tokenListRet, NULL, STab, tokenListTmp->first);
+					//toto tu nesmie byt, tokenAppend(tokenListR, NULL, STab, tokenListTmp->first);, vytvori 
+					//ukazatel  v R na prvok v TMP, jeden prvok ma teda 2 ukazatele... nakolko v tmp strukture
+					//po precedencke neostane nic, co by bolo treba dispostnut, je tu toto zbytocne...
+					//tokenListDispose(tokenListTmp);
+					free(tokenListTmp);
+				}else{
+					tokenListDispose(tokenListTmp);
+					free(tokenListTmp);	
 				}
-				tokenListDispose(tokenListTmp);
-				free(tokenListTmp);	
 			}else{
 				tokenListDispose(tokenListTmp);
 				free(tokenListTmp);
@@ -521,6 +527,7 @@ void rule_var_asg(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* suces
 	}
 
 	GET_TOKEN
+
 	rule_values(PARAMS, tokenListL);
 	tokenListDispose(tokenListL);
 	free(tokenListL);
@@ -547,10 +554,16 @@ void rule_values(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess
 			return;
 		}
 		if (precedence(tokenListTmp, STab, false) != NULL){	
-			tokenAppend(tokenListR, NULL, STab, tokenListTmp->first);
+			tokenAppend(tokenListR, NULL, STab, tokenListTmp->first);	
+			//toto tu nesmie byt, tokenAppend(tokenListR, NULL, STab, tokenListTmp->first);, vytvori 
+			//ukazatel  v R na prvok v TMP, jeden prvok ma teda 2 ukazatele... nakolko v tmp strukture po 
+			//precedencke neostane nic, co by bolo treba dispostnut, je tu toto zbytocne...
+			//tokenListDispose(tokenListTmp);
+			free(tokenListTmp);
+		}else{
+			tokenListDispose(tokenListTmp);
+			free(tokenListTmp);
 		}
-		tokenListDispose(tokenListTmp);
-		free(tokenListTmp);
 
 		rule_expr_n(PARAMS, tokenListR);
 		if (!*sucess){
@@ -615,10 +628,16 @@ void rule_values(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess
 			
 			if (precedence(tokenListTmp, STab, false) != NULL){
 				 tokenAppend(tokenListR, NULL, STab, tokenListTmp->first);
-			}	
-			tokenListDispose(tokenListTmp);
-			free(tokenListTmp);
-
+			
+				//toto tu nesmie byt, tokenAppend(tokenListR, NULL, STab, tokenListTmp->first);, vytvori 
+				//ukazatel  v R na prvok v TMP, jeden prvok ma teda 2 ukazatele... nakolko v tmp strukture po 	
+				//precedencke neostane nic, co by bolo treba dispostnut, je tu toto zbytocne...
+				//tokenListDispose(tokenListTmp);
+				free(tokenListTmp);
+			}else{
+				tokenListDispose(tokenListTmp);
+				free(tokenListTmp);
+			}		
 			
 			rule_expr_n(PARAMS, tokenListR);
 			if (!*sucess){
@@ -629,7 +648,9 @@ void rule_values(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess
 			//todo
 			//retL vs retR check
 			//to aby nekricalo
+			
 			tokenAppend(tokenListL, token, STab, NULL);
+	printf("ahojku\n");
 			tokenListDispose(tokenListR);
 			free(tokenListR);	
 		}else{
@@ -656,7 +677,10 @@ void rule_expr_n(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess
 		if (*sucess) {
 			if (precedence(tokenListTmp, STab, false) != NULL){
 				tokenAppend(tokenListR, NULL, STab, tokenListTmp->first);
-				tokenListDispose(tokenListTmp);
+				//toto tu nesmie byt, tokenAppend(tokenListR, NULL, STab, tokenListTmp->first);, vytvori 
+				//ukazatel  v R na prvok v TMP, jeden prvok ma teda 2 ukazatele... nakolko v tmp strukture po 	
+				//precedencke neostane nic, co by bolo treba dispostnut, je tu toto zbytocne...
+				//tokenListDispose(tokenListTmp);
 				free(tokenListTmp);
 			}else{
 				tokenListDispose(tokenListTmp);
