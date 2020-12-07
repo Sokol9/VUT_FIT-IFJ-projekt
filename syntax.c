@@ -299,12 +299,13 @@ void rule_stat(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 				//do zoznamu urceneho na porovnanie
 				if (precedence(tokenListTmp, STab, false) != NULL){
 					tokenAppend(tokenListRet, NULL, STab, tokenListTmp->first);
+				}
 				tokenListDispose(tokenListTmp);
 				free(tokenListTmp);	
-				}
 			}else{
 				tokenListDispose(tokenListTmp);
 				free(tokenListTmp);
+				printf("call dispose\n");
 				tokenListDispose(tokenListRet);
 				free(tokenListRet);
 				return;
@@ -313,6 +314,9 @@ void rule_stat(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 			
 			rule_expr_n(PARAMS, tokenListRet);
 			if (!*sucess){
+				
+				printf("call dispose\n");
+		
 				tokenListDispose(tokenListRet);
 				free(tokenListRet);
 				return;
@@ -321,7 +325,10 @@ void rule_stat(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 			//todo
 			//pockaj na redefinicu
 			//STFuncInsertRet(STab, tokenListRet);
+			
+			printf("chyba\n");
 			tokenListDispose(tokenListRet);
+			printf("ahojky\n");
 			free(tokenListRet);
 			if (STIsFuncFrame(STab)) STSetFrameReturn(STab);	
 		}
