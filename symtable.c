@@ -182,6 +182,7 @@ int STFuncInsertParamId(tSymTablePtr ptr, char *id) {
 	}
 	return 0;
 }
+
 // pri kontrole parametru kontroluje jejich spravny pocet
 int STFuncParamEnd(tSymTablePtr ptr) {
 	if(ptr != NULL && ptr->activeFunc != NULL) {

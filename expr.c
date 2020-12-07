@@ -135,6 +135,7 @@ int tokenListAssign(tokenListPtr dest, tokenListPtr src) {
 			tokenListDispose(src);
 			return RET_OK;
 		}
+		setError(SEM_ERROR);
 	}
 	tokenListDispose(dest);
 	tokenListDispose(src);
