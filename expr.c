@@ -71,12 +71,15 @@ int tokenAppend(tokenListPtr ptr, tToken* token, tSymTablePtr STab, tokenListIte
 					ptr->last->next = tmp;
 					ptr->last = tmp;
 				}
+
+	printf("Pridan prvek do seznamu: typ=%d\n", tmp->type);
+
 				if(STab != NULL) {
 					if(token->type == ID) {
 						tmp->frameNumber = STVarLookUp(STab, token->attr);
 						if(tmp->frameNumber != 0)
 							if((tmp->type = STVarGetType(STab)) != UNKNOWN_T) {
-	printf("\nPridano ID do seznamu: frame=%d typ=%d\n\n", tmp->frameNumber, tmp->type);
+	printf("\nSTAB - Pridano ID do seznamu: frame=%d typ=%d\n\n", tmp->frameNumber, tmp->type);
 								return RET_OK;
 							}
 						setError(SEM_DEF_ERROR);
@@ -191,8 +194,12 @@ int tokenListSemCheck(tokenListPtr ptr, tSymTablePtr STab) {
 		// nastaveni hodnot pro kontrolu typu a pouzitych operatoru
 		while(tmp != NULL) {
 			if(tmp->token.type == ID) {
-				if(STVarLookUp(STab, tmp->token.attr)) {
+				int debug;
+				if((debug = STVarLookUp(STab, tmp->token.attr))) {
 					type = STVarGetType(STab);
+
+	printf("Semantika vyrazu: Nalezeno ID %s v ramci %d typu %d\n", tmp->token.attr, debug, type);
+
 					if(type == UNKNOWN_T)
 						setError(SEM_DEF_ERROR);
 					break;
@@ -204,6 +211,8 @@ int tokenListSemCheck(tokenListPtr ptr, tSymTablePtr STab) {
 			} else
 				tmp = tmp->next;
 		}
+
+	printf("Semantika vyrazu: default type=%d\n", type);
 
 		// kontrola
 		tmp = ptr->first;
