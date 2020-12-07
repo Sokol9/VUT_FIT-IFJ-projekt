@@ -311,7 +311,6 @@ void rule_stat(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 			}else{
 				tokenListDispose(tokenListTmp);
 				free(tokenListTmp);
-				printf("call dispose\n");
 				tokenListDispose(tokenListRet);
 				free(tokenListRet);
 				return;
@@ -321,8 +320,6 @@ void rule_stat(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 			rule_expr_n(PARAMS, tokenListRet);
 			if (!*sucess){
 				
-				printf("call dispose\n");
-		
 				tokenListDispose(tokenListRet);
 				free(tokenListRet);
 				return;
@@ -332,9 +329,7 @@ void rule_stat(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 			//pockaj na redefinicu
 			//STFuncInsertRet(STab, tokenListRet);
 			
-			printf("chyba\n");
 			tokenListDispose(tokenListRet);
-			printf("ahojky\n");
 			free(tokenListRet);
 			if (STIsFuncFrame(STab)) STSetFrameReturn(STab);	
 		}
@@ -645,12 +640,9 @@ void rule_values(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess
 				free(tokenListR);
 				return;
 			}
-			//todo
-			//retL vs retR check
-			//to aby nekricalo
-			
-			tokenAppend(tokenListL, token, STab, NULL);
-	printf("ahojku\n");
+			//porovnanie L a R strany
+			tokenListAssign(tokenListL, tokenListR);
+
 			tokenListDispose(tokenListR);
 			free(tokenListR);	
 		}else{
