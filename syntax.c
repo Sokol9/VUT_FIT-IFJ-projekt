@@ -325,10 +325,9 @@ void rule_stat(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 				free(tokenListRet);
 				return;
 			}	
-			//kontrola ret	
-			//todo
-			//pockaj na redefinicu
-			//STFuncInsertRet(STab, tokenListRet);
+			//kontrola ret of func
+			//predpoklada sa, ze aktivna funkcia je ta v kotej definicii sa nachadzeme
+			tokenRetListCompare(tokenListRet, STab);
 			
 			tokenListDispose(tokenListRet);
 			free(tokenListRet);
@@ -349,6 +348,9 @@ void rule_stat(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 //
 //<params_actual> - epsilon
 void rule_func_call(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
+	
+	//ulozenie aktivnej funkcie
+	tGRPtr actFunc = STGetActiveFunc(STab);
 	STFuncInsert(STab, token->savedToken->attr, false);	
 
 	if (token->type != CBR){
@@ -370,6 +372,9 @@ void rule_func_call(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* suc
 		if (!*sucess) return;
 	}
 	GET_TOKEN
+	
+	//nastavenie p;vodnej activ func
+	STSetActiveFunc(STab, actFunc);
 }
 
 //<term> - id 
@@ -585,17 +590,15 @@ void rule_values(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess
 		EOL_FORBID
 		if (token->type == OBR){
 			print_debug("valid (")
-			//todo 
-			//prerobit
 			//===kontrola navratovych hodnot===
 			//ulozenie aktivnej funkcie
-//			tGRPtr actFunc = STGetActiveFunc(STab);
+			tGRPtr actFunc = STGetActiveFunc(STab);
 			//activ func == call func
-//			STFuncInsert(STab, token->savedToken->attr, false);
+			STFuncInsert(STab, token->savedToken->attr, false);
 			//kontrola navratovych hodnot
-//			STFuncInsertRet(STab, retL);
+			tokenRetListCompare(tokenListL, STab);
 			//nastavenie p;vodnej activ func
-//			STSetActiveFunc(STab, actFunc);
+			STSetActiveFunc(STab, actFunc);
 
 			GET_TOKEN
 			rule_func_call(PARAMS);
