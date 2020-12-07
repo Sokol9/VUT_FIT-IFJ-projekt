@@ -117,6 +117,11 @@ bool GTIsDefined(tGRPtr ptr) {
 	return (ptr != NULL)? ptr->defined : false;
 }
 
+// zjistuje, zda se jedna o funkci print
+bool GTIsPrint(tGRPtr ptr) {
+	return (ptr != NULL)? ptr->randomPCount: false;
+}
+
 // pridani zaznamu do globalni tabulky
 tGRPtr GTInsert(tGRPtr *rootPtr, char *key, bool define) {
 	if(rootPtr != NULL) {

@@ -80,6 +80,9 @@ int STInit(tSymTablePtr ptr);
 // zjisteni definovani aktivni funkce
 bool STFuncIsDefined(tSymTablePtr ptr);
 
+// zjistuje, zda je aktivni funkce print
+bool STIsPrint(tSymTablePtr ptr);
+
 // nastaveni aktivity na funkci
 int STFuncSetActive(tSymTablePtr ptr, tGRPtr funcPtr);
 

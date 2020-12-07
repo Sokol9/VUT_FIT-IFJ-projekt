@@ -94,6 +94,13 @@ bool STFuncIsDefined(tSymTablePtr ptr) {
 	return false;
 }
 
+// zjistuje, zda je aktivni funkce print
+bool STIsPrint(tSymTablePtr ptr) {
+	if(ptr != NULL)
+		return GTIsPrint(ptr->activeFunc);
+	return false;
+}
+
 // nastaveni aktivity na funkci
 int STFuncSetActive(tSymTablePtr ptr, tGRPtr funcPtr) {
 	if(ptr != NULL && funcPtr != NULL) {

@@ -24,7 +24,15 @@
 
 // instrukce pro definici aktivni promenne v aktivnim bloku
 #define DEFVAR() \
-	printf("DEFVAR %s%d$%s\n", "LF@f", STGetFrameNumber(STab), STGetVarName(STab))
+	printf("DEFVAR LF@f%d$%s\n", STGetFrameNumber(STab), STGetVarName(STab))
+
+// vytvori parametr
+#define DEFPARAM(num) \
+	printf("DEFVAR TF@%%%d\n", num)
+
+// vytvori navratovou hodnotu
+#define DEFRET(num) \
+	printf("DEFVAR TF@%%retval%d\n", num++)
 
 // prirazeni hodnoty do promenne
 #define ASSIGN(pref1, to, frame, pref2, from) \

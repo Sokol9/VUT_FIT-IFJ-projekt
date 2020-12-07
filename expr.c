@@ -13,6 +13,8 @@
 
 static int varNumber = 0;
 static char* constPrefixes[5] = {"nil@", "int@", "float@", "string@", "bool@"};
+static int paramNumber = 0;
+static int retNumber = 0;
 
 // reset pocitadla pro generovani promennych
 void resetNumber() {
@@ -128,6 +130,14 @@ int tokenListAssign(tokenListPtr dest, tokenListPtr src) {
 	tokenListDispose(src);
 	return RET_ERR;
 }
+
+// preda hodnotu parametru, provadi nektere vestavene funkce (print)
+void tokenParamHandler(tSymTablePtr STab, tToken *token) {
+	if(STab != NULL && token != NULL) {
+		
+	}
+}
+
 
 // Semanticka kontrola, zda jsou vsechny tokeny stejneho datoveho typu
 int tokenListSemCheck(tokenListPtr ptr, tSymTablePtr STab) {
