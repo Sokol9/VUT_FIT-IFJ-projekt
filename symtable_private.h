@@ -22,7 +22,7 @@ struct globalRec{
 	tRetPtr returns;
 	bool defined;
 	bool used;
-	bool retDefined;
+	bool returnFlag;
 	bool errorFlag;
 	struct globalRec *LPtr;
 	struct globalRec *RPtr;
@@ -43,6 +43,12 @@ void GTInit(tGRPtr *rootPtr);
 // zjistuje, zda je funkce jiz definovana nebo ne
 //    funkce prijima jako parametr ukazatel na zaznam o teto funkci
 bool GTIsDefined(tGRPtr ptr);
+
+// nastaveni returnFlagu
+void GTSetReturnFlag(tGRPtr ptr);
+
+// ziskani returnFlagu
+bool GTGetReturnFlag(tGRPtr ptr);
 
 // vraci jmeno funkce
 char* GTGetName(tGRPtr ptr);
@@ -80,7 +86,6 @@ void GTDispose(tGRPtr *rootPtr);
 struct localFrame{
         tLRPtr rootPtr;
 	int frameNumber;
-	bool returnFlag;
         struct localFrame *upper;
 };
 
@@ -103,12 +108,6 @@ tLFPtr LTCreateFrame(tLFPtr upper, tGRPtr func);
 
 // ziskani cisla ramce
 int LTGetFrameNumber(tLFPtr frame);
-
-// nastaveni returnFlagu
-void LTSetReturnFlag(tLFPtr frame);
-
-// ziskani returnFlagu
-bool LTGetReturnFlag(tLFPtr frame);
 
 // zjistuje, zda se jedna o ramec funkce
 bool LTIsFuncFrame(tLFPtr frame);

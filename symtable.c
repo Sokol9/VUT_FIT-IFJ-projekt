@@ -204,7 +204,7 @@ int STFuncParamEnd(tSymTablePtr ptr) {
 //    seznam navratovych hodnot, ktery bude predan funkci se stava prazdnym
 int STFuncInsertRet(tSymTablePtr ptr, tRetListPtr list) {
 	if(ptr != NULL && list != NULL && ptr->activeFunc != NULL){
-		if(ptr->activeFunc->retDefined) {
+		if(ptr->activeFunc->returnFlag) {                                                        //
 			while(ptr->activeRet != NULL) {
 				if(list->active != NULL) {
 					if(ptr->activeRet->type == UNKNOWN_T)
@@ -232,12 +232,12 @@ int STFuncInsertRet(tSymTablePtr ptr, tRetListPtr list) {
 		} else {
 			ptr->activeFunc->returns = list->first;
 			list->first = list->active = list->last = NULL;
-			ptr->activeFunc->retDefined = true;
+			ptr->activeFunc->returnFlag = true;                                               //
 			return 1;
 		}
 	}
 	if(list == NULL) {
-		ptr->activeFunc->retDefined = true;
+		ptr->activeFunc->returnFlag = true;                                                       //
 		return 1;
 	}
 	retListDispose(list);
@@ -280,16 +280,16 @@ int STGetFrameNumber(tSymTablePtr ptr) {
 	return 0;
 }
 
-// nastaveni returnFlagu ramci na vrcholu zasobniku
-void STSetFrameReturn(tSymTablePtr ptr) {
+// nastaveni returnFlagu aktivni funkce
+void STSetFuncReturn(tSymTablePtr ptr) {
 	if(ptr != NULL)
-		LTSetReturnFlag(ptr->topFrame);
+		GTSetReturnFlag(ptr->activeFunc);
 }
 
-// ziskani returnFlagu ramce na vrcholu zasobniku
-bool STGetFrameReturn(tSymTablePtr ptr) {
+// ziskani returnFlagu aktivni funkce
+bool STGetFuncReturn(tSymTablePtr ptr) {
 	if(ptr != NULL)
-		return LTGetReturnFlag(ptr->topFrame);
+		return GTGetReturnFlag(ptr->activeFunc);
 	return false;
 }
 

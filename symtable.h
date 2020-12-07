@@ -126,11 +126,11 @@ int STCreateFrame(tSymTablePtr ptr, bool func);
 // ziskani cisla ramce na vrcholu zasobniku
 int STGetFrameNumber(tSymTablePtr ptr);
 
-// nastaveni returnFlagu ramci na vrcholu zasobniku
-void STSetFrameReturn(tSymTablePtr ptr);
+// nastaveni returnFlagu aktivni funkce
+void STSetFuncReturn(tSymTablePtr ptr);
 
-// ziskani returnFlagu ramce na vrcholu zasobniku
-bool STGetFrameReturn(tSymTablePtr ptr);
+// ziskani returnFlagu aktivni funkce
+bool STGetFuncReturn(tSymTablePtr ptr);
 
 // vraci, zda je ramec na vrcholu zasobniku ramcem funkce
 bool STIsFuncFrame(tSymTablePtr ptr);
