@@ -158,9 +158,11 @@ void rule_func_def(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* suce
 	if (token->type == CB){
 		print_debug("valid }")
 		EOL_REQUIRED
-		//todo
-		//chceck returnFlag in frame
-		//ukoncenie ramca pre semantiku
+//todo check return
+//		printf("%d",STGetFrameReturn(STab));
+//		if (!STGetFrameReturn(STab)){
+//			setError(SEM_FUNC_ERROR);
+//		}
 		STDeleteFrame(STab);
 	}else{
 		*sucess = 0;
@@ -223,7 +225,6 @@ void rule_body(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 //<stat> - return <expr_opt> <expr_n>
 //<stat> - epsilon
 void rule_stat(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
-
 	if (token->type == KW_IF){
 	/*******************<IF>********************/
 		print_debug("valid KW_IF")
@@ -331,7 +332,8 @@ void rule_stat(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 			
 			tokenListDispose(tokenListRet);
 			free(tokenListRet);
-			if (STIsFuncFrame(STab)) STSetFrameReturn(STab);	
+			//if (STIsFuncFrame(STab)) STSetFrameReturn(STab);	
+			//todo set bola navratova hodnota
 		}
 	/*************END OF RETURN******************/
 	}else if(token->type != OB){
@@ -339,6 +341,7 @@ void rule_stat(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 		//valid epsilon
 		*sucess = 0;
 		printd("}")
+		GET_TOKEN
 	}
 }
 
@@ -356,10 +359,11 @@ void rule_func_call(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* suc
 		EOL_FORBID
 		rule_term_n(PARAMS);
 		if (!*sucess) return;
+		
 	}
 	if (token->type == CBR){
 		print_debug("valid )")
-
+		STFuncParamEnd(STab);
 	}else{
 		*sucess = 0;
 		printd(")")
@@ -566,8 +570,8 @@ void rule_values(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess
 			free(tokenListR);
 			return;
 		}
-		//todo
-		//retL vs retR check
+		// kontrola L a R strany
+		tokenListAssign(tokenListL, tokenListR);
 
 		tokenListDispose(tokenListR);
 		free(tokenListR);
