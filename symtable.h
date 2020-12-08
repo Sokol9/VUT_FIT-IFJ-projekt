@@ -57,6 +57,9 @@ typedef struct RetList{
 	tRetPtr last;
 }*tRetListPtr;
 
+//================================================================
+// funcke pro praci se strukturou retList
+//
 // inicializuje seznam navratovych hodnot
 void retListInit(tRetListPtr list);
 
@@ -69,16 +72,14 @@ void retListNext(tRetListPtr list);
 // zrusi seznam navratovych hodnot
 void retListDispose(tRetListPtr list);
 
+//================================================================
+// Funkce pro praci s tabulkami symbolu
+//
 // inicializace tabulky symbolu
 int STInit(tSymTablePtr ptr);
 
-// vyhledani funkce
-//    vyhledanou funkci nastavuje na aktivni
-//    v pripade chyby ponechava aktivitu na puvodni funkci
-//int STFuncLookUp(tSymTablePtr ptr, char *key);
-
-// zjisteni definovani aktivni funkce
-bool STFuncIsDefined(tSymTablePtr ptr);
+// zjistuje, zda jsou na konci programu vsechny funkce definovane
+bool STFuncDefCheck(tGRPtr rootPtr);
 
 // nastaveni aktivity na funkci
 int STFuncSetActive(tSymTablePtr ptr, tGRPtr funcPtr);
@@ -88,9 +89,12 @@ int STFuncSetActive(tSymTablePtr ptr, tGRPtr funcPtr);
 //    v pripade chyby ponechava aktivitu na puvodni funkci
 int STFuncInsert(tSymTablePtr ptr, char *key, bool define);
 
-// nejdrive zjisti, zda byla aktivni funkce jiz drive pouzita nebo definovana
-//    pokud ano, zkontroluje datovy typ aktivniho parametru a aktivitu posune na dalsi parametr (NULL, kdyz byl kontrolovan posledni)
-//    pokud ne, prida aktivnimu parametru datovy typ, pokud parametr neexistuje, vytvori novy a nastavi ho jako aktivni
+// nejdrive zjisti, zda byla funkce jiz drive pouzita
+//    pokud ano, provadi kontrolu porovnanim dvou seznamu navratovych hodnot
+//    pokud ne, vklada aktivni funkci seznam navratovych hodnot
+//    je-li volana s list=NULL, pouze kontroluje, ze funkce nema zadne navratove hodnoty
+//
+//    seznam navratovych hodnot, ktery bude predan funkci se stava prazdnym
 int STFuncInsertParamType(tSymTablePtr ptr, varType type);
 
 // prida aktivnimu parametru id, pokud parametr neexistuje, vytvori novy a nastavi ho jako aktivni

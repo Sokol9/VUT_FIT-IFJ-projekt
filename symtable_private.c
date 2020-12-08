@@ -93,46 +93,6 @@ void GTInit(tGRPtr *rootPtr) {
 	}
 }
 
-// vyhledani zaznamu v globalni tabulce
-/*
-tGRPtr GTLookUp(tGRPtr rootPtr, char *key) {
-	if(rootPtr == NULL)
-		return NULL;
-	else {
-		int rel = strcmp(key, rootPtr->id);
-		if(rel == 0)
-			return rootPtr;
-		else {
-			if(rel < 0)
-				return GTLookUp(rootPtr->LPtr, key);
-			else
-				return GTLookUp(rootPtr->RPtr, key);
-		}
-	}
-}
-*/
-
-// zjistuje, zda je funkce jiz definovana nebo ne
-bool GTIsDefined(tGRPtr ptr) {
-	return (ptr != NULL)? ptr->defined : false;
-}
-
-// nastaveni returnFlagu
-void GTSetReturnFlag(tGRPtr ptr) {	
-	if(ptr != NULL)
-		ptr->returnFlag = true;
-}
-
-// ziskani returnFlagu
-bool GTGetReturnFlag(tGRPtr ptr) {
-	return (ptr != NULL)? ptr->returnFlag : false;
-}
-
-// vraci jmeno funkce
-char* GTGetName(tGRPtr ptr) {
-	return (ptr != NULL)? ptr->id : NULL;
-}
-
 // pridani zaznamu do globalni tabulky
 tGRPtr GTInsert(tGRPtr *rootPtr, char *key, bool define) {
 	if(rootPtr != NULL) {
@@ -327,13 +287,6 @@ tLFPtr LTCreateFrame(tLFPtr upper, tGRPtr func) {
 	return pointer;
 }
 
-// ziskani cisla ramce
-int LTGetFrameNumber(tLFPtr frame) {
-	if(frame != NULL)
-		return frame->frameNumber;
-	return 0;
-}
-
 // vyhledani zaznamu ve strome
 tLRPtr LTLookUp (tLRPtr rootPtr, char *key) {
 	if(rootPtr == NULL)
@@ -402,20 +355,6 @@ tLRPtr LTInsert(tLFPtr framePtr, char *key) {
 	return NULL;
 }
 
-// vrati typ promenne, na jejiz zaznam ukazuje ptr
-varType LTGetType(tLRPtr ptr) {
-	if(ptr != NULL)
-		return ptr->type;
-	return UNKNOWN_T;
-}
-
-// vraci ukazatel na identifikator promenne
-char* LTGetName(tLRPtr ptr) {
-	if(ptr != NULL)
-		return ptr->id;
-	return NULL;
-}
-
 // zmeni typ promenne, na jejiz zaznam ukazuje ptr
 int LTSetType(tLRPtr ptr, varType type) {
 	if(ptr == NULL)
@@ -432,7 +371,6 @@ int LTSetType(tLRPtr ptr, varType type) {
 
 // smaze BVS
 void LTDeleteTree (tLRPtr *rootPtr) {
-
 	if(rootPtr != NULL) {
 		tLRPtr ptr = *rootPtr;
 		if(ptr != NULL) {

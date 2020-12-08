@@ -36,23 +36,6 @@ struct globalRec{
 //    dale se v ni nachazi vestavene funkce jazyka
 void GTInit(tGRPtr *rootPtr);
 
-// vyhledani zaznamu v globalni tabulce
-//    vraci ukazatel na nalezenou polozku nebo NULL pri neuspechu
-//tGRPtr GTLookUp(tGRPtr rootPtr, char *key);
-
-// zjistuje, zda je funkce jiz definovana nebo ne
-//    funkce prijima jako parametr ukazatel na zaznam o teto funkci
-bool GTIsDefined(tGRPtr ptr);
-
-// nastaveni returnFlagu
-void GTSetReturnFlag(tGRPtr ptr);
-
-// ziskani returnFlagu
-bool GTGetReturnFlag(tGRPtr ptr);
-
-// vraci jmeno funkce
-char* GTGetName(tGRPtr ptr);
-
 // pridani zaznamu do globalni tabulky
 //    vraci ukazatel na nove vytvorenou polozku nebo NULL pri neuspechu
 //    pomoci parametru define je mozne urcit, zda jde o definici funkce
@@ -106,21 +89,12 @@ struct localRec{
 //    je-li func != NULL vklada do noveho ramce i parametry funkce
 tLFPtr LTCreateFrame(tLFPtr upper, tGRPtr func);
 
-// ziskani cisla ramce
-int LTGetFrameNumber(tLFPtr frame);
-
 // prohledani vsech ramcu lokalni tabulky symbolu
 tLRPtr LTSearch(tLFPtr framePtr, char *key, int *frameNumber);
 
 // vlozeni zaznamu do daneho ramce
 //    vraci ukazatel na zaznam o promenne
 tLRPtr LTInsert(tLFPtr framePtr, char *key);
-
-// vrati datovy typ promenne dane parametrem ptr
-varType LTGetType(tLRPtr ptr);
-
-// vraci ukazatel na identifikator promenne
-char* LTGetName(tLRPtr ptr);
 
 // zmeni typ promenne, na jejiz zaznam ukazuje ptr
 //    pokud neni dosavadni typ promenne UNKNOWN_T nastava chyba

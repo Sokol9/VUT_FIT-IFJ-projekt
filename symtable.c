@@ -73,37 +73,23 @@ int STInit(tSymTablePtr ptr) {
 	return 0;
 }
 
-// vyhledani funkce
-/*
-int STFuncLookUp(tSymTablePtr ptr, char *key) {
-	if(ptr != NULL) {
-		tGRPtr tmp = GTLookUp(ptr->rootPtr, key);
-		if(tmp != NULL) {
-			ptr->activeFunc = tmp;
-			return 1;
-		}
-	}
-	return 0;
-}
-*/
-
-// zjisteni definovani aktivni funkce
-bool STFuncIsDefined(tSymTablePtr ptr) {
-	if(ptr != NULL)
-		return GTIsDefined(ptr->activeFunc);
-	return false;
+// zjistuje, zda jsou na konci programu vsechny funkce definovane
+bool STFuncDefCheck(tGRPtr rootPtr) {
+	if(rootPtr == NULL)
+		return true;
+	return rootPtr->defined && STFuncDefCheck(rootPtr->LPtr) && STFuncDefCheck(rootPtr->RPtr);
 }
 
 // nastaveni returnFlagu aktivni funkce
 void STSetFuncReturn(tSymTablePtr ptr) {
-	if(ptr != NULL)
-		GTSetReturnFlag(ptr->activeFunc);
+	if(ptr != NULL && ptr->activeFunc != NULL)
+		ptr->activeFunc->returnFlag = true;
 }
 
 // ziskani returnFlagu aktivni funkce
 bool STGetFuncReturn(tSymTablePtr ptr) {
-	if(ptr != NULL)
-		return GTGetReturnFlag(ptr->activeFunc);
+	if(ptr != NULL && ptr->activeFunc != NULL)
+		return ptr->activeFunc->returnFlag;
 	return false;
 }
 
@@ -209,10 +195,10 @@ int STFuncParamEnd(tSymTablePtr ptr) {
 	return 0;
 }
 
-// nejdrive zjisti, zda byly funkci jiz definovany navratove hodnoty
+// nejdrive zjisti, zda byla funkce jiz drive pouzita
 //    pokud ano, provadi kontrolu porovnanim dvou seznamu navratovych hodnot
 //    pokud ne, vklada aktivni funkci seznam navratovych hodnot
-//    je-li volana s list=NULL, pouze nastavuje, ze funkce nema zadne navratove hodnoty
+//    je-li volana s list=NULL, pouze kontroluje, ze funkce nema zadne navratove hodnoty
 //
 //    seznam navratovych hodnot, ktery bude predan funkci se stava prazdnym
 int STFuncInsertRet(tSymTablePtr ptr, tRetListPtr list) {
@@ -261,19 +247,20 @@ int STFuncInsertRet(tSymTablePtr ptr, tRetListPtr list) {
 
 // vraci nazev aktivni funkce
 char* STFuncGetName(tSymTablePtr ptr) {
-	if(ptr != NULL)
-		return GTGetName(ptr->activeFunc);
+	if(ptr != NULL && ptr->activeFunc != NULL)
+		return ptr->activeFunc->id;
 	return NULL;
 }
 
-//vrati ukazatel na activ func
+// vrati ukazatel na activ func
 tGRPtr STGetActiveFunc(tSymTablePtr STab){
-	return STab->activeFunc;
+	return (STab != NULL)? STab->activeFunc : NULL;
 }
 
-//nastavi ukazatel na activ func
+// nastavi ukazatel na activ func
 void STSetActiveFunc(tSymTablePtr STab, tGRPtr func){
-	STab->activeFunc = func;
+	if(STab != NULL && func != NULL)
+		STab->activeFunc = func;
 }
 
 // vytvoreni noveho lokalniho ramce
@@ -290,8 +277,8 @@ int STCreateFrame(tSymTablePtr ptr, bool func) {
 
 // ziskani cisla ramce na vrcholu zasobniku
 int STGetFrameNumber(tSymTablePtr ptr) {
-	if(ptr != NULL)
-		return LTGetFrameNumber(ptr->topFrame);
+	if(ptr != NULL && ptr->topFrame != NULL)
+		return ptr->topFrame->frameNumber;
 	return 0;
 }
 
@@ -323,15 +310,15 @@ int STVarInsert(tSymTablePtr ptr, char *key) {
 
 // zjisti datovy typ aktivni promenne
 varType STVarGetType(tSymTablePtr ptr) {
-	if(ptr != NULL)
-		return LTGetType(ptr->activeVar);
+	if(ptr != NULL && ptr->activeVar != NULL)
+		return ptr->activeVar->type;
 	return UNKNOWN_T;
 }
 
 // vraci identifikator aktivni promenne
 char* STVarGetName(tSymTablePtr ptr) {
-	if(ptr != NULL)
-		return LTGetName(ptr->activeVar);
+	if(ptr != NULL && ptr->activeVar != NULL)
+		return ptr->activeVar->id;
 	return NULL;
 }
 
