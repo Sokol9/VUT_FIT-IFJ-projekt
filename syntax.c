@@ -823,6 +823,10 @@ void rule_expr_bool(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* suc
 		if (!*success) return; else tokenAppend(tokenList, token, STab, NULL);
 		
 		GET_TOKEN
+	}else{
+		*sucess = 0;
+		printd("expr_bool")
+		return;
 	}
 
 	if (token->type == SUB || token->type == ADD || token->type == MULT ||\
