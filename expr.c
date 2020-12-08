@@ -2,6 +2,7 @@
 #include "expr.h"
 #include "error.h"
 #include "inst.h"
+#include "symtable_private.h"
 #include <stdio.h>
 
 // velikost pomocnych bufferu pro generovani instrukci
@@ -13,10 +14,8 @@
 
 static int varNumber = 0;
 static char* constPrefixes[5] = {"nil@", "int@", "float@", "string@", "bool@"};
-/*
 static int paramNumber = 0;
 static int retNumber = 0;
-*/
 
 // reset pocitadla pro generovani promennych
 void resetNumber() {
@@ -114,6 +113,14 @@ int tokenRetListCompare(tokenListPtr tList, tSymTablePtr STab) {
 	if(tList != NULL && STab != NULL) {
 		tList->active = tList->first;
 		STFuncSetActive(STab, STab->activeFunc);
+		if(!STab->activeFunc->used) {
+			while(tList->active != NULL) {
+				if(!GTAddRet(STab->activeFunc, tList->active->type))
+					return RET_ERR;
+				tokenNext(tList);
+			}
+			return RET_OK;
+		}
 		while(tList->active != NULL && STab->activeRet != NULL) {
 			if(tList->active->type != UNKNOWN_T) {
 				if(tList->active->type != STab->activeRet->type) {
@@ -170,10 +177,12 @@ int tokenListAssign(tokenListPtr dest, tokenListPtr src) {
 }
 
 // preda hodnotu parametru, provadi nektere vestavene funkce (print)
+//    navratove hodnoty:
+//     RET_OK, pokud byly vsechny instrukce vykonany a neni nutne volani funkce funcCallHandler
+//     RET_ERR, pokud je nutny skok na navesti aktivni funkce (volani funcCallHandler)
 int tokenParamHandler(tSymTablePtr STab, tToken *token, tokenListPtr ptr) {
 	if(STab != NULL && token != NULL) {
-		char prefix[BUFFER]   = {'\0'};
-		char prefix2[BUFFER]  = {'\0'};
+		char prefix[BUFFER] = {'\0'};
 		char* function = STFuncGetName(STab);
 		int frame = 0;
 		varType type;
@@ -199,19 +208,50 @@ int tokenParamHandler(tSymTablePtr STab, tToken *token, tokenListPtr ptr) {
 		if(strcmp(function, "print") == 0) {
 			WRITE();
 			return RET_OK;
-		} else if(ptr != NULL && strcmp(function, "int2float") == 0) {
-			sprintf(prefix2, "LF@f%d$", ptr->first->frameNumber);
-			I2F(ptr->first->token.attr, token->attr);
-			return RET_OK;
-		} else if(ptr != NULL && strcmp(function, "float2int") == 0) {
-			sprintf(prefix2, "LF@f%d$", ptr->first->frameNumber);
-			F2I(ptr->first->token.attr, token->attr);
-			return RET_OK;
+		} else if(ptr != NULL && ptr->first->token.type != US) {
+			if(strcmp(function, "int2float") == 0) {
+				CONV_NUMBER(true, ptr->first->frameNumber, ptr->first->token.attr, token->attr);
+				return RET_OK;
+			} else if(strcmp(function, "float2int") == 0) {
+				CONV_NUMBER(false, ptr->first->frameNumber, ptr->first->token.attr, token->attr);
+				return RET_OK;
+			} else if(strcmp(function, "len") == 0) {
+				LEN(ptr->first->frameNumber, ptr->first->token.attr, token->attr);
+				return RET_OK;
+			}
 		}
+		DEFPARAM(paramNumber);
+		PUSHPARAM(paramNumber, prefix, token->attr);
+		paramNumber++;
 	}
 	return RET_ERR;
 }
 
+// po platnem prikazu volani aktivni funkce (obsahujici vice nez jednu instrukci) generuje tato funkce instrukce nutne pro skok na jeji navesti
+//    do docasneho ramce prida promenne pro navratove hodnoty, ze kterych nasledne vycte vysledky do promennych v tokenListu
+void funcCallHandler(tSymTablePtr STab, tokenListPtr ptr) {
+	if(STab != NULL && STab->activeFunc != NULL && ptr != NULL && ptr->first != NULL) {
+		ptr->active = ptr->first;
+		STFuncSetActive(STab, STab->activeFunc);
+		while(STab->activeRet != NULL) {
+			DEFRET(retNumber);
+			retNumber++;
+			STab->activeRet = STab->activeRet->next;
+		}
+		PUSHFRAME();
+		paramNumber = retNumber = 0;
+		CALLFUNC();
+		POPFRAME();
+		STFuncSetActive(STab, STab->activeFunc);
+		while(STab->activeRet != NULL) {
+			if(ptr->active->token.type != US)
+				POPRET(ptr->active->frameNumber, ptr->active->token.attr, retNumber);
+			retNumber++;
+			STab->activeRet = STab->activeRet->next;
+			tokenNext(ptr);
+		}
+	}
+}
 
 // Semanticka kontrola, zda jsou vsechny tokeny stejneho datoveho typu
 int tokenListSemCheck(tokenListPtr ptr, tSymTablePtr STab) {

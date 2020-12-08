@@ -215,7 +215,7 @@ int GTAddParam(tGRPtr ptr, varType type, char *id) {
 	return 0;
 }
 
-// pomocna funkce pro GTInit
+// pomocna funkce pro GTInit a tokenRetListCompare
 int GTAddRet(tGRPtr ptr, varType type) {
 	if(ptr != NULL) {
 		tRetPtr tmp = malloc(sizeof(struct funcRet));
