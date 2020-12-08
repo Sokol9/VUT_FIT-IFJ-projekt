@@ -954,7 +954,7 @@ void rule_for(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success){
 		int numBool = 0;	
 		rule_expr_bool(PARAMS, tokenList, &numBool);
 		if (!*success || numBool != 1) {
-			if (success) setError(5);
+			if (*success) setError(5);
 
 			tokenListDispose(tokenList);
 			free(tokenList);
