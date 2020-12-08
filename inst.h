@@ -48,7 +48,7 @@
 	printf("CALL &%s\n", STFuncGetName(STab))
 // instrukce pro definici aktivni promenne v aktivnim bloku
 #define DEFVAR() \
-	printf("DEFVAR LF@f%d$%s\n", STGetFrameNumber(STab), STGetVarName(STab))
+	printf("DEFVAR LF@f%d$%s\n", STGetFrameNumber(STab), STVarGetName(STab))
 
 // vytvori novy docasny ramec pri volani funkce
 #define CREATEFRAME() \
