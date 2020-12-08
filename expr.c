@@ -128,6 +128,11 @@ int tokenRetListCompare(tokenListPtr tList, tSymTablePtr STab) {
 			return RET_OK;
 		setError(SEM_FUNC_ERROR);
 	}
+	if(tList == NULL) {
+		STFuncSetActive(STab, STab->activeFunc);
+		if(STab->activeRet == NULL)
+			return RET_OK;
+	}
 	return RET_ERR;
 }
 
