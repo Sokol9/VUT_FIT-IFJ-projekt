@@ -824,7 +824,7 @@ void rule_expr_bool(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* suc
 		
 		GET_TOKEN
 	}else{
-		*sucess = 0;
+		*success = 0;
 		printd("expr_bool")
 		return;
 	}
