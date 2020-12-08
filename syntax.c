@@ -4,7 +4,7 @@
 #include "error.h"
 #include "symtable.h"
 #include "expr.h"
-
+#include "inst.h"
 
 // <prog> - package main <func_def> <func_n> EOF
 //
@@ -20,6 +20,8 @@ void rule_prog(tToken *token, tSymTablePtr STab, tKWPtr keyWords,  bool* success
 			printd("KW_PACKAGE")	
 			break;
 		}
+
+		START();
 
 		if (*success){
 			GET_TOKEN
@@ -87,6 +89,7 @@ void rule_func_def(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* succ
 			//ak nenastal ziadny eror vlozi funkciu do Stab
 			//v pripade ze ide o redefiniciu funkcie vola setError
 			STFuncInsert(STab, token->attr, true); 
+		
 		}else{
 			*success = 0;
 			printd("ID")
@@ -137,7 +140,10 @@ void rule_func_def(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* succ
 	CHECK_POINT(type,OB)
 
 	//vytvorenie ramca pre semantiku
+	
 	STCreateFrame(STab, true);
+	DEFFUNC();
+	if (strcmp("main", STFuncGetName(STab))) INIT_MAIN();
 
 	/***************BRACKETS********************/
 	if (token->type == OB){
@@ -265,7 +271,7 @@ void rule_stat(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success)
 
 			GET_TOKEN
 	     	tokenRetListCompare(NULL, STab);
-			rule_func_call(PARAMS);
+			rule_func_call(PARAMS, NULL);
     /***********END OF <FUNC CALL>***************/
 
         }else if (token->type == DEF){
@@ -352,19 +358,21 @@ void rule_stat(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success)
 //<func_call> - (<params_actual>)
 //
 //<params_actual> - epsilon
-void rule_func_call(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success){
+void rule_func_call(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success, tokenListPtr tokenListL){
 	
 	//ulozenie aktivnej funkcie
 	tGRPtr actFunc = STGetActiveFunc(STab);
-	STFuncInsert(STab, token->savedToken->attr, false);	
+	STFuncInsert(STab, token->savedToken->attr, false);
+	
+	CREATEFRAME();	
 
 	if (token->type != CBR){
-		rule_term(token, STab, success, RULE_FCALL);
+		rule_term(token, STab, success, RULE_FCALL, tokenListL);
 		if (!*success) return;
 
 		GET_TOKEN
 		EOL_FORBID
-		rule_term_n(PARAMS);
+		rule_term_n(PARAMS, tokenListL);
 		if (!*success) return;
 		
 	}
@@ -386,7 +394,7 @@ void rule_func_call(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* suc
 //<term> - INT_L
 //<term> - FLOAT_L
 //<term> - STRING_L
-void rule_term(tToken *token, tSymTablePtr STab,  bool* success, callAs call){
+void rule_term(tToken *token, tSymTablePtr STab,  bool* success, callAs call, tokenListPtr tokenListL){
 	if (token->type == ID){
 		print_debug("valid ID")
 		
@@ -406,22 +414,23 @@ void rule_term(tToken *token, tSymTablePtr STab,  bool* success, callAs call){
 		*success = 0;
 		printd("ID or some value")
 	}
+	if (tokenListL != NULL) tokenParamHandler(STab, token, tokenListL);
 }
 
 //<term_n> - , <term> <term_n>
 //
 //<term_n> - epsilon
-void rule_term_n(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success){
+void rule_term_n(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success, tokenListPtr tokenListL){
 	if (token->type == COM){
 		print_debug("valid ,")
 
 		GET_TOKEN
-		rule_term(token, STab, success, RULE_FCALL);
+		rule_term(token, STab, success, RULE_FCALL, tokenListL);
 		if (!*success) return;
 
 		GET_TOKEN
 		EOL_FORBID
-		rule_term_n(PARAMS);
+		rule_term_n(PARAMS, tokenListL);
 		if (!*success) return;
 	}
 }
@@ -431,6 +440,8 @@ void rule_var_def(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* succe
 	// := uz skontrolovan=a
 	
 	STVarInsert(STab, token->savedToken->attr);
+	DEFVAR();	
+
 	GET_TOKEN
 	//EOL_OPTIONAL - nie som si tym isty
 	tokenListPtr tokenList = malloc(sizeof(struct tokenList));
@@ -473,7 +484,7 @@ void rule_expr(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success,
 		}
 		GET_TOKEN
 	}else{ 
-		rule_term(token, STab, success, RULE_EXPR);
+		rule_term(token, STab, success, RULE_EXPR, NULL);
 		if (!*success) return; else tokenAppend(tokenList, token, STab, NULL);
 		
 		GET_TOKEN
@@ -590,10 +601,10 @@ void rule_values(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* succes
 	}else if (token->type == ID){
 		print_debug("valid ID")
 		saveToken(token);
-		
+			
 		GET_TOKEN
-		EOL_FORBID
 		if (token->type == OBR){
+			EOL_FORBID
 			print_debug("valid (")
 			//===kontrola navratovych hodnot===
 			//ulozenie aktivnej funkcie
@@ -606,11 +617,12 @@ void rule_values(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* succes
 			STSetActiveFunc(STab, actFunc);
 
 			GET_TOKEN
-			rule_func_call(PARAMS);
+			rule_func_call(PARAMS, tokenListL);
 			if (!*success) return;
 
 		}else if(token->type == ADD || token->type == SUB || token->type == MULT || \
 				token->type == DIV){
+			EOL_FORBID
 			tokenListPtr tokenListTmp = malloc(sizeof(struct tokenList));
 			if (tokenListTmp) tokenListInit(tokenListTmp); else setError(INTERNAL_ERROR);
 			tokenAppend(tokenListTmp, token->savedToken, STab, NULL);
@@ -658,9 +670,24 @@ void rule_values(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* succes
 			tokenListDispose(tokenListR);
 			free(tokenListR);	
 		}else{
-			*success = 0;
-			printd("func call or expr")
+			
+			tokenListPtr tokenListR = malloc(sizeof(struct tokenList));
+			if (!tokenListR) setError(INTERNAL_ERROR); else tokenListInit(tokenListR);
+			tokenAppend(tokenListR, token->savedToken, STab, NULL);
+
+			rule_expr_n(PARAMS, tokenListR);	
+			if (!*success){
+				tokenListDispose(tokenListR);
+				free(tokenListR);
+				return;
+			}
+			//porovnanie L a R strany
+			tokenListAssign(tokenListL, tokenListR);
+
+			tokenListDispose(tokenListR);
+			free(tokenListR);	
 		}
+
 	}else{
 		*success = 0;
 		printd("some value")
@@ -803,7 +830,7 @@ void rule_expr_bool(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* suc
 		}
 		GET_TOKEN
 	}else{
-		rule_term(token, STab, success, RULE_EXPR);
+		rule_term(token, STab, success, RULE_EXPR, NULL);
 		if (!*success) return; else tokenAppend(tokenList, token, STab, NULL);
 		
 		GET_TOKEN
@@ -938,9 +965,12 @@ void rule_for(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success){
 		int numBool = 0;	
 		rule_expr_bool(PARAMS, tokenList, &numBool);
 		if (!*success || numBool != 1) {
+			if (*success) setError(5);
+
 			tokenListDispose(tokenList);
 			free(tokenList);
 			*success = 0;
+			printd("invalid count of bool operands")
 			break;
 		}
 		
