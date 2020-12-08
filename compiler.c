@@ -16,6 +16,7 @@ int main() {
 
 	rule_prog(token, STab, keyWords, &sucess);	
 	
+	if(!STFuncDefCheck(STab->rootPtr)) setError(SEM_DEF_ERROR);
 	STDispose(STab);
 	free(STab);
 	KWDispose(&keyWords);
