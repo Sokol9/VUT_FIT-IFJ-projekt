@@ -13,9 +13,9 @@
 #define RET_ERR 0
 
 static int varNumber = 0;
-static char* constPrefixes[5] = {"nil@", "int@", "float@", "string@", "bool@"};
 static int paramNumber = 0;
 static int retNumber = 0;
+static char **endptr = NULL;
 
 // reset pocitadla pro generovani promennych
 void resetNumber() {
@@ -46,9 +46,6 @@ int tokenAppend(tokenListPtr ptr, tToken* token, tSymTablePtr STab, tokenListIte
 				ptr->last = result;
 			}
 			return RET_OK;
-
-	printf("\nToken pridan do seznamu na prave strane prirazeni\n\n");
-
 		} else if(token != NULL) {
 			tokenListItemPtr tmp = malloc(sizeof(struct tokenListItem));
 			if(tmp != NULL) {
@@ -70,17 +67,12 @@ int tokenAppend(tokenListPtr ptr, tToken* token, tSymTablePtr STab, tokenListIte
 					ptr->last->next = tmp;
 					ptr->last = tmp;
 				}
-
-	printf("Pridan prvek do seznamu: typ=%d\n", tmp->type);
-
 				if(STab != NULL) {
 					if(token->type == ID) {
 						tmp->frameNumber = STVarLookUp(STab, token->attr);
 						if(tmp->frameNumber != 0)
-							if((tmp->type = STVarGetType(STab)) != UNKNOWN_T) {
-	printf("\nSTAB - Pridano ID do seznamu: frame=%d typ=%d\n\n", tmp->frameNumber, tmp->type);
+							if((tmp->type = STVarGetType(STab)) != UNKNOWN_T)
 								return RET_OK;
-							}
 						setError(SEM_DEF_ERROR);
 					}
 				}
@@ -148,14 +140,13 @@ int tokenListAssign(tokenListPtr dest, tokenListPtr src) {
 	if(dest != NULL && src != NULL) {
 		dest->active = dest->first;
 		src->active  = src->first;
-		char pref1[BUFFER] = {'\0'};
-		char pref2[BUFFER] = {'\0'};
 		while(dest->active != NULL && src->active != NULL) {
 			if(dest->active->type != UNKNOWN_T) {
 				if(dest->active->type == src->active->type) {
-					sprintf(pref1, "LF@f%d$", dest->active->frameNumber);
-					sprintf(pref2, "LF@f%d$", src->active->frameNumber);
-					ASSIGN(pref1, dest->active->token.attr, src->active->frameNumber, pref2, src->active->token.attr);
+					INST("MOVE");
+					PRINT_OPERAND(dest->active->token.type, dest->active->frameNumber, dest->active->token.attr);
+					PRINT_OPERAND(src->active->token.type, src->active->frameNumber, src->active->token.attr);
+					NEWLINE();
 				} else {
 					setError(SEM_TYPE_ERROR);
 					break;
@@ -182,46 +173,45 @@ int tokenListAssign(tokenListPtr dest, tokenListPtr src) {
 //     RET_ERR, pokud je nutny skok na navesti aktivni funkce (volani funcCallHandler)
 int tokenParamHandler(tSymTablePtr STab, tToken *token, tokenListPtr ptr) {
 	if(STab != NULL && token != NULL) {
-		char prefix[BUFFER] = {'\0'};
 		char* function = STFuncGetName(STab);
 		int frame = 0;
-		varType type;
-		switch(token->type) {
-			case ID:
-				frame = STVarLookUp(STab, token->attr);
-				if(frame > 0)
-					sprintf(prefix, "LF@f%d$", frame);
-				else {
-					setError(SEM_DEF_ERROR);
-					return RET_ERR;
-				}
-				break;
-			case INT_L:    type = INT_T;
-				break;
-			case FLOAT_L:  type = FLOAT64_T;
-				break;
-			case STRING_L: type = STRING_T;
-				break;
-			default:       type = UNKNOWN_T;
-				break;
+		if(token->type == ID) {
+			frame = STVarLookUp(STab, token->attr);
+			if(frame <= 0) {
+				setError(SEM_DEF_ERROR);
+				return RET_ERR;
+			}
 		}
 		if(strcmp(function, "print") == 0) {
-			WRITE();
+			INST("WRITE");
+			PRINT_OPERAND(token->type, frame, token->attr);
+			NEWLINE();
 			return RET_OK;
-		} else if(ptr != NULL && ptr->first->token.type != US) {
+		} else if(ptr != NULL && ptr->first != NULL && ptr->first->token.type != US) {
 			if(strcmp(function, "int2float") == 0) {
-				CONV_NUMBER(true, ptr->first->frameNumber, ptr->first->token.attr, token->attr);
+				INST("INT2FLOAT");
+				PRINT_OPERAND(ptr->first->token.type, ptr->first->frameNumber, ptr->first->token.attr);
+				PRINT_OPERAND(token->type, frame, token->attr);
+				NEWLINE();
 				return RET_OK;
 			} else if(strcmp(function, "float2int") == 0) {
-				CONV_NUMBER(false, ptr->first->frameNumber, ptr->first->token.attr, token->attr);
+				INST("FLOAT2INT");
+				PRINT_OPERAND(ptr->first->token.type, ptr->first->frameNumber, ptr->first->token.attr);
+				PRINT_OPERAND(token->type, frame, token->attr);
+				NEWLINE();
 				return RET_OK;
 			} else if(strcmp(function, "len") == 0) {
-				LEN(ptr->first->frameNumber, ptr->first->token.attr, token->attr);
+				INST("LEN");
+				PRINT_OPERAND(ptr->first->token.type, ptr->first->frameNumber, ptr->first->token.attr);
+				PRINT_OPERAND(token->type, frame, token->attr);
+				NEWLINE();
 				return RET_OK;
 			}
 		}
 		DEFPARAM(paramNumber);
-		PUSHPARAM(paramNumber, prefix, token->attr);
+		PUSHPARAM(paramNumber);
+		PRINT_OPERAND(token->type, frame, token->attr);
+		NEWLINE();
 		paramNumber++;
 	}
 	return RET_ERR;
@@ -266,9 +256,6 @@ int tokenListSemCheck(tokenListPtr ptr, tSymTablePtr STab) {
 				int debug;
 				if((debug = STVarLookUp(STab, tmp->token.attr))) {
 					type = STVarGetType(STab);
-
-	printf("Semantika vyrazu: Nalezeno ID %s v ramci %d typu %d\n", tmp->token.attr, debug, type);
-
 					if(type == UNKNOWN_T)
 						setError(SEM_DEF_ERROR);
 					break;
@@ -280,9 +267,6 @@ int tokenListSemCheck(tokenListPtr ptr, tSymTablePtr STab) {
 			} else
 				tmp = tmp->next;
 		}
-
-	printf("Semantika vyrazu: default type=%d\n", type);
-
 		// kontrola
 		tmp = ptr->first;
 		if(type != UNKNOWN_T) {
@@ -397,37 +381,44 @@ int tokenGenerate(tokenListPtr ptr) {
 		if(end == ptr->active)
 			tokenNext(ptr);
 		if(middle->token.type < ID) {
-			char **endptr = NULL;
-			char pref1[BUFFER] = {'\0'};
-			char pref2[BUFFER] = {'\0'};
 			char cond1[BUFFER] = {'\0'};
 			char cond2[BUFFER] = {'\0'};
 			middle->frameNumber = -1;
-			sprintf(pref1, "LF@f%d$", start->frameNumber);
-			sprintf(pref2, "LF@f%d$", end->frameNumber);
 			switch(middle->token.type) {
 				case ADD:
 					VAR_ARITH();
 					sprintf(middle->token.attr, "LF@prec$%d", varNumber++);
 					DEFVAR_PREC(middle->token.attr);
 					if(end->type == STRING_T)
-						INST_PREC("CONCAT", middle->token.attr, start->frameNumber, start->token.attr, end->frameNumber, end->token.attr);
+						INST("CONCAT");
 					else
-						INST_PREC("ADD", middle->token.attr, start->frameNumber, start->token.attr, end->frameNumber, end->token.attr);
+						INST("ADD");
+					PRINT_OPERAND(middle->token.type, middle->frameNumber, middle->token.attr);
+					PRINT_OPERAND(start->token.type, start->frameNumber, start->token.attr);
+					PRINT_OPERAND(end->token.type, end->frameNumber, end->token.attr);
+					NEWLINE();
 					break;
 
 				case SUB:
 					VAR_ARITH();
 					sprintf(middle->token.attr, "LF@prec$%d", varNumber++);
 					DEFVAR_PREC(middle->token.attr);
-					INST_PREC("SUB", middle->token.attr, start->frameNumber, start->token.attr, end->frameNumber, end->token.attr);
+					INST("SUB");
+					PRINT_OPERAND(middle->token.type, middle->frameNumber, middle->token.attr);
+					PRINT_OPERAND(start->token.type, start->frameNumber, start->token.attr);
+					PRINT_OPERAND(end->token.type, end->frameNumber, end->token.attr);
+					NEWLINE();
 					break;
 
 				case MULT:
 					VAR_ARITH();
 					sprintf(middle->token.attr, "LF@prec$%d", varNumber++);
 					DEFVAR_PREC(middle->token.attr);
-					INST_PREC("MUL", middle->token.attr, start->frameNumber, start->token.attr, end->frameNumber, end->token.attr);
+					INST("MUL");
+					PRINT_OPERAND(middle->token.type, middle->frameNumber, middle->token.attr);
+					PRINT_OPERAND(start->token.type, start->frameNumber, start->token.attr);
+					PRINT_OPERAND(end->token.type, end->frameNumber, end->token.attr);
+					NEWLINE();
 					break;
 
 				case DIV:
@@ -439,66 +430,113 @@ int tokenGenerate(tokenListPtr ptr) {
 					sprintf(middle->token.attr, "LF@prec$%d", varNumber++);
 					DEFVAR_PREC(middle->token.attr);
 					if(end->type == FLOAT64_T)
-						INST_PREC("DIV", middle->token.attr, start->frameNumber, start->token.attr, end->frameNumber, end->token.attr);
+						INST("DIV");
 					else
-						INST_PREC("IDIV", middle->token.attr, start->frameNumber, start->token.attr, end->frameNumber, end->token.attr);
+						INST("IDIV");
+					PRINT_OPERAND(middle->token.type, middle->frameNumber, middle->token.attr);
+					PRINT_OPERAND(start->token.type, start->frameNumber, start->token.attr);
+					PRINT_OPERAND(end->token.type, end->frameNumber, end->token.attr);
+					NEWLINE();
 					break;
 
 				case LT:
 					VAR_BOOL();
 					sprintf(middle->token.attr, "LF@prec$%d", varNumber++);
 					DEFVAR_PREC(middle->token.attr);
-					INST_PREC("LT", middle->token.attr, start->frameNumber, start->token.attr, end->frameNumber, end->token.attr);
+					INST("LT");
+					PRINT_OPERAND(middle->token.type, middle->frameNumber, middle->token.attr);
+					PRINT_OPERAND(start->token.type, start->frameNumber, start->token.attr);
+					PRINT_OPERAND(end->token.type, end->frameNumber, end->token.attr);
+					NEWLINE();
 					break;
 
 				case LTEQ:
 					VAR_BOOL();
 					sprintf(cond1, "LF@prec$%d", varNumber++);
 					DEFVAR_PREC(cond1);
-					INST_PREC("LT", cond1, start->frameNumber, start->token.attr, end->frameNumber, end->token.attr);
+					INST("LT");
+					PRINT_OPERAND(ID, -1, cond1);
+					PRINT_OPERAND(start->token.type, start->frameNumber, start->token.attr);
+					PRINT_OPERAND(end->token.type, end->frameNumber, end->token.attr);
+					NEWLINE();
 					sprintf(cond2, "LF@prec$%d", varNumber++);
 					DEFVAR_PREC(cond2);
-					INST_PREC("EQ", cond2, start->frameNumber, start->token.attr, end->frameNumber, end->token.attr);
+					INST("EQ");
+					PRINT_OPERAND(ID, -1, cond2);
+					PRINT_OPERAND(start->token.type, start->frameNumber, start->token.attr);
+					PRINT_OPERAND(end->token.type, end->frameNumber, end->token.attr);
+					NEWLINE();
 					sprintf(middle->token.attr, "LF@prec$%d", varNumber++);
 					DEFVAR_PREC(middle->token.attr);
-					INST_PREC("OR", middle->token.attr, -1, cond1, -1, cond2);
+					INST("OR");
+					PRINT_OPERAND(middle->token.type, middle->frameNumber, middle->token.attr);
+					PRINT_OPERAND(ID, -1, cond1);
+					PRINT_OPERAND(ID, -1, cond2);
+					NEWLINE();
 					break;
 
 				case GT:
 					VAR_BOOL();
 					sprintf(middle->token.attr, "LF@prec$%d", varNumber++);
 					DEFVAR_PREC(middle->token.attr);
-					INST_PREC("GT", middle->token.attr, start->frameNumber, start->token.attr, end->frameNumber, end->token.attr);
+					INST("GT");
+					PRINT_OPERAND(middle->token.type, middle->frameNumber, middle->token.attr);
+					PRINT_OPERAND(start->token.type, start->frameNumber, start->token.attr);
+					PRINT_OPERAND(end->token.type, end->frameNumber, end->token.attr);
+					NEWLINE();
 					break;
 
 				case GTEQ:
 					VAR_BOOL();
 					sprintf(cond1, "LF@prec$%d", varNumber++);
 					DEFVAR_PREC(cond1);
-					INST_PREC("GT", cond1, start->frameNumber, start->token.attr, end->frameNumber, end->token.attr);
+					INST("GT");
+					PRINT_OPERAND(ID, -1, cond1);
+					PRINT_OPERAND(start->token.type, start->frameNumber, start->token.attr);
+					PRINT_OPERAND(end->token.type, end->frameNumber, end->token.attr);
+					NEWLINE();
 					sprintf(cond2, "LF@prec$%d", varNumber++);
 					DEFVAR_PREC(cond2);
-					INST_PREC("EQ", cond2, start->frameNumber, start->token.attr, end->frameNumber, end->token.attr);
+					INST("EQ");
+					PRINT_OPERAND(ID, -1, cond2);
+					PRINT_OPERAND(start->token.type, start->frameNumber, start->token.attr);
+					PRINT_OPERAND(end->token.type, end->frameNumber, end->token.attr);
+					NEWLINE();
 					sprintf(middle->token.attr, "LF@prec$%d", varNumber++);
 					DEFVAR_PREC(middle->token.attr);
-					INST_PREC("OR", middle->token.attr, -1, cond1, -1, cond2);
+					INST("OR");
+					PRINT_OPERAND(middle->token.type, middle->frameNumber, middle->token.attr);
+					PRINT_OPERAND(ID, -1, cond1);
+					PRINT_OPERAND(ID, -1, cond2);
+					NEWLINE();
 					break;
 
 				case EQ:
 					VAR_BOOL();
 					sprintf(middle->token.attr, "LF@prec$%d", varNumber++);
 					DEFVAR_PREC(middle->token.attr);
-					INST_PREC("EQ", middle->token.attr, start->frameNumber, start->token.attr, end->frameNumber, end->token.attr);
+					INST("EQ");
+					PRINT_OPERAND(middle->token.type, middle->frameNumber, middle->token.attr);
+					PRINT_OPERAND(start->token.type, start->frameNumber, start->token.attr);
+					PRINT_OPERAND(end->token.type, end->frameNumber, end->token.attr);
+					NEWLINE();
 					break;
 
 				case NEQ:
 					VAR_BOOL();
 					sprintf(cond1, "LF@prec$%d", varNumber++);
 					DEFVAR_PREC(cond1);
-					INST_PREC("EQ", cond1, start->frameNumber, start->token.attr, end->frameNumber, end->token.attr);
+					INST("EQ");
+					PRINT_OPERAND(ID, -1, cond1);
+					PRINT_OPERAND(start->token.type, start->frameNumber, start->token.attr);
+					PRINT_OPERAND(end->token.type, end->frameNumber, end->token.attr);
+					NEWLINE();
 					sprintf(middle->token.attr, "LF@prec$%d", varNumber++);
 					DEFVAR_PREC(middle->token.attr);
-					INST_PREC("NOT", middle->token.attr, -1, cond1, -1, "");
+					INST("NOT");
+					PRINT_OPERAND(middle->token.type, middle->frameNumber, middle->token.attr);
+					PRINT_OPERAND(ID, -1, cond1);
+					NEWLINE();
 					break;
 
 				default:
