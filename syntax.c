@@ -662,7 +662,7 @@ void rule_values(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* succes
 			tokenListPtr tokenListR = malloc(sizeof(struct tokenList));
 			if (!tokenListR) setError(INTERNAL_ERROR); else tokenListInit(tokenListR);
 			tokenAppend(tokenListR, token, STab, NULL);
-			ruele_expr_n(PARAMS, tokenListR);	
+			rule_expr_n(PARAMS, tokenListR);	
 			if (!*success){
 				tokenListDispose(tokenListR);
 				free(tokenListR);
