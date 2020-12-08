@@ -266,7 +266,8 @@ void rule_stat(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 			print_debug("valid (")
 
 			GET_TOKEN
-	     	rule_func_call(PARAMS);
+	     	tokenRetListCompare(NULL, STab);
+			rule_func_call(PARAMS);
     /***********END OF <FUNC CALL>***************/
 
         }else if (token->type == DEF){
@@ -1162,6 +1163,7 @@ void rule_return_type(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* s
 		GET_TOKEN
 		if(token->type == CBR){
 			print_debug("valid )")
+			STFuncInsertRet(STab, NULL);
 			GET_TOKEN
 			EOL_FORBID
 			return;
