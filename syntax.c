@@ -87,7 +87,6 @@ void rule_func_def(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* suce
 			//ak nenastal ziadny eror vlozi funkciu do Stab
 			//v pripade ze ide o redefiniciu funkcie vola setError
 			STFuncInsert(STab, token->attr, true); 
-		printf("teraz rebehne kontrola:%d\n\n\n\n\n\n", STGetFuncReturn(STab));			
 		}else{
 			*sucess = 0;
 			printd("ID")
@@ -162,7 +161,6 @@ void rule_func_def(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* suce
 		print_debug("valid }")
 		EOL_REQUIRED
 
-		printf("teraz rebehne kontrola:%d\n\n\n\n\n\n", STGetFuncReturn(STab));			
 		if(!STGetFuncReturn(STab)){
 			printd("func don't include rutern or return is invalid")
 			setError(SEM_FUNC_ERROR);
@@ -339,7 +337,6 @@ void rule_stat(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 			free(tokenListRet);
 
 			STSetFuncReturn(STab);
-			printf("ahojky\n\n\n\n\n\n");
 
 		}
 	/*************END OF RETURN******************/
