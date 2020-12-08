@@ -957,6 +957,8 @@ void rule_for(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success){
 			tokenListDispose(tokenList);
 			free(tokenList);
 			*success = 0;
+			setError(5);
+			printd("invalid count of bool operands")
 			break;
 		}
 		
