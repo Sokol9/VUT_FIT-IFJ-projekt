@@ -1161,6 +1161,7 @@ void rule_return_type(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* s
 		if(token->type == CBR){
 			print_debug("valid )")
 			STFuncInsertRet(STab, NULL);
+			STSetFuncReturn(STab);	
 			GET_TOKEN
 			EOL_FORBID
 			return;
@@ -1197,6 +1198,7 @@ void rule_return_type(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* s
 		}
 		
 		STFuncInsertRet(STab, ret);
+		if (ret->first == NULL)	STSetFuncReturn(STab);
 		retListDispose(ret);
 		free(ret);
 
@@ -1204,6 +1206,7 @@ void rule_return_type(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* s
 		EOL_FORBID
 	}else{
 		STFuncInsertRet(STab, NULL);
+		STSetFuncReturn(STab);
 	}	
 }
 
