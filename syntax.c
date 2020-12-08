@@ -390,6 +390,7 @@ void rule_func_call(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* suc
 	STSetActiveFunc(STab, actFunc);
 }
 
+
 //<term> - id 
 //<term> - INT_L
 //<term> - FLOAT_L
