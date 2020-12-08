@@ -414,7 +414,8 @@ void rule_term(tToken *token, tSymTablePtr STab,  bool* success, callAs call, to
 		*success = 0;
 		printd("ID or some value")
 	}
-	if (tokenListL != NULL) tokenParamHandler(STab, token, tokenListL);
+	if (tokenListL == NULL)
+	if (!tokenParamHandler(STab, token, tokenListL)) funcCallHandler(STab, tokenListL);
 }
 
 //<term_n> - , <term> <term_n>
