@@ -113,7 +113,7 @@ int tokenRetListCompare(tokenListPtr tList, tSymTablePtr STab) {
 	if(tList != NULL && STab != NULL) {
 		tList->active = tList->first;
 		STFuncSetActive(STab, STab->activeFunc);
-		if(!STab->activeFunc->used) {
+		if(!STab->activeFunc->used && !STab->activeFunc->defined) {
 			while(tList->active != NULL) {
 				if(!GTAddRet(STab->activeFunc, tList->active->type))
 					return RET_ERR;
@@ -250,6 +250,7 @@ void funcCallHandler(tSymTablePtr STab, tokenListPtr ptr) {
 			STab->activeRet = STab->activeRet->next;
 			tokenNext(ptr);
 		}
+		retNumber = 0;
 	}
 }
 
