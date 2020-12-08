@@ -49,6 +49,8 @@ void rule_prog(tToken *token, tSymTablePtr STab, tKWPtr keyWords,  bool* sucess)
 
 	/*****************EOF***********************/
 	if (token->type == TOKEN_EOF){
+		//todo
+		//chcek define flag ina all function
 		print_debug("valid TOKEN_EOF")
 		
 		printf("\n===================================================\n\n ANALIZATION FINISH %s\n\n", \
@@ -158,11 +160,12 @@ void rule_func_def(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* suce
 	if (token->type == CB){
 		print_debug("valid }")
 		EOL_REQUIRED
-//todo check return
-//		printf("%d",STGetFrameReturn(STab));
-//		if (!STGetFrameReturn(STab)){
-//			setError(SEM_FUNC_ERROR);
-//		}
+			
+		if(!STGetFuncReturn(STab)){
+			printd("func don't include rutern or return is invalid")
+			setError(SEM_FUNC_ERROR);
+		}	
+
 		STDeleteFrame(STab);
 	}else{
 		*sucess = 0;
@@ -331,8 +334,9 @@ void rule_stat(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* sucess){
 			
 			tokenListDispose(tokenListRet);
 			free(tokenListRet);
-			//if (STIsFuncFrame(STab)) STSetFrameReturn(STab);	
-			//todo set bola navratova hodnota
+
+			STSetFuncReturn(STab);
+
 		}
 	/*************END OF RETURN******************/
 	}else if(token->type != OBR){
