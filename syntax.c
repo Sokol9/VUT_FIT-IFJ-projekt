@@ -954,10 +954,11 @@ void rule_for(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success){
 		int numBool = 0;	
 		rule_expr_bool(PARAMS, tokenList, &numBool);
 		if (!*success || numBool != 1) {
+			if (sucess) setError(5);
+
 			tokenListDispose(tokenList);
 			free(tokenList);
 			*success = 0;
-			setError(5);
 			printd("invalid count of bool operands")
 			break;
 		}
