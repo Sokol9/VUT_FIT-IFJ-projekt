@@ -59,3 +59,37 @@ tokenListItemPtr precedence(tokenListPtr ptr, tSymTablePtr STab, bool resetVarNu
 	}
 	return NULL;
 }
+
+
+
+void printConvertString(char* input){
+    int i = 0;
+    char chr = input[i];
+    printf("string@");
+    while (chr != '\0'){
+        if ((chr >= 0 && chr <= 32) || chr == 35 || chr == 92){
+            printf("\\0%d", chr);
+        }else{
+            printf("%c", chr);
+        }
+    i++;
+    chr = input[i];
+    }
+    printf("\n");
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

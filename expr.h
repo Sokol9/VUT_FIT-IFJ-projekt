@@ -102,4 +102,6 @@ tokenListItemPtr precedence(tokenListPtr ptr, tSymTablePtr STab, bool resetVarNu
 
 varType tokenListGetFirstType(tokenListPtr tokenList);
 
+void printConvertString(char* input);
+
 #endif
