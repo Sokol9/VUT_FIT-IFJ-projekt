@@ -143,7 +143,7 @@ void rule_func_def(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* succ
 	
 	STCreateFrame(STab, true);
 	DEFFUNC();
-	if (strcmp("main", STFuncGetName(STab))) INIT_MAIN();
+	if (!strcmp("main", STFuncGetName(STab))) INIT_MAIN();
 
 	/***************BRACKETS********************/
 	if (token->type == OB){
@@ -389,7 +389,6 @@ void rule_func_call(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* suc
 	//nastavenie p;vodnej activ func
 	STSetActiveFunc(STab, actFunc);
 }
-
 
 //<term> - id 
 //<term> - INT_L
