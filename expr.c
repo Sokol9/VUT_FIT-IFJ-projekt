@@ -222,7 +222,7 @@ int tokenParamHandler(tSymTablePtr STab, tToken *token, tokenListPtr ptr) {
 void funcCallHandler(tSymTablePtr STab, tokenListPtr ptr) {
 	if(STab != NULL && STab->activeFunc != NULL && ptr != NULL && ptr->first != NULL) {
 		ptr->active = ptr->first;
-		STFuncSetActive(STab, STab->activeFunc);
+		STab->activeRet = STab->activeFunc->returns;
 		while(STab->activeRet != NULL) {
 			DEFRET(retNumber);
 			retNumber++;
@@ -232,7 +232,7 @@ void funcCallHandler(tSymTablePtr STab, tokenListPtr ptr) {
 		paramNumber = retNumber = 0;
 		CALLFUNC();
 		POPFRAME();
-		STFuncSetActive(STab, STab->activeFunc);
+		STab->activeRet = STab->activeFunc->returns;
 		while(STab->activeRet != NULL) {
 			if(ptr->active->token.type != US)
 				POPRET(ptr->active->frameNumber, ptr->active->token.attr, retNumber);
