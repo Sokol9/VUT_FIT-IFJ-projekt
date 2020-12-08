@@ -109,9 +109,6 @@ tLFPtr LTCreateFrame(tLFPtr upper, tGRPtr func);
 // ziskani cisla ramce
 int LTGetFrameNumber(tLFPtr frame);
 
-// zjistuje, zda se jedna o ramec funkce
-bool LTIsFuncFrame(tLFPtr frame);
-
 // prohledani vsech ramcu lokalni tabulky symbolu
 tLRPtr LTSearch(tLFPtr framePtr, char *key, int *frameNumber);
 

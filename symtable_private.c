@@ -334,13 +334,6 @@ int LTGetFrameNumber(tLFPtr frame) {
 	return 0;
 }
 
-// zjistuje, zda je ramec ramcem funkce
-bool LTIsFuncFrame(tLFPtr frame) {
-	if(frame != NULL)
-		return (frame->upper == NULL);
-	return false;
-}
-
 // vyhledani zaznamu ve strome
 tLRPtr LTLookUp (tLRPtr rootPtr, char *key) {
 	if(rootPtr == NULL)

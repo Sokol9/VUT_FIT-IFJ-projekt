@@ -132,9 +132,6 @@ void STSetFuncReturn(tSymTablePtr ptr);
 // ziskani returnFlagu aktivni funkce
 bool STGetFuncReturn(tSymTablePtr ptr);
 
-// vraci, zda je ramec na vrcholu zasobniku ramcem funkce
-bool STIsFuncFrame(tSymTablePtr ptr);
-
 // vyhledani promenne
 //    v pripade nalezeni nastavuje aktivitu na nalezenou promennou
 //    v pripade nalezeni take vraci cislo ramce, ve kterem byla promenna nalezena, jinak 0

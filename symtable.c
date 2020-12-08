@@ -94,6 +94,19 @@ bool STFuncIsDefined(tSymTablePtr ptr) {
 	return false;
 }
 
+// nastaveni returnFlagu aktivni funkce
+void STSetFuncReturn(tSymTablePtr ptr) {
+	if(ptr != NULL)
+		GTSetReturnFlag(ptr->activeFunc);
+}
+
+// ziskani returnFlagu aktivni funkce
+bool STGetFuncReturn(tSymTablePtr ptr) {
+	if(ptr != NULL)
+		return GTGetReturnFlag(ptr->activeFunc);
+	return false;
+}
+
 // nastaveni aktivity na funkci
 int STFuncSetActive(tSymTablePtr ptr, tGRPtr funcPtr) {
 	if(ptr != NULL && funcPtr != NULL) {
@@ -203,8 +216,9 @@ int STFuncParamEnd(tSymTablePtr ptr) {
 //
 //    seznam navratovych hodnot, ktery bude predan funkci se stava prazdnym
 int STFuncInsertRet(tSymTablePtr ptr, tRetListPtr list) {
-	if(ptr != NULL && list != NULL && ptr->activeFunc != NULL){
-		if(ptr->activeFunc->returnFlag) {                                                        //
+	if(ptr != NULL && list != NULL && ptr->activeFunc != NULL) {
+		STFuncSetActive(ptr, ptr->activeFunc);
+		if(ptr->activeFunc->used) {
 			while(ptr->activeRet != NULL) {
 				if(list->active != NULL) {
 					if(ptr->activeRet->type == UNKNOWN_T)
@@ -232,13 +246,14 @@ int STFuncInsertRet(tSymTablePtr ptr, tRetListPtr list) {
 		} else {
 			ptr->activeFunc->returns = list->first;
 			list->first = list->active = list->last = NULL;
-			ptr->activeFunc->returnFlag = true;                                               //
 			return 1;
 		}
 	}
 	if(list == NULL) {
-		ptr->activeFunc->returnFlag = true;                                                       //
-		return 1;
+		STFuncSetActive(ptr, ptr->activeFunc);
+		if(ptr->activeRet == NULL)
+			return 1;
+		setError(SEM_FUNC_ERROR);
 	}
 	retListDispose(list);
 	return 0;
@@ -278,26 +293,6 @@ int STGetFrameNumber(tSymTablePtr ptr) {
 	if(ptr != NULL)
 		return LTGetFrameNumber(ptr->topFrame);
 	return 0;
-}
-
-// nastaveni returnFlagu aktivni funkce
-void STSetFuncReturn(tSymTablePtr ptr) {
-	if(ptr != NULL)
-		GTSetReturnFlag(ptr->activeFunc);
-}
-
-// ziskani returnFlagu aktivni funkce
-bool STGetFuncReturn(tSymTablePtr ptr) {
-	if(ptr != NULL)
-		return GTGetReturnFlag(ptr->activeFunc);
-	return false;
-}
-
-// vraci, zda je ramec na vrcholu zasobniku ramcem funkce
-bool STIsFuncFrame(tSymTablePtr ptr) {
-	if(ptr != NULL)
-		return LTIsFuncFrame(ptr->topFrame);
-	return false;
 }
 
 // vyhledani promenne
