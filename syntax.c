@@ -658,9 +658,23 @@ void rule_values(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* succes
 			tokenListDispose(tokenListR);
 			free(tokenListR);	
 		}else{
-			*success = 0;
-			printd("func call or expr")
+			
+			tokenListPtr tokenListR = malloc(sizeof(struct tokenList));
+			if (!tokenListR) setError(INTERNAL_ERROR); else tokenListInit(tokenListR);
+			tokenAppend(tokenListR, token, STab, NULL);
+			ruele_expr_n(PARAMS, tokenListR);	
+			if (!*success){
+				tokenListDispose(tokenListR);
+				free(tokenListR);
+				return;
+			}
+			//porovnanie L a R strany
+			tokenListAssign(tokenListL, tokenListR);
+
+			tokenListDispose(tokenListR);
+			free(tokenListR);	
 		}
+
 	}else{
 		*success = 0;
 		printd("some value")
