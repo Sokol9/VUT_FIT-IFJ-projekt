@@ -590,10 +590,10 @@ void rule_values(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* succes
 	}else if (token->type == ID){
 		print_debug("valid ID")
 		saveToken(token);
-		
+			
 		GET_TOKEN
-		EOL_FORBID
 		if (token->type == OBR){
+			EOL_FORBID
 			print_debug("valid (")
 			//===kontrola navratovych hodnot===
 			//ulozenie aktivnej funkcie
@@ -611,6 +611,7 @@ void rule_values(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* succes
 
 		}else if(token->type == ADD || token->type == SUB || token->type == MULT || \
 				token->type == DIV){
+			EOL_FORBID
 			tokenListPtr tokenListTmp = malloc(sizeof(struct tokenList));
 			if (tokenListTmp) tokenListInit(tokenListTmp); else setError(INTERNAL_ERROR);
 			tokenAppend(tokenListTmp, token->savedToken, STab, NULL);
@@ -661,7 +662,8 @@ void rule_values(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* succes
 			
 			tokenListPtr tokenListR = malloc(sizeof(struct tokenList));
 			if (!tokenListR) setError(INTERNAL_ERROR); else tokenListInit(tokenListR);
-			tokenAppend(tokenListR, token, STab, NULL);
+			tokenAppend(tokenListR, token->savedToken, STab, NULL);
+
 			rule_expr_n(PARAMS, tokenListR);	
 			if (!*success){
 				tokenListDispose(tokenListR);
