@@ -80,7 +80,61 @@
 	printf("LEN LF@f%d$%s %s%s\n", destFrame, dest, (frame > 0)? prefix : constPrefixes[(int)type], src)
 
 // instrukce SUBSTR
-#define SUBSTR        /*** TODO ***/
+#define SUBSTR() \
+	printf("LABEL &substr\n");				\
+	printf("DEFVAR LF@cond\n");				\
+	printf("DEFVAR LF@tmp\n");				\
+	printf("MOVE LF@%%retval2 int@0\n");			\
+	printf("STRLEN LF@tmp LF@%%1\n");			\
+	printf("LT LF@cond LF@%%3 int@0\n");			\
+	printf("JUMPIFEQ &substr_chyba LF@cond bool@true\n");	\
+	printf("LT LF@cond LF@%%2 int@0\n");			\
+	printf("JUMPIFEQ &substr_chyba LF@cond bool@true\n");	\
+	printf("GT LF@cond LF@%%2 LF@tmp\n");			\
+	printf("JUMPIFEQ &substr_chyba LF@cond bool@true\n");	\
+	printf("SUB LF@tmp LF@tmp LF@%%2\n");			\
+	printf("GT LF@cond LF@%%3 LF@tmp\n");			\
+	printf("JUMPIFEQ &substr_nastav_n LF@cond bool@true\n");\
+	printf("JUMP &substr_pokracuj\n\n");			\
+								\
+	printf("LABEL &substr_nastav_n\n");			\
+	printf("MOVE LF@%%3 LF@tmp\n");				\
+	printf("JUMP &substr_pokracuj\n\n");			\
+								\
+	printf("LABEL &substr_chyba\n");			\
+	printf("MOVE LF@%%retval1 string@\n");			\
+	printf("MOVE LF@%%retval2 int@1\n");			\
+	printf("JUMP &substr_end\n\n");				\
+								\
+	printf("LABEL &substr_pokracuj\n");			\
+	printf("DEFVAR LF@count\n");				\
+	printf("MOVE LF@count int@0\n");			\
+	printf("DEFVAR LF@substring\n");			\
+	printf("MOVE LF@substring string@\n");			\
+	printf("DEFVAR LF@char\n");				\
+	printf("ADD LF@%%3 LF@%%3 LF@%%2\n\n");			\
+								\
+	printf("LABEL &substr_for_start\n");			\
+	printf("LT LF@cond LF@count LF@%%2\n");			\
+	printf("JUMPIFNEQ &substr_for_end LF@cond bool@true\n");\
+	printf("ADD LF@count LF@count int@1\n");		\
+	printf("JUMP &substr_for_start\n");			\
+	printf("LABEL &substr_for_end\n\n");			\
+								\
+	printf("LABEL &substr_start_for\n");			\
+	printf("LT LF@cond LF@count LF@%%3\n");			\
+	printf("JUMPIFNEQ &substr_end_for LF@cond bool@true\n");\
+	printf("GETCHAR LF@char LF@%%1 LF@count\n");		\
+	printf("CONCAT LF@substring LF@substring LF@char\n");	\
+	printf("ADD LF@count LF@count int@1\n");		\
+	printf("JUMP &substr_start_for\n");			\
+	printf("LABEL &substr_end_for\n\n");			\
+								\
+	printf("MOVE LF@%%retval1 LF@substring\n\n");		\
+								\
+	printf("LABEL &substr_end\n");				\
+	printf("RETURN\n")					\
+
 #define INPUT(type)   /*** TODO ***/ //variants: int, float, string
 #define ORD           /*** TODO ***/
 #define CHR           /*** TODO ***/
