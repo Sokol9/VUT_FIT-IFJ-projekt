@@ -40,6 +40,9 @@
 #define INIT_MAIN() \
 	printf("CREATEFRAME\nPUSHFRAME\n")
 
+// instrukce vytvoreni navesti
+//#define 
+
 // instrukce pro definici aktivni funkce
 #define DEFFUNC() \
 	printf("LABEL &%s\n", STFuncGetName(STab))
@@ -48,7 +51,7 @@
 	printf("CALL &%s\n", STFuncGetName(STab))
 // instrukce pro definici aktivni promenne v aktivnim bloku
 #define DEFVAR() \
-	printf("DEFVAR LF@f%d$%s\n", STGetFrameNumber(STab), STGetVarName(STab))
+	printf("DEFVAR LF@f%d$%s\n", STGetFrameNumber(STab), STVarGetName(STab))
 
 // vytvori novy docasny ramec pri volani funkce
 #define CREATEFRAME() \
@@ -73,10 +76,6 @@
 // vrati navratovou hodnotu
 #define POPRET(frame, dest, number) \
 	printf("MOVE LF@f%d$%s TF@%%retval%d\n", frame, dest, number)
-
-// prirazeni hodnoty do promenne
-#define ASSIGN(pref1, to, frame, pref2, from) \
-	printf("MOVE %s%s %s%s\n", pref1, to, (frame==-1)?"":((frame==0)?constPrefixes[(int)src->active->type]:pref2), from)
 
 // instrukce pro vstup
 #define I 0 

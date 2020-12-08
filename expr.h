@@ -54,6 +54,11 @@ void tokenListDispose(tokenListPtr ptr);
 //    src je prava strana prirazeni
 int tokenListAssign(tokenListPtr dest, tokenListPtr src);
 
+// provadi vypisy instrukci pro parametry pri volani funkce
+int tokenParamHandler(tSymTablePtr STab, tToken *token, tokenListPtr ptr);
+
+// vypisuje instrukce pri volani funkce
+void funcCallHandler(tSymTablePtr STab, tokenListPtr ptr);
 
 // ===================================================================
 // Semanticka kontrola, zda jsou vsechny tokeny stejneho datoveho typu
