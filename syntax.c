@@ -271,9 +271,20 @@ void rule_stat(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success)
 		if (token->type == OBR){
 	/**************<FUNC CALL>******************/
 			print_debug("valid (")
+			
+
+			//===kontrola navratovych hodnot===
+			//ulozenie aktivnej funkcie
+			tGRPtr actFunc = STGetActiveFunc(STab);
+			//activ func == call func
+			STFuncInsert(STab, token->savedToken->attr, false);
+			//kontrola navratovych hodnot
+			tokenRetListCompare(NULL, STab);
+			//nastavenie p;vodnej activ func
+			STSetActiveFunc(STab, actFunc);
+
 
 			GET_TOKEN
-	     	tokenRetListCompare(NULL, STab);
 			rule_func_call(PARAMS, RULE_STAT, NULL);
     /***********END OF <FUNC CALL>***************/
 
@@ -420,7 +431,7 @@ void rule_term(tToken *token, tSymTablePtr STab,  bool* success, callAs call, to
 	}
 
 	if (call == RULE_ASG || call == RULE_STAT){
-		printf("***I call token param hendler\n");
+		//printf("***I call token param hendler\n");
 		if (!tokenParamHandler(STab, token, tokenListL)) funcCallHandler(STab, tokenListL);
 	}
 }
