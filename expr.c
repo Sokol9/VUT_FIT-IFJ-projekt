@@ -201,7 +201,7 @@ int tokenParamHandler(tSymTablePtr STab, tToken *token, tokenListPtr ptr) {
 				NEWLINE();
 				return RET_OK;
 			} else if(strcmp(function, "len") == 0) {
-				INST("LEN");
+				INST("STRLEN");
 				PRINT_OPERAND(ptr->first->token.type, ptr->first->frameNumber, ptr->first->token.attr);
 				PRINT_OPERAND(token->type, frame, token->attr);
 				NEWLINE();
