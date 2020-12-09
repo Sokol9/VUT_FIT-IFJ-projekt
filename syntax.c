@@ -459,14 +459,16 @@ void rule_var_def(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* succe
 			STVarLookUp(STab, token->savedToken->attr);
 			STVarSetType(STab, tokenListGetFirstType(tokenList));
 		}
-	}
 	
-	tokenListPtr tokenListL = malloc(sizeof(struct tokenList));
-	if (tokenListL) tokenListInit(tokenListL); else setError(INTERNAL_ERROR);
-	tokenAppend(tokenListL,token->savedToken,STab, NULL);
+		tokenListPtr tokenListL = malloc(sizeof(struct tokenList));
+		if (tokenListL) tokenListInit(tokenListL); else setError(INTERNAL_ERROR);
+		tokenAppend(tokenListL,token->savedToken,STab, NULL);
 
-	tokenListAssign(tokenListL, tokenList);
-	
+		tokenListAssign(tokenListL, tokenList);
+		
+		tokenListDispose(tokenListL);	
+		free(tokenListL);
+	}	
 	tokenListDispose(tokenList);	
 	free(tokenList);
 }
