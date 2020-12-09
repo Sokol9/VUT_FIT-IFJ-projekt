@@ -35,7 +35,13 @@
 
 // zacatek programu
 #define START() \
-	printf(".IFJcode20\nJUMP &main\n")
+	printf(".IFJcode20\nJUMP &main\n");\
+	INPUT(I);\
+	INPUT(F);\
+	INPUT(S);\
+	SUBSTR();\
+	CHR();\
+	ORD()
 // inicializace lokalniho ramce pro main
 #define INIT_MAIN() \
 	printf("CREATEFRAME\nPUSHFRAME\n")

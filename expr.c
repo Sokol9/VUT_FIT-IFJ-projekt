@@ -562,3 +562,7 @@ int tokenGenerate(tokenListPtr ptr) {
 varType tokenListGetFirstType(tokenListPtr tokenList){
 	return tokenList->first->type;
 }
+
+
+
+

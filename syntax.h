@@ -6,7 +6,7 @@
 #include "expr.h"
  
 #define DEBUG_INVALID
-#define DEBUG_VALID
+//#define DEBUG_VALID
 
 #define GET_TOKEN getToken(token,  keyWords);
   
@@ -46,7 +46,7 @@
     #define printd(fsm)
 #endif
 
-typedef enum  {RULE_PARAM, RULE_RET, RULE_FCALL, RULE_EXPR}callAs;
+typedef enum  {RULE_PARAM, RULE_RET, RULE_FCALL, RULE_EXPR, RULE_ASG, RULE_STAT}callAs;
 
 
 
@@ -61,10 +61,10 @@ void rule_body(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success)
 void rule_stat(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success);
 void rule_term(tToken *token, tSymTablePtr STab, bool* success, callAs call, tokenListPtr tokenListL);
 void rule_term_n(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success, tokenListPtr tokenListL);
-void rule_func_call(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success, tokenListPtr tokenListL);
+void rule_func_call(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success, callAs call, tokenListPtr tokenListL);
 void rule_func_def(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success);
 void rule_var_def(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success);
-void rule_expr(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success, tokenListPtr tokenList);
+void rule_expr(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success, tokenListPtr tokenList, tokenListPtr tokenList2);
 void rule_op(tToken *token, bool* success);
 void rule_expr_n(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success, tokenListPtr tokenListR);
 void rule_id_n(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success, tokenListPtr tokenListL);
