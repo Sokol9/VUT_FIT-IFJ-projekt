@@ -245,21 +245,43 @@ void funcCallHandler(tSymTablePtr STab, tokenListPtr ptr) {
 }
 
 // zacatek prikazu IF
-void handleFalseCond(tSymTablePtr STab, tokenListPtr ptr) {
+void handleStartIf(tSymTablePtr STab, tokenListPtr ptr) {
         if(STab != NULL && ptr != NULL && ptr->first != NULL) {
-                JUMP("JUMPIFNEQ", STGetFrameNumber(STab));
+                JUMP("JUMPIFNEQ", STGetFrameNumber(STab), "_end");
                 PRINT_OPERAND(ptr->first->token.type, ptr->first->frameNumber, ptr->first->token.attr);
                 BOOL_TRUE();
+		NEWLINE();
         }
 }
 
 // konec prikazu IF
 void handleEndIf(tSymTablePtr STab) {
         if(STab != NULL) {
-                JUMP("JUMP", STGetFrameNumber(STab)+1);
+                JUMP("JUMP", STGetFrameNumber(STab)+1, "");
                 NEWLINE();
-                LABEL(STGetFrameNumber(STab));
+                LABEL(STGetFrameNumber(STab), "_end");
         }
+}
+
+// zacatek prikazu FOR
+void handleStartFor(tSymTablePtr STab, tokenListPtr ptr) {
+	if(STab != NULL && ptr != NULL && ptr->first != NULL) {
+		LABEL(STGetFrameNumber(STab), "_begin");
+		JUMP("JUMPIFNEQ", STGetFrameNumber(STab), "_end");
+		PRINT_OPERAND(ptr->first->token.type, ptr->first->frameNumber, ptr->first->token.attr);
+		BOOL_TRUE();
+		NEWLINE();
+	}
+	
+}
+
+// konec prikazu FOR
+void handleEndFor(tSymTablePtr STab) {
+	if(STab != NULL) {
+		JUMP("JUMP", STGetFrameNumber(STab), "_begin");
+		NEWLINE();
+		LABEL(STGetFrameNumber(STab), "_end");
+	}
 }
 
 // Semanticka kontrola, zda jsou vsechny tokeny stejneho datoveho typu

@@ -61,10 +61,16 @@ int tokenParamHandler(tSymTablePtr STab, tToken *token, tokenListPtr ptr);
 void funcCallHandler(tSymTablePtr STab, tokenListPtr ptr);
 
 // zacatek prikazu IF
-void handleFalseCond(tSymTablePtr STab, tokenListPtr ptr);
+void handleStartIf(tSymTablePtr STab, tokenListPtr ptr);
 
 // konec prikazu IF
 void handleEndIf(tSymTablePtr STab);
+
+// zacatek prikazu FOR
+void handleStartFor(tSymTablePtr STab, tokenListPtr ptr);
+
+// konec prikazu FOR
+void handleEndFor(tSymTablePtr STab);
 
 // ===================================================================
 // Semanticka kontrola, zda jsou vsechny tokeny stejneho datoveho typu
