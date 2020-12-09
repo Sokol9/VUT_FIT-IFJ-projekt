@@ -415,7 +415,9 @@ void rule_term(tToken *token, tSymTablePtr STab,  bool* success, callAs call, to
 		*success = 0;
 		printd("ID or some value")
 	}
-	if (call == RULE_ASG){
+
+	if (call == RULE_ASG || call == RULE_STAT){
+		printf("***I call token param hendler\n");
 		if (!tokenParamHandler(STab, token, tokenListL)) funcCallHandler(STab, tokenListL);
 	}
 }
@@ -784,6 +786,7 @@ void rule_if(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success){
 			printd("chyba precedence");
 			break;
 		}
+		handleStartIf(STab, tokenList);
 	}while(0);
 	
 	tokenListDispose(tokenList);
@@ -813,8 +816,12 @@ void rule_if(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success){
 		printd("{")
 		if (!*success) return;
 	}
+	
+	handleEndIf(STab, token);
+
 	STDeleteFrame(STab);
 	rule_else(PARAMS);
+	
 }
 
 // <expr_bool> - <expr> s povolenim bool_op
@@ -891,7 +898,11 @@ void rule_expr_bool(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* suc
 			EOL_REQUIRED
 			if (token->type == CB){
 				print_debug("valid }")
+				LABEL(STGetFrameNumber(STab), "");
+
+
 				STDeleteFrame(STab);
+			
 				GET_TOKEN
 			}else{
 				*success = 0;
