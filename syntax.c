@@ -1051,14 +1051,13 @@ void rule_for(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success){
 			//nastavy ako aktivnu premennu, tu ktoru chce skontrolovat
 			STVarLookUp(STab, token->savedToken->attr);
 			//skontroluje typ pomocou vlozenia
-			STVarSetType(STab, tokenListGetFirstType(tokenListInc));
+			STVarSetType(STab, tokenListGetFirstType(tokenListIncTmp));
 
 			tokenListDispose(tokenListIncTmp);
 			free(tokenListIncTmp);	 
 		}
 	}while(0);
 
-	printf("ahojky\n");
 	CHECK_POINT(type,OB)
 	
 	STCreateFrame(STab,false);
