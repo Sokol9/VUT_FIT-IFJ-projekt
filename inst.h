@@ -9,7 +9,10 @@
 		else printf(" LF@f%d$%s", frame, operand);				\
 	}
 
-#define NEWLINE() putchar('\n');
+#define PRINT_RETVAL(number) \
+	printf(" LF@%%retval%d", number)
+
+#define NEWLINE() putchar('\n')
 
 // ===================
 // Precedencni analyza

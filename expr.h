@@ -60,6 +60,9 @@ int tokenParamHandler(tSymTablePtr STab, tToken *token, tokenListPtr ptr);
 // vypisuje instrukce pri volani funkce
 void funcCallHandler(tSymTablePtr STab, tokenListPtr ptr);
 
+// vypisuje instrukce pri navratu z funkce
+void funcReturnHandler(tokenListPtr ptr);
+
 // zacatek prikazu IF
 void handleStartIf(tSymTablePtr STab, tokenListPtr ptr);
 
