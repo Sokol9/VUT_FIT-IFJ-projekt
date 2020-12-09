@@ -140,7 +140,7 @@ void rule_func_def(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* succ
 	//vytvorenie ramca pre semantiku
 	
 	STCreateFrame(STab, true);
-	DEFFUNC();
+	if (!getError()) DEFFUNC();
 	if (!strcmp("main", STFuncGetName(STab))) INIT_MAIN();
 
 	/***************BRACKETS********************/
