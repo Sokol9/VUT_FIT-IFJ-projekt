@@ -257,7 +257,7 @@ void handleStartIf(tSymTablePtr STab, tokenListPtr ptr) {
 // konec prikazu IF
 void handleEndIf(tSymTablePtr STab, tToken *token) {
         if(STab != NULL) {
-		if(token->type == KW_ELSE)
+		if(token->type == KW_ELSE) {
                 	JUMP("JUMP", STGetFrameNumber(STab)+1, "");
                 	NEWLINE();
 		}
