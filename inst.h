@@ -1,11 +1,13 @@
 // ===================
 // Vypis operandu
-#define PRINT_OPERAND(type, frame, operand)					\
-	if(type == STRING_L) printConvertString(operand);			\
-	else if(type == FLOAT_L) printf(" float@%a", strtod(operand, endptr));	\
-	else if(type == INT_L) printf(" int@%s",operand);			\
-	else if(frame == -1) printf(" %s", operand);				\
-	else printf(" LF@f%d$%s", frame, operand)
+#define PRINT_OPERAND(type, frame, operand)						\
+	if(!getError()) {								\
+		if(type == STRING_L) printConvertString(operand);			\
+		else if(type == FLOAT_L) printf(" float@%a", strtod(operand, endptr));	\
+		else if(type == INT_L) printf(" int@%s",operand);			\
+		else if(frame == -1) printf(" %s", operand);				\
+		else printf(" LF@f%d$%s", frame, operand);				\
+	}
 
 #define NEWLINE() putchar('\n');
 
@@ -63,16 +65,16 @@
 
 // instrukce pro definici aktivni funkce
 #define DEFFUNC() \
-	printf("LABEL &%s\n", STFuncGetName(STab))
+	if(!getError())	printf("LABEL &%s\n", STFuncGetName(STab))
 // instrukce pro volani aktivni funkce
 #define CALLFUNC() \
-	printf("CALL &%s\n", STFuncGetName(STab))
+	if(!getError())printf("CALL &%s\n", STFuncGetName(STab))
 // instrukce RETURN
 #define RETURN() \
 	printf("RETURN\n")
 // instrukce pro definici aktivni promenne v aktivnim bloku
 #define DEFVAR() \
-	printf("DEFVAR LF@f%d$%s\n", STGetFrameNumber(STab), STVarGetName(STab))
+	if(!getError())printf("DEFVAR LF@f%d$%s\n", STGetFrameNumber(STab), STVarGetName(STab))
 
 // vytvori novy docasny ramec pri volani funkce
 #define CREATEFRAME() \

@@ -140,7 +140,7 @@ void rule_func_def(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* succ
 	//vytvorenie ramca pre semantiku
 	
 	STCreateFrame(STab, true);
-	if (!getError()){
+	if (!getError() && STFuncGetName(STab) != NULL){
 		 DEFFUNC();
 		if (!strcmp("main", STFuncGetName(STab))) INIT_MAIN();
 	}
@@ -172,9 +172,11 @@ void rule_func_def(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* succ
 			setError(SEM_FUNC_ERROR);
 		}	
 
-		RETURN();
-		if (!strcmp("main", STFuncGetName(STab))) EXIT();
-
+		
+		if(STFuncGetName(STab) != NULL){
+			if (!strcmp("main",STFuncGetName(STab))) EXIT();		
+			else RETURN();
+		}
 		STDeleteFrame(STab);
 	}else{
 		*success = 0;
