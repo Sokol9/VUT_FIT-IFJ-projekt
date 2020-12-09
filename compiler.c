@@ -11,8 +11,9 @@ int main() {
 
 	bool sucess = true;
 	tSymTablePtr STab = malloc (sizeof(struct SymTable));
-	if (!STab) setError(INTERNAL_ERROR); else printf("STab allocation success\n\n");
-	if (STInit(STab)) printf("STab init success\n\n");
+	if (!STab) setError(INTERNAL_ERROR);// else printf("STab allocation success\n\n");
+	//if (STInit(STab)) printf("STab init success\n\n");
+	STInit(STab);
 
 	rule_prog(token, STab, keyWords, &sucess);	
 	

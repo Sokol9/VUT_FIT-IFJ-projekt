@@ -59,6 +59,7 @@ void printConvertString(char* input) {
 			printf("\\0%d", chr);
 		else if(chr > 0 && chr < 10)
 			printf("\\00%d", chr);
+
 		else
         		printf("%c", chr);
 		i++;
