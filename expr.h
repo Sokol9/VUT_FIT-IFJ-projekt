@@ -60,6 +60,12 @@ int tokenParamHandler(tSymTablePtr STab, tToken *token, tokenListPtr ptr);
 // vypisuje instrukce pri volani funkce
 void funcCallHandler(tSymTablePtr STab, tokenListPtr ptr);
 
+// zacatek prikazu IF
+void handleFalseCond(tSymTablePtr STab, tokenListPtr ptr);
+
+// konec prikazu IF
+void handleEndIf(tSymTablePtr STab);
+
 // ===================================================================
 // Semanticka kontrola, zda jsou vsechny tokeny stejneho datoveho typu
 //

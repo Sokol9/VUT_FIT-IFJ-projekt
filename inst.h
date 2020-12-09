@@ -41,7 +41,16 @@
 	printf("CREATEFRAME\nPUSHFRAME\n")
 
 // instrukce vytvoreni navesti
-//#define 
+#define LABEL(number) \
+	printf("LABEL &f%d\n", number)
+
+// bool konstana true
+#define BOOL_TRUE() \
+	printf(" bool@true")
+
+// instrukce pro skok
+#define JUMP(type, number) \
+	printf("%s &f%d", type, number) \
 
 // instrukce pro definici aktivni funkce
 #define DEFFUNC() \

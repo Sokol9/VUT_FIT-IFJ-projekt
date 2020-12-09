@@ -244,6 +244,24 @@ void funcCallHandler(tSymTablePtr STab, tokenListPtr ptr) {
 	}
 }
 
+// zacatek prikazu IF
+void handleFalseCond(tSymTablePtr STab, tokenListPtr ptr) {
+        if(STab != NULL && ptr != NULL && ptr->first != NULL) {
+                JUMP("JUMPIFNEQ", STGetFrameNumber(STab));
+                PRINT_OPERAND(ptr->first->token.type, ptr->first->frameNumber, ptr->first->token.attr);
+                BOOL_TRUE();
+        }
+}
+
+// konec prikazu IF
+void handleEndIf(tSymTablePtr STab) {
+        if(STab != NULL) {
+                JUMP("JUMP", STGetFrameNumber(STab)+1);
+                NEWLINE();
+                LABEL(STGetFrameNumber(STab));
+        }
+}
+
 // Semanticka kontrola, zda jsou vsechny tokeny stejneho datoveho typu
 int tokenListSemCheck(tokenListPtr ptr, tSymTablePtr STab) {
 	if(ptr != NULL && STab != NULL) {
