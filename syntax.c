@@ -414,9 +414,12 @@ void rule_func_call(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* suc
 void rule_term(tToken *token, tSymTablePtr STab,  bool* success, callAs call, tokenListPtr tokenListL){
 	if (token->type == ID){
 		print_debug("valid ID")
+		printf("ahojky\n");
 		
 		if (STVarLookUp(STab, token->attr)){
+			printf("ahojkyyyyyyy %s ; %p\n",STFuncGetName(STab),(void*)STab->activeParam);
 			if (call == RULE_ASG || call == RULE_STAT) STFuncInsertParamType(STab, STVarGetType(STab));
+			printf("ahojky\n");
 		}
 	}else if (token->type == INT_L){
 		print_debug("valid INT_L")
@@ -431,7 +434,6 @@ void rule_term(tToken *token, tSymTablePtr STab,  bool* success, callAs call, to
 		*success = 0;
 		printd("ID or some value")
 	}
-
 	if (call == RULE_ASG || call == RULE_STAT){
 		//printf("***I call token param hendler\n");
 		if (!tokenParamHandler(STab, token, tokenListL)) funcCallHandler(STab, tokenListL);
@@ -643,18 +645,23 @@ void rule_values(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* succes
 		if (token->type == OBR){
 			EOL_FORBID
 			print_debug("valid (")
+			printf("ahojkyy %s ; %p\n",STFuncGetName(STab),(void*)STab->activeParam);
 			//===kontrola navratovych hodnot===
 			//ulozenie aktivnej funkcie
 			tGRPtr actFunc = STGetActiveFunc(STab);
 			//activ func == call func
 			STFuncInsert(STab, token->savedToken->attr, false);
+			printf("ahojkyyy5yyyy %s ; %p\n",STFuncGetName(STab),(void*)STab->activeParam);
 			//kontrola navratovych hodnot
 			tokenRetListCompare(tokenListL, STab);
-			//nastavenie p;vodnej activ func
-			STSetActiveFunc(STab, actFunc);
+			
+			
 
 			GET_TOKEN
 			rule_func_call(PARAMS, RULE_ASG, tokenListL);
+
+			//nastavenie p;vodnej activ func
+			STSetActiveFunc(STab, actFunc);
 			if (!*success) return;
 
 		}else if(token->type == ADD || token->type == SUB || token->type == MULT || \

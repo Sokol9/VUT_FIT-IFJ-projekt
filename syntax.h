@@ -6,7 +6,7 @@
 #include "expr.h"
  
 #define DEBUG_INVALID
-//#define DEBUG_VALID
+#define DEBUG_VALID
 
 #define GET_TOKEN getToken(token,  keyWords);
   
