@@ -396,6 +396,7 @@ void rule_func_call(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* suc
 		print_debug("valid )")
 
 		STFuncParamEnd(STab);
+		funcCallHandler(STab, tokenListL);
 	}else{
 		*success = 0;
 		printd(")")
@@ -433,7 +434,7 @@ void rule_term(tToken *token, tSymTablePtr STab,  bool* success, callAs call, to
 	}
 	if (call == RULE_ASG || call == RULE_STAT){
 		//printf("***I call token param hendler\n");
-		if (!tokenParamHandler(STab, token, tokenListL)) funcCallHandler(STab, tokenListL);
+		tokenParamHandler(STab, token, tokenListL);
 	}
 }
 
