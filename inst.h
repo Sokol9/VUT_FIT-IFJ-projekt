@@ -9,7 +9,10 @@
 		else printf(" LF@f%d$%s", frame, operand);				\
 	}
 
-#define NEWLINE() putchar('\n');
+#define PRINT_RETVAL(number) \
+	printf(" LF@%%retval%d", number)
+
+#define NEWLINE() putchar('\n')
 
 // ===================
 // Precedencni analyza
@@ -104,20 +107,20 @@
 #define I 0 
 #define F 1
 #define S 2
-#define INPUT(t)										\
-	printf("LABEL &input%c\n", 		    (t==I)?'i':((t==F)?'f':'s'));		\
-	printf("DEFVAR LF@check\n");								\
-	printf("DEFVAR LF@cond\n");								\
-	printf("READ LF@%%retval1 %s\n",	    (t==I)?"int":((t==F)?"float":"string"));	\
-	printf("TYPE LF@check LF@%%retval1\n");							\
-	printf("EQ LF@cond LF@check string@%s\n",   (t==I)?"int":((t==F)?"float":"string"));	\
-	printf("JUMPIFNEQ &input_chyba LF@cond bool@true\n");	\
-	printf("MOVE LF@%%retval2 int@0\n");			\
-	printf("JUMP &input_end\n");				\
-	printf("LABEL &input_chyba\n");				\
-	printf("MOVE LF@%%retval1 nil@nil\n");			\
-	printf("MOVE LF@%%retval2 int@1\n");			\
-	printf("LABEL &input_end\n");				\
+#define INPUT(t)											\
+	printf("LABEL &input%c\n", 				(t==I)?'i':((t==F)?'f':'s'));		\
+	printf("DEFVAR LF@check\n");									\
+	printf("DEFVAR LF@cond\n");									\
+	printf("READ LF@%%retval1 %s\n",			(t==I)?"int":((t==F)?"float":"string"));\
+	printf("TYPE LF@check LF@%%retval1\n");								\
+	printf("EQ LF@cond LF@check string@%s\n",		(t==I)?"int":((t==F)?"float":"string"));\
+	printf("JUMPIFNEQ &input%c_chyba LF@cond bool@true\n",	(t==I)?'i':((t==F)?'f':'s'));		\
+	printf("MOVE LF@%%retval2 int@0\n");								\
+	printf("JUMP &input%c_end\n",				(t==I)?'i':((t==F)?'f':'s'));		\
+	printf("LABEL &input%c_chyba\n",			(t==I)?'i':((t==F)?'f':'s'));		\
+	printf("MOVE LF@%%retval1 nil@nil\n");								\
+	printf("MOVE LF@%%retval2 int@1\n");								\
+	printf("LABEL &input%c_end\n",				(t==I)?'i':((t==F)?'f':'s'));		\
 	printf("RETURN\n")
 	
 // instrukce SUBSTR

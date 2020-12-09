@@ -13,8 +13,8 @@
 #define RET_ERR 0
 
 static int varNumber = 0;
-static int paramNumber = 0;
-static int retNumber = 0;
+static int paramNumber = 1;
+static int retNumber = 1;
 static char **endptr = NULL;
 
 // reset pocitadla pro generovani promennych
@@ -104,7 +104,7 @@ void tokenListDispose(tokenListPtr ptr) {
 int tokenRetListCompare(tokenListPtr tList, tSymTablePtr STab) {
 	if(tList != NULL && STab != NULL) {
 		tList->active = tList->first;
-		STFuncSetActive(STab, STab->activeFunc);
+		STab->activeRet = STab->activeFunc->returns;
 		if(!STab->activeFunc->used && !STab->activeFunc->defined) {
 			while(tList->active != NULL) {
 				if(!GTAddRet(STab->activeFunc, tList->active->type))
@@ -229,7 +229,7 @@ void funcCallHandler(tSymTablePtr STab, tokenListPtr ptr) {
 			STab->activeRet = STab->activeRet->next;
 		}
 		PUSHFRAME();
-		paramNumber = retNumber = 0;
+		paramNumber = retNumber = 1;
 		CALLFUNC();
 		POPFRAME();
 		STab->activeRet = STab->activeFunc->returns;
@@ -240,7 +240,23 @@ void funcCallHandler(tSymTablePtr STab, tokenListPtr ptr) {
 			STab->activeRet = STab->activeRet->next;
 			tokenNext(ptr);
 		}
-		retNumber = 0;
+		retNumber = 1;
+	}
+}
+
+// generuje instrukce pro navrat z funkce
+void funcReturnHandler(tokenListPtr ptr) {
+	if(ptr != NULL) {
+		tokenListItemPtr tmp = ptr->first;
+		while(tmp != NULL) {
+			INST("MOVE");
+			PRINT_RETVAL(retNumber);
+			PRINT_OPERAND(tmp->token.type, tmp->frameNumber, tmp->token.attr);
+			NEWLINE();
+			tmp = tmp->next;
+			retNumber++;
+		}
+		retNumber = 1;
 	}
 }
 
