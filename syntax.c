@@ -940,6 +940,7 @@ void rule_bool_op(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* succe
 //<expr_opt> - epsilon
 void rule_for(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success){
 	tokenListPtr tokenListInc;
+	bool inc = false;
 	do{
 		STCreateFrame(STab, false);
 		GET_TOKEN
@@ -1013,6 +1014,8 @@ void rule_for(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success){
 
 		GET_TOKEN
 		if (token->type == ID){
+			inc = true;
+
 			EOL_FORBID
 			print_debug("valid ID")
 			STVarLookUp(STab, token->attr);
@@ -1026,6 +1029,7 @@ void rule_for(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success){
 				printd("=")
 				if (!*success) break;
 			}
+
 
 			GET_TOKEN
 			EOL_FORBID
@@ -1069,17 +1073,21 @@ void rule_for(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success){
 		GET_TOKEN
 		EOL_REQUIRED
 		rule_body(PARAMS);
-		if (!*success){ 
-			tokenListDispose(tokenListInc);
-			free(tokenListInc);	 
+		if (!*success){
+			if (inc){ 
+				tokenListDispose(tokenListInc);
+				free(tokenListInc);	 
+			}
 			return;
 		}
 		EOL_REQUIRED
 	}else{
 		*success = 0;
 		printd("{")
-		tokenListDispose(tokenListInc);
-		free(tokenListInc);	 
+		if (inc){ 
+			tokenListDispose(tokenListInc);
+			free(tokenListInc);	 
+		}
 		return;
 	}
 
@@ -1090,16 +1098,20 @@ void rule_for(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success){
 	}else{
 		*success = 0;
 		printd("}")
-		tokenListDispose(tokenListInc);
-		free(tokenListInc);	 
+		if (inc){ 
+			tokenListDispose(tokenListInc);
+			free(tokenListInc);	 
+		}
 		return;
 	}
 	STDeleteFrame(STab);
-	if (precedence(tokenListInc, STab, true) == NULL){
-		printd("chyba precedence");		
+	if (inc){ 
+		if (precedence(tokenListInc, STab, true) == NULL){
+			printd("chyba precedence");		
+		}
+		tokenListDispose(tokenListInc);
+		free(tokenListInc);	 	
 	}
-	tokenListDispose(tokenListInc);
-	free(tokenListInc);	 	
 	//jump for begin
 	handleEndFor(STab);
 	//label end

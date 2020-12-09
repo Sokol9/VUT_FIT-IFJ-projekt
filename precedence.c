@@ -19,6 +19,7 @@ tokenListItemPtr precedence(tokenListPtr ptr, tSymTablePtr STab, bool print) {
 	if(ptr != NULL && STab != NULL) {
 		if(getError() != RESULT_OK || !tokenListSemCheck(ptr, STab))
 			return NULL;
+	
 		if(ptr->first != NULL) {
 			ptr->active = ptr->first;
 			while(ptr->lastTerm != ptr->active) {
