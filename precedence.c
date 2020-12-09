@@ -55,8 +55,10 @@ void printConvertString(char* input) {
 	char chr = input[i];
 	printf(" string@");
 	while (chr != '\0'){
-		if ((chr >= 0 && chr <= 32) || chr == 35 || chr == 92)
+		if ((chr >= 10 && chr <= 32) || chr == 35 || chr == 92)
 			printf("\\0%d", chr);
+		else if(chr > 0 && chr < 10)
+			printf("\\00%d", chr);
 		else
         		printf("%c", chr);
 		i++;
