@@ -354,6 +354,7 @@ void rule_stat(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success)
 			//kontrola ret of func
 			//predpoklada sa, ze aktivna funkcia je ta v kotej definicii sa nachadzeme
 			tokenRetListCompare(tokenListRet, STab);
+			if(!getError()) funcReturnHandler(tokenListRet);
 			
 			tokenListDispose(tokenListRet);
 			free(tokenListRet);
@@ -378,7 +379,6 @@ void rule_func_call(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* suc
 	
 	//ulozenie aktivnej funkcie
 	tGRPtr actFunc = STGetActiveFunc(STab);
-	STFuncInsert(STab, token->savedToken->attr, false);
 	
 	CREATEFRAME();	
 
