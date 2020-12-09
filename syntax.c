@@ -51,12 +51,10 @@ void rule_prog(tToken *token, tSymTablePtr STab, tKWPtr keyWords,  bool* success
 
 	/*****************EOF***********************/
 	if (token->type == TOKEN_EOF){
-		//todo
-		//chcek define flag ina all function
 		print_debug("valid TOKEN_EOF")
 		
-		printf("\n===================================================\n\n ANALIZATION FINISH %s\n\n", \
-				*success ? "SUCESSFULL" : "WITH FAILS");
+		//printf("\n===================================================\n\n ANALIZATION FINISH %s\n\n", 
+//				*success ? "SUCESSFULL" : "WITH FAILS");
 	}
 	/****************END OF EOF*****************/
 }
@@ -167,10 +165,14 @@ void rule_func_def(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* succ
 		print_debug("valid }")
 		EOL_REQUIRED
 
+
 		if(!STGetFuncReturn(STab)){
 			printd("func don't include rutern or return is invalid")
 			setError(SEM_FUNC_ERROR);
 		}	
+
+		RETURN();
+		if (!strcmp("main", STFuncGetName(STab))) EXIT();
 
 		STDeleteFrame(STab);
 	}else{
@@ -458,6 +460,13 @@ void rule_var_def(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* succe
 			STVarSetType(STab, tokenListGetFirstType(tokenList));
 		}
 	}
+	
+	tokenListPtr tokenListL = malloc(sizeof(struct tokenList));
+	if (tokenListL) tokenListInit(tokenListL); else setError(INTERNAL_ERROR);
+	tokenAppend(tokenListL,token->savedToken,STab, NULL);
+
+	tokenListAssign(tokenListL, tokenList);
+	
 	tokenListDispose(tokenList);	
 	free(tokenList);
 }
@@ -954,6 +963,12 @@ void rule_for(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success){
 	bool inc = false;
 	do{
 		STCreateFrame(STab, false);
+		//JUMP
+
+		//nastavis flag
+		//vytvoris premenne
+		//
+		//LABEL
 		GET_TOKEN
 		EOL_FORBID
 		if (token->type == ID){
@@ -1123,6 +1138,12 @@ void rule_for(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success){
 		tokenListDispose(tokenListInc);
 		free(tokenListInc);	 	
 	}
+	// ak pomocna premenna > 0 skakat
+	
+	//inkrementacia pomocnej premennjie
+	
+	// sem
+	
 	//jump for begin
 	handleEndFor(STab);
 	//label end
