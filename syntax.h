@@ -6,7 +6,7 @@
 #include "expr.h"
  
 #define DEBUG_INVALID
-//#define DEBUG_VALID
+#define DEBUG_VALID
 
 #define GET_TOKEN getToken(token,  keyWords);
   
@@ -60,7 +60,7 @@ void rule_params(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* succes
 void rule_body(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success);
 void rule_stat(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success);
 void rule_term(tToken *token, tSymTablePtr STab, bool* success, callAs call, tokenListPtr tokenListL);
-void rule_term_n(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success, tokenListPtr tokenListL);
+void rule_term_n(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success, callAs call, tokenListPtr tokenListL);
 void rule_func_call(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success, callAs call, tokenListPtr tokenListL);
 void rule_func_def(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success);
 void rule_var_def(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success);

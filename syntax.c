@@ -308,7 +308,7 @@ void rule_stat(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success)
 			if (*success) {
 				//precedencna analiza spracuje zoznam tokenov a vysldedny prida
 				//do zoznamu urceneho na porovnanie
-				if (precedence(tokenListTmp, STab, false) != NULL){
+				if (precedence(tokenListTmp, STab, true) != NULL){
 					tokenAppend(tokenListRet, NULL, STab, tokenListTmp->first);
 					//toto tu nesmie byt, tokenAppend(tokenListR, NULL, STab, tokenListTmp->first);, vytvori 
 					//ukazatel  v R na prvok v TMP, jeden prvok ma teda 2 ukazatele... nakolko v tmp strukture
@@ -451,7 +451,7 @@ void rule_var_def(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* succe
 	if (tokenList) tokenListInit(tokenList); else setError(INTERNAL_ERROR);
 	rule_expr(PARAMS, tokenList, NULL);	
 	if (*success) {
-		if (precedence(tokenList, STab, false) != NULL){
+		if (precedence(tokenList, STab, true) != NULL){
 			STVarLookUp(STab, token->savedToken->attr);
 			STVarSetType(STab, tokenListGetFirstType(tokenList));
 		}
@@ -583,7 +583,7 @@ void rule_values(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* succes
 			free(tokenListTmp);
 			return;
 		}
-		if (precedence(tokenListTmp, STab, false) != NULL){	
+		if (precedence(tokenListTmp, STab, true) != NULL){	
 			tokenAppend(tokenListR, NULL, STab, tokenListTmp->first);	
 			//toto tu nesmie byt, tokenAppend(tokenListR, NULL, STab, tokenListTmp->first);, vytvori 
 			//ukazatel  v R na prvok v TMP, jeden prvok ma teda 2 ukazatele... nakolko v tmp strukture po 
@@ -655,7 +655,7 @@ void rule_values(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* succes
 			tokenListPtr tokenListR = malloc(sizeof(struct tokenList));
 			if (!tokenListR) setError(INTERNAL_ERROR); else tokenListInit(tokenListR);
 			
-			if (precedence(tokenListTmp, STab, false) != NULL){
+			if (precedence(tokenListTmp, STab, true) != NULL){
 				 tokenAppend(tokenListR, NULL, STab, tokenListTmp->first);
 			
 				//toto tu nesmie byt, tokenAppend(tokenListR, NULL, STab, tokenListTmp->first);, vytvori 
@@ -716,7 +716,7 @@ void rule_expr_n(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* succes
 		if (tokenListTmp) tokenListInit(tokenListTmp); else setError(INTERNAL_ERROR);
 		rule_expr(PARAMS, tokenListTmp, NULL);
 		if (*success) {
-			if (precedence(tokenListTmp, STab, false) != NULL){
+			if (precedence(tokenListTmp, STab, true) != NULL){
 				tokenAppend(tokenListR, NULL, STab, tokenListTmp->first);
 				//toto tu nesmie byt, tokenAppend(tokenListR, NULL, STab, tokenListTmp->first);, vytvori 
 				//ukazatel  v R na prvok v TMP, jeden prvok ma teda 2 ukazatele... nakolko v tmp strukture po 	
@@ -779,7 +779,7 @@ void rule_if(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success){
 		
 		if (numBool != 1) setError(SEM_TYPE_ERROR); 
 
-		if (precedence(tokenList, STab, false) == NULL){
+		if (precedence(tokenList, STab, true) == NULL){
 			*success=0;
 			printd("chyba precedence");
 			break;
@@ -970,6 +970,7 @@ void rule_for(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success){
 			if (!*success) break;
 		}
 		//label begin
+		LABEL(STGetFrameNumber(STab), "_begin");
 		GET_TOKEN
 		EOL_FORBID
 		tokenListPtr tokenList = malloc(sizeof(struct tokenList));
@@ -987,16 +988,19 @@ void rule_for(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success){
 			break;
 		}
 		
-		if (precedence(tokenList, STab, false) == NULL){
+		if (precedence(tokenList, STab, true) == NULL){
 			*success=0;
 			tokenListDispose(tokenList);
 			free(tokenList);
 			printd("chyba precedence")
 			break;
 		}
+		//jump to end
+		handleStartIf(STab,tokenList);
+
 		tokenListDispose(tokenList);
 		free(tokenList);
-		//jump to end	
+
 		EOL_FORBID
 		if (token->type == SEM){
 			print_debug("valid ;")
@@ -1026,7 +1030,7 @@ void rule_for(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success){
 			GET_TOKEN
 			EOL_FORBID
 			tokenListInc = malloc(sizeof(struct tokenList));
-			tokenListIncTmp = malloc(sizeof(struct tokenList));
+			tokenListPtr tokenListIncTmp = malloc(sizeof(struct tokenList));
 			if (tokenListInc) tokenListInit(tokenListInc); else setError(INTERNAL_ERROR);		
 			if (tokenListIncTmp) tokenListInit(tokenListIncTmp); else setError(INTERNAL_ERROR);		
 			rule_expr(PARAMS, tokenListInc, tokenListIncTmp);
@@ -1037,7 +1041,7 @@ void rule_for(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success){
 				free(tokenListIncTmp);	 
 				break;
 			}
-				//todo bez vypisu
+				//bez vypisu
 			if (precedence(tokenListIncTmp, STab, false) == NULL){
 				tokenListDispose(tokenListIncTmp);
 				free(tokenListIncTmp);
@@ -1054,6 +1058,7 @@ void rule_for(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success){
 		}
 	}while(0);
 
+	printf("ahojky\n");
 	CHECK_POINT(type,OB)
 	
 	STCreateFrame(STab,false);
@@ -1091,14 +1096,16 @@ void rule_for(tToken *token, tSymTablePtr STab, tKWPtr keyWords, bool* success){
 		return;
 	}
 	STDeleteFrame(STab);
-	
-	if (precedence(tokenListInc, STab, false) == NULL){
+	if (precedence(tokenListInc, STab, true) == NULL){
 		printd("chyba precedence");		
 	}
 	tokenListDispose(tokenListInc);
 	free(tokenListInc);	 	
 	//jump for begin
+	handleEndFor(STab);
 	//label end
+		
+
 	STDeleteFrame(STab);
 }
 
