@@ -45,6 +45,9 @@
 // inicializace lokalniho ramce pro main
 #define INIT_MAIN() \
 	printf("CREATEFRAME\nPUSHFRAME\n")
+// instrukce exit
+#define EXIT() \
+	printf("EXIT int@0\n")
 
 // instrukce vytvoreni navesti
 #define LABEL(number, flag) \
@@ -64,6 +67,9 @@
 // instrukce pro volani aktivni funkce
 #define CALLFUNC() \
 	printf("CALL &%s\n", STFuncGetName(STab))
+// instrukce RETURN
+#define RETURN() \
+	printf("RETURN\n")
 // instrukce pro definici aktivni promenne v aktivnim bloku
 #define DEFVAR() \
 	printf("DEFVAR LF@f%d$%s\n", STGetFrameNumber(STab), STVarGetName(STab))
