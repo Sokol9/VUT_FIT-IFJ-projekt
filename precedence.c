@@ -15,19 +15,17 @@
 // probehne-li vse v poradku, seznam obsahuje prave jeden prvek, na ktery funkce vraci ukazatel
 // nastane-li v prubehu analyzy chyba, vraci funkce NULL
 // je nutne dealokovat misto pridelene seznamu po volani funkce
-tokenListItemPtr precedence(tokenListPtr ptr, tSymTablePtr STab, bool resetVarNumber) {
+tokenListItemPtr precedence(tokenListPtr ptr, tSymTablePtr STab, bool print) {
 	if(ptr != NULL && STab != NULL) {
 		if(getError() != RESULT_OK || !tokenListSemCheck(ptr, STab))
 			return NULL;
-		if(resetVarNumber)
-			resetNumber();
 		if(ptr->first != NULL) {
 			ptr->active = ptr->first;
 			while(ptr->lastTerm != ptr->active) {
 				if(ptr->active == NULL) {
 					tokenLastTerm(ptr);
 					tokenStartOfExpr(ptr);
-					if(!tokenGenerate(ptr))
+					if(!tokenGenerate(ptr, print))
 						return NULL;
 				} else if(ptr->active->term) {
 					if(tokenPrecedence(ptr)) {
@@ -36,7 +34,7 @@ tokenListItemPtr precedence(tokenListPtr ptr, tSymTablePtr STab, bool resetVarNu
 					} else {
 						tokenLastTerm(ptr);
 						tokenStartOfExpr(ptr);
-						if(!tokenGenerate(ptr))
+						if(!tokenGenerate(ptr, print))
 							return NULL;
 					}
 				} else

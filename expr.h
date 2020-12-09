@@ -60,6 +60,18 @@ int tokenParamHandler(tSymTablePtr STab, tToken *token, tokenListPtr ptr);
 // vypisuje instrukce pri volani funkce
 void funcCallHandler(tSymTablePtr STab, tokenListPtr ptr);
 
+// zacatek prikazu IF
+void handleStartIf(tSymTablePtr STab, tokenListPtr ptr);
+
+// konec prikazu IF
+void handleEndIf(tSymTablePtr STab);
+
+// zacatek prikazu FOR
+void handleStartFor(tSymTablePtr STab, tokenListPtr ptr);
+
+// konec prikazu FOR
+void handleEndFor(tSymTablePtr STab);
+
 // ===================================================================
 // Semanticka kontrola, zda jsou vsechny tokeny stejneho datoveho typu
 //
@@ -91,19 +103,16 @@ void tokenLastTerm(tokenListPtr ptr);
 // zpetne hleda zacatek podvyrazu
 void tokenStartOfExpr(tokenListPtr ptr);
 
-// reset cislovani promennych
-void resetNumber();
-
 // nahrazuje podvyraz
 //    zrusi cast seznamu a na jeho misto vlozi novy prvek s term=false
 //    novy prvku je pomocna promenna
 //    pokud je posledni prvek podvyrazu aktivni, posunuje aktivitu na dalsi prvek
 //    pokud je prvek posledni v seznamu, je vyraz zpracovan
 //    generuje instrukce
-int tokenGenerate(tokenListPtr ptr);
+int tokenGenerate(tokenListPtr ptr, bool print);
 
 // precedencni analyza pro zpracovani vyrazu
-tokenListItemPtr precedence(tokenListPtr ptr, tSymTablePtr STab, bool resetVarNumber);
+tokenListItemPtr precedence(tokenListPtr ptr, tSymTablePtr STab, bool print);
 
 varType tokenListGetFirstType(tokenListPtr tokenList);
 
