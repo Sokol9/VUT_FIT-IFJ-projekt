@@ -125,7 +125,6 @@ tGRPtr GTInsert(tGRPtr *rootPtr, char *key, bool define) {
 				ptr->defined      = define;
 				ptr->used         = false;
 				ptr->returnFlag   = false;
-				ptr->errorFlag    = false;
 				ptr->LPtr         = NULL;
 				ptr->RPtr         = NULL;
 				strcpy(ptr->id, key);

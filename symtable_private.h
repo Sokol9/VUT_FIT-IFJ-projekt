@@ -23,7 +23,6 @@ struct globalRec{
 	bool defined;
 	bool used;
 	bool returnFlag;
-	bool errorFlag;
 	struct globalRec *LPtr;
 	struct globalRec *RPtr;
 	char id[];

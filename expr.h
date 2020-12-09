@@ -64,7 +64,7 @@ void funcCallHandler(tSymTablePtr STab, tokenListPtr ptr);
 void handleStartIf(tSymTablePtr STab, tokenListPtr ptr);
 
 // konec prikazu IF
-void handleEndIf(tSymTablePtr STab);
+void handleEndIf(tSymTablePtr STab, tToken *token);
 
 // zacatek prikazu FOR
 void handleStartFor(tSymTablePtr STab, tokenListPtr ptr);

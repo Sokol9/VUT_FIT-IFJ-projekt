@@ -255,24 +255,14 @@ void handleStartIf(tSymTablePtr STab, tokenListPtr ptr) {
 }
 
 // konec prikazu IF
-void handleEndIf(tSymTablePtr STab) {
+void handleEndIf(tSymTablePtr STab, tToken *token) {
         if(STab != NULL) {
-                JUMP("JUMP", STGetFrameNumber(STab)+1, "");
-                NEWLINE();
+		if(token->type == KW_ELSE)
+                	JUMP("JUMP", STGetFrameNumber(STab)+1, "");
+                	NEWLINE();
+		}
                 LABEL(STGetFrameNumber(STab), "_end");
         }
-}
-
-// zacatek prikazu FOR
-void handleStartFor(tSymTablePtr STab, tokenListPtr ptr) {
-	if(STab != NULL && ptr != NULL && ptr->first != NULL) {
-		LABEL(STGetFrameNumber(STab), "_begin");
-		JUMP("JUMPIFNEQ", STGetFrameNumber(STab), "_end");
-		PRINT_OPERAND(ptr->first->token.type, ptr->first->frameNumber, ptr->first->token.attr);
-		BOOL_TRUE();
-		NEWLINE();
-	}
-	
 }
 
 // konec prikazu FOR
