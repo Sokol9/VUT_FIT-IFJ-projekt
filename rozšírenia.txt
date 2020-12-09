@@ -1,1 +1,1 @@
-boolthen (if bez else)
+BOOLTHEN
